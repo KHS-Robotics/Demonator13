@@ -4,10 +4,15 @@
 
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer {
+  public static final AHRS navx = new AHRS(Port.kMXP);
+
   public RobotContainer() {
     configureBindings();
   }
