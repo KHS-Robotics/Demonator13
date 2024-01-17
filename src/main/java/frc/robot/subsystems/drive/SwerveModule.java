@@ -6,8 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -21,7 +20,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -37,7 +35,7 @@ public class SwerveModule extends SubsystemBase {
   private final CANSparkMax driveMotor;
   private final RelativeEncoder driveEncoder;
 
-  private final CANCoder pivotEncoder;
+  private final CANcoder pivotEncoder;
   private final CANSparkMax pivotMotor;
   private final SparkPIDController drivePID;
   private final SimpleMotorFeedforward driveFeedForward;
@@ -78,8 +76,8 @@ public class SwerveModule extends SubsystemBase {
     pivotMotor.setIdleMode(IdleMode.kBrake);
     driveMotor.setIdleMode(IdleMode.kBrake);
 
-    pivotEncoder = new CANCoder(pivotEncoderId);
-    pivotEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
+    pivotEncoder = new CANcoder(pivotEncoderId);
+    //pivotEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     driveEncoder = driveMotor.getEncoder();
     driveMotor.setInverted(false);
@@ -121,13 +119,6 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //SmartDashboard.putNumber(name + "-Drive", getState().speedMetersPerSecond);
-    //SmartDashboard.putNumber(name + "-Pivot", getAngle());
-    SmartDashboard.putBoolean("SwerveModule-" + name + "-Homed", isHomed());
-    
-    // var state = getState();
-    // SmartDashboard.putNumber("SwerveModule-" + name + "-Translation", state.speedMetersPerSecond);
-    // SmartDashboard.putNumber("SwerveModule-" + name + "-Rotation", state.angle.getDegrees());
   }
 
   /**
@@ -204,7 +195,7 @@ public class SwerveModule extends SubsystemBase {
    * @return the angle of the pivot module ranging from [-180,180]
    */
   public double getAngle() {
-    double angle = pivotEncoder.getAbsolutePosition() + offsetAngle;
+    double angle = pivotEncoder.getAbsolutePosition().getValueAsDouble() + offsetAngle;
 
     if (angle > 0) {
       angle %= 360;
@@ -228,14 +219,6 @@ public class SwerveModule extends SubsystemBase {
     driveMotor.set(0);
     pivotMotor.set(0);
     pivotPID.reset();
-  }
-
-  /**
-   * Gets if the module is close zero.
-   * @return true if module is close to zero, false otherwise
-   */
-  public boolean isHomed() {
-    return Math.abs(this.getAngle()) <= 0.5;
   }
 
   /**

@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import frc.robot.commands.DriveSwerveWithXbox;
 import frc.robot.subsystems.drive.Indexer;
 import frc.robot.subsystems.drive.Intake;
 import frc.robot.subsystems.drive.Launcher;
@@ -87,9 +86,7 @@ public class RobotContainer {
 
   /** Configures the subsystem's default commands. */
   private void configureSubsystemDefaultCommands() {
-    swerveDrive.setDefaultCommand(new DriveSwerveWithXbox());
-    // arm.setDefaultCommand(new ArmHoldSetpoint());
-    // wrist.setDefaultCommand(new WristHoldSetpoint());
+    //swerveDrive.setDefaultCommand(new DriveSwerveWithXbox());
   }
 
   private void configureBindings() {

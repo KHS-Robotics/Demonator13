@@ -42,8 +42,6 @@ public class SwerveDrive extends SubsystemBase {
 
   public double currentX, currentY;
 
-
-  public boolean isCalibrated = false;
   private boolean loggedPoseError = false;
 
   public static final SwerveModule frontLeft = new SwerveModule(
@@ -358,7 +356,6 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     updateOdometry();
     SmartDashboard.putNumber("Pose angle", getPose().getRotation().getDegrees());
-    SmartDashboard.putBoolean("Calibrated", isCalibrated);
     logTargetChassisSpeeds(getChassisSpeeds());
   }
 }

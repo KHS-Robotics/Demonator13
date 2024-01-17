@@ -77,9 +77,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-
-
-    RobotContainer.swerveDrive.isCalibrated = true;
   }
 
   /**
@@ -112,9 +109,6 @@ public class Robot extends TimedRobot {
   /** This method is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    if (!RobotContainer.swerveDrive.isCalibrated) {
-      DriverStation.reportError("SWERVE DRIVE NOT CALIBRATED!!!!!", false);
-    }
   }
 
   @Override
