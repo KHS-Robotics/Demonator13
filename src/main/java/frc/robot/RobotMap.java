@@ -20,14 +20,13 @@ public class RobotMap {
 
   public static final int LED_PORT = 9;
 
-  public static final int GRABBER_INTAKE = 8;
-  public static final int GRABBER_PNEUMATIC_HUB = 31;
-  public static final int GRABBER_COMPRESSOR = 32;
-  public static final int GRABBER_SOLENOID_FORWARD = 0;
-  public static final int GRABBER_SOLENOID_REVERSE = 1;
-  public static final int GRABBER_SOLENOID = 55;
+  public static final int INTAKE_MOTOR = 0;
+  public static final int INTAKE_PIVOT = 0;
 
-  public static final int WRIST_PIVOT = 7;
+  public static final int LAUNCH_LEADER = 0;
+  public static final int LAUNCH_FOLLOWER = 0;
+  public static final int LAUNCH_PIVOT = 0;
+
 
   public static final int FRONT_LEFT_PIVOT = 10;
   public static final int FRONT_RIGHT_PIVOT = 20;
@@ -38,10 +37,6 @@ public class RobotMap {
   public static final int FRONT_RIGHT_DRIVE = 21;
   public static final int REAR_LEFT_DRIVE = 31;
   public static final int REAR_RIGHT_DRIVE = 41;
-
-  public static final int ARM_PIVOT = 5;
-  public static final int ARM_EXTEND = 6;
-  public static final int ARM_PIVOT_CANCODER = 55;
 
   public static final int FRONT_LEFT_PIVOT_ENCODER = 12;
   public static final int FRONT_RIGHT_PIVOT_ENCODER = 22;

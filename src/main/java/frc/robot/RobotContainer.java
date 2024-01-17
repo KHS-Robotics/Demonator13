@@ -17,10 +17,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.commands.DriveSwerveWithXbox;
+import frc.robot.subsystems.drive.Indexer;
+import frc.robot.subsystems.drive.Intake;
+import frc.robot.subsystems.drive.Launcher;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
   private static RobotContainer instance;
+
+  private static Intake intake;
+  private static Launcher launcher;
+  private static Indexer indexer;
 
   public static RobotContainer getInstance() {
     if (instance == null) {
@@ -94,24 +101,12 @@ public class RobotContainer {
 
   /** Automated bindings that happen without pressing any buttons. */
   private void configureAutomatedBindings() {
-    /*
-    Trigger autoCalibrateTeleop = new Trigger(
-        () -> (!swerveDrive.isCalibrated && RobotState.isTeleop() && RobotState.isEnabled()));
-    autoCalibrateTeleop.onTrue(new CenterSwerveModules(true));
-    */
-
-    // Trigger autoPullIn = new Trigger(() -> operatorBox.cubeMode() &&
-    // grabber.getSensor());
-    // autoPullIn.onTrue(new AutoPullIn());
+   
   }
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-    //Trigger forceCalibrate = driverController.back();
-    //forceCalibrate.onTrue(new CenterSwerveModules(true));
-
-    // Trigger resetNavx = driverController.start();
-    // resetNavx.onTrue(new InstantCommand(() -> swerveDrive.resetNavx()));
+    
 
     Trigger resetOdometry = driverController.start();
     resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetOdometry()));
