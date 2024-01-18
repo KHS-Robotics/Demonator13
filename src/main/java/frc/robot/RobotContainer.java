@@ -21,9 +21,6 @@ import frc.robot.subsystems.drive.SwerveDrive;
 public class RobotContainer {
   private static RobotContainer instance;
 
-  private static Intake intake;
-  private static Launcher launcher;
-
   public static RobotContainer getInstance() {
     if (instance == null) {
       instance = new RobotContainer();
@@ -69,8 +66,6 @@ public class RobotContainer {
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
-
-  //public static final OldLEDStrip leds = new OldLEDStrip();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -124,8 +119,4 @@ public class RobotContainer {
   private void configureOperatorStickBindings() {
 
   }
-
-  /**
-   * Configures the autonomous chooser over Network Tables (e.g. Smart Dashboard).
-   */
 }
