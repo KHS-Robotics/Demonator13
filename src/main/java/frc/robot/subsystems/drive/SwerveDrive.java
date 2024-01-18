@@ -40,7 +40,6 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d rearLeftLocation = new Translation2d(-0.327025, 0.2693162);
   private final Translation2d rearRightLocation = new Translation2d(-0.327025, -0.2693162);
 
-  public double currentX, currentY;
 
   private boolean loggedPoseError = false;
 
@@ -253,7 +252,6 @@ public class SwerveDrive extends SubsystemBase {
       this.loggedPoseError = true;
       for(var pos : modulePositions) {
         DriverStation.reportError("Bad module state! Check output for details.", false);
-        System.err.println("Bad module states: " + pos);
       }
     }
   }

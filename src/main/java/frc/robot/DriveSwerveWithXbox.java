@@ -5,14 +5,12 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.SwerveDrive;
 
-@SuppressWarnings("GrazieInspection")
 public class DriveSwerveWithXbox extends Command {
   private boolean fieldRelative = false;
 
