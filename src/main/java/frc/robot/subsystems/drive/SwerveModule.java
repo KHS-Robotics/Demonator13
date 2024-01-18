@@ -194,7 +194,8 @@ public class SwerveModule extends SubsystemBase {
    * @return the angle of the pivot module ranging from [-180,180]
    */
   public double getAngle() {
-    double angle = pivotEncoder.getAbsolutePosition().getValueAsDouble() + offsetAngle;
+    double voltage = pivotEncoder.getAbsolutePosition().getValueAsDouble();
+    double angle = voltage * 360 + offsetAngle;
 
     if (angle > 0) {
       angle %= 360;
