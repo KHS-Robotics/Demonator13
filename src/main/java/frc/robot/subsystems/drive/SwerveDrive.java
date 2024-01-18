@@ -19,7 +19,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import frc.robot.Constants;
@@ -341,11 +340,6 @@ public class SwerveDrive extends SubsystemBase {
     return angle;
   }
 
-  public void logTargetChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-    SmartDashboard.putNumber("vxChassis", chassisSpeeds.vxMetersPerSecond);
-    SmartDashboard.putNumber("vyChassis", chassisSpeeds.vyMetersPerSecond);
-  }
-
   public Pose2d getPoseInverted() {
     return new Pose2d(getPose().getX(), getPose().getY(), getPose().getRotation().plus(new Rotation2d(Math.PI)));
   }
@@ -353,7 +347,5 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     updateOdometry();
-    SmartDashboard.putNumber("Pose angle", getPose().getRotation().getDegrees());
-    logTargetChassisSpeeds(getChassisSpeeds());
   }
 }

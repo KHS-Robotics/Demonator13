@@ -26,7 +26,6 @@ import frc.robot.Constants;
 /**
  * Swerve Module
  */
-@SuppressWarnings("GrazieInspection")
 public class SwerveModule extends SubsystemBase {
   public final String name;
 
@@ -80,7 +79,7 @@ public class SwerveModule extends SubsystemBase {
     //pivotEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Signed_PlusMinus180);
 
     driveEncoder = driveMotor.getEncoder();
-    driveMotor.setInverted(false);
+    driveMotor.setInverted(reversed);
     driveEncoder.setVelocityConversionFactor(Constants.DRIVE_VEL_ENCODER); // 4" diameter wheel (0.0508 meter radius), , in meters/minute so divide by 60 to get meters/seconds
                                                                            // 8.33:1 -> 2*pi*0.0508 / (8.33 * 60)
     driveEncoder.setPositionConversionFactor(Constants.DRIVE_POS_ENCODER); // 4" diameter wheel (0.0508 meter radius)

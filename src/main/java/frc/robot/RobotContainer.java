@@ -8,17 +8,14 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import frc.robot.subsystems.drive.Indexer;
-import frc.robot.subsystems.drive.Intake;
-import frc.robot.subsystems.drive.Launcher;
+import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
@@ -26,7 +23,6 @@ public class RobotContainer {
 
   private static Intake intake;
   private static Launcher launcher;
-  private static Indexer indexer;
 
   public static RobotContainer getInstance() {
     if (instance == null) {
@@ -86,7 +82,7 @@ public class RobotContainer {
 
   /** Configures the subsystem's default commands. */
   private void configureSubsystemDefaultCommands() {
-    //swerveDrive.setDefaultCommand(new DriveSwerveWithXbox());
+    swerveDrive.setDefaultCommand(new DriveSwerveWithXbox());
   }
 
   private void configureBindings() {
