@@ -27,6 +27,8 @@ public class RobotMap {
   public static final int LAUNCH_FOLLOWER = 0;
   public static final int LAUNCH_PIVOT = 0;
 
+  public static final int ARM_PIVOT = 0;
+  public static final int ARM_CANCODER = 0;
 
   public static final int FRONT_LEFT_PIVOT = 10;
   public static final int FRONT_RIGHT_PIVOT = 20;
