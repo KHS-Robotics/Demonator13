@@ -18,16 +18,20 @@ public class Intake extends SubsystemBase {
 
     private PIDController pivotPositionController;
 
-    private final double INTAKE_GEAR_RATIO = 0;
-    private final double PIVOT_GEAR_RATIO = 0;
+    private final double INTAKE_GEAR_RATIO = 0.0;
+    private final double PIVOT_GEAR_RATIO = 0.0;
 
-    public void intake() {
+    public Intake() {
         intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
         intakeEncoder = intakeMotor.getEncoder();
         pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
         pivotEncoder = pivotMotor.getEncoder();
 
         pivotPositionController = new PIDController(0, 0, 0);
+    }
+
+    public void intake() {
+        
     }
 
     public void outtake() {
