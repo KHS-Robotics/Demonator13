@@ -5,21 +5,49 @@
 
 package frc.robot;
 
-import com.kauailabs.navx.frc.AHRS;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
+import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.launcher.LaunchSpeaker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
   private static RobotContainer instance;
+  private static AutoBuilder autoBuilder;
+  private static SendableChooser<Command> autoChooser;
 
   public static RobotContainer getInstance() {
     if (instance == null) {
@@ -34,7 +62,7 @@ public class RobotContainer {
   }
   */
 
-  public static final AHRS navx = new AHRS(Port.kMXP);
+  public static final AHRS navx = new AHRS(Port.kUSB);
 
   /**
    * Returns the angle or "yaw" of the robot in degrees. CW positive ranging from
@@ -119,4 +147,47 @@ public class RobotContainer {
   private void configureOperatorStickBindings() {
 
   }
+
+  /**
+   * Configures the autonomous chooser over Network Tables (e.g. Smart Dashboard).
+   */
+  private void configureAutonmousChooser() {
+    registerNamedCommands();
+
+    autoBuilder = new AutoBuilder();
+    autoChooser = AutoBuilder.buildAutoChooser();
+
+    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592, new ReplanningConfig());
+
+    autoBuilder = new AutoBuilder();
+    AutoBuilder.configureHolonomic(
+      swerveDrive::getPose,
+      swerveDrive::setPose,
+      swerveDrive::getChassisSpeeds,
+      swerveDrive::setModuleStates,
+      pathFollowerConfig,
+      () -> {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      swerveDrive
+    );
+
+    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData("field", field);
+  }
+
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
+  }
+
+  private void registerNamedCommands() {
+    NamedCommands.registerCommand("ShootSpeaker", new LaunchSpeaker());
+    //add more here
+  }
+
+  
 }
