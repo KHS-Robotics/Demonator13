@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.subsystems.Arm;
 import frc.robot.commands.launcher.LaunchSpeaker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
@@ -94,6 +95,9 @@ public class RobotContainer {
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
+  public static final Intake intake = new Intake();
+  public static final Launcher launcher = new Launcher();
+  public static final Arm arm = new Arm();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
