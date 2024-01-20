@@ -151,7 +151,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Method to drive the robot using joystick info.
+   * Method to drive the robot using joystick info. (used for teleop)
    *
    * @param xSpeed        Speed of the robot in the x direction (forward) in m/s.
    * @param ySpeed        Speed of the robot in the y direction (sideways) in m/s.
@@ -177,7 +177,9 @@ public class SwerveDrive extends SubsystemBase {
       rearRight.setDesiredState(swerveModuleStates[3]);
     }
   }
-
+  /** 
+  * used for autonomous
+  */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     frontLeft.setDesiredState(desiredStates[0], true);
     frontRight.setDesiredState(desiredStates[1], true);
