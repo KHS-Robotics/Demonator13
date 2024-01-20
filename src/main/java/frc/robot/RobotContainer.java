@@ -95,9 +95,9 @@ public class RobotContainer {
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
-  public static final Intake intake = new Intake();
-  public static final Launcher launcher = new Launcher();
-  public static final Arm arm = new Arm();
+  //public static final Intake intake = new Intake();
+  //public static final Launcher launcher = new Launcher();
+  //public static final Arm arm = new Arm();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -180,7 +180,7 @@ public class RobotContainer {
       swerveDrive
     );
 
-    SmartDashboard.putData(autoChooser);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putData("field", field);
   }
 
