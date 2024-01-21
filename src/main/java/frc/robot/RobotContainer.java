@@ -159,8 +159,7 @@ public class RobotContainer {
   private void configureAutonmousChooser() {
     registerNamedCommands();
 
-    autoBuilder = new AutoBuilder();
-    autoChooser = AutoBuilder.buildAutoChooser();
+    
 
     HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592, new ReplanningConfig());
 
@@ -180,6 +179,10 @@ public class RobotContainer {
       swerveDrive
     );
 
+
+    autoBuilder = new AutoBuilder();
+    autoChooser = AutoBuilder.buildAutoChooser();
+    
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putData("field", field);
   }
