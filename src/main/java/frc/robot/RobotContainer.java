@@ -105,6 +105,7 @@ public class RobotContainer {
   private RobotContainer() {
     this.configureSubsystemDefaultCommands();
     this.configureBindings();
+    this.configureAutonmousChooser();
   }
 
   /** Configures the subsystem's default commands. */
@@ -163,7 +164,6 @@ public class RobotContainer {
 
     HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592, new ReplanningConfig());
 
-    autoBuilder = new AutoBuilder();
     AutoBuilder.configureHolonomic(
       swerveDrive::getPose,
       swerveDrive::setPose,
