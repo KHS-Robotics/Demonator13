@@ -8,27 +8,28 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
- * Wrapper class for auto routines. Supports a manually written command or a path planner trajectory.
+ * Wrapper class for auto routines. Supports a manually written command or a
+ * path planner trajectory.
  */
 public class AutoRoutine {
-    public Pose2d startingPose;
-    public Command cmdRoutine;
-    public List<PathPlannerTrajectory> pathplannerRoutine;
+  public Pose2d startingPose;
+  public Command cmdRoutine;
+  public List<PathPlannerTrajectory> pathplannerRoutine;
 
-    public AutoRoutine(Command routine, Pose2d startingPose) {
-        this.cmdRoutine = routine;
-        this.startingPose = startingPose;
-    }
+  public AutoRoutine(Command routine, Pose2d startingPose) {
+    this.cmdRoutine = routine;
+    this.startingPose = startingPose;
+  }
 
-    public AutoRoutine(List<PathPlannerTrajectory> routine) {
-        this.pathplannerRoutine = routine;
-    }
+  public AutoRoutine(List<PathPlannerTrajectory> routine) {
+    this.pathplannerRoutine = routine;
+  }
 
-    public boolean isPathPlannerRoutine() {
-        return this.pathplannerRoutine != null;
-    }
+  public boolean isPathPlannerRoutine() {
+    return this.pathplannerRoutine != null;
+  }
 
-    public boolean isManuallyWrittenRoutine() {
-        return !this.isPathPlannerRoutine();
-    }
+  public boolean isManuallyWrittenRoutine() {
+    return !this.isPathPlannerRoutine();
+  }
 }

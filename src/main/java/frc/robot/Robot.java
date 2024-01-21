@@ -34,15 +34,17 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     DriverStation.silenceJoystickConnectionWarning(true);
-    //PathPlannerServer.startServer(5811);
+    // PathPlannerServer.startServer(5811);
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = RobotContainer.getInstance();
 
     // for debugging
-    CommandScheduler.getInstance().onCommandInitialize((command) -> System.out.println(command.getName() + " starting..."));
-    CommandScheduler.getInstance().onCommandInterrupt((command) -> System.out.println(command.getName() + " interrupted!"));
+    CommandScheduler.getInstance()
+        .onCommandInitialize((command) -> System.out.println(command.getName() + " starting..."));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt((command) -> System.out.println(command.getName() + " interrupted!"));
     CommandScheduler.getInstance().onCommandFinish((command) -> System.out.println(command.getName() + " ended."));
   }
 
@@ -88,22 +90,25 @@ public class Robot extends TimedRobot {
     SwerveDrive.kMaxAngularSpeedRadiansPerSecond = Math.PI / 4;
     // get the auto from the chooser
     /*
-    var auto = robotContainer.getAutoRoutine();
-
-    // only run autos that actually have a trajectory to avoid a runtime exception
-    if (auto.isPathPlannerRoutine() && !auto.pathplannerRoutine.isEmpty()) {
-      this.autonmousRoutine = RobotContainer.swerveAutoBuilder.fullAuto(auto.pathplannerRoutine);
-    } else {
-      var startingPose = auto.startingPose != null ? auto.startingPose : RobotContainer.swerveDrive.getPose();
-      RobotContainer.swerveDrive.setPose(startingPose);
-      this.autonmousRoutine = auto.cmdRoutine;
-    }
-
-    // start the auto, if there is one
-    if (this.autonmousRoutine != null) {
-      this.autonmousRoutine.schedule();
-    }
-    */
+     * var auto = robotContainer.getAutoRoutine();
+     * 
+     * // only run autos that actually have a trajectory to avoid a runtime
+     * exception
+     * if (auto.isPathPlannerRoutine() && !auto.pathplannerRoutine.isEmpty()) {
+     * this.autonmousRoutine =
+     * RobotContainer.swerveAutoBuilder.fullAuto(auto.pathplannerRoutine);
+     * } else {
+     * var startingPose = auto.startingPose != null ? auto.startingPose :
+     * RobotContainer.swerveDrive.getPose();
+     * RobotContainer.swerveDrive.setPose(startingPose);
+     * this.autonmousRoutine = auto.cmdRoutine;
+     * }
+     * 
+     * // start the auto, if there is one
+     * if (this.autonmousRoutine != null) {
+     * this.autonmousRoutine.schedule();
+     * }
+     */
   }
 
   /** This method is called periodically during autonomous. */

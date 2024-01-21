@@ -5,27 +5,16 @@
 
 package frc.robot;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -33,21 +22,17 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.subsystems.Arm;
 import frc.robot.commands.launcher.LaunchSpeaker;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
   private static RobotContainer instance;
-  private static AutoBuilder autoBuilder;
+  public static AutoBuilder autoBuilder;
   private static SendableChooser<Command> autoChooser;
 
   public static RobotContainer getInstance() {
@@ -58,12 +43,12 @@ public class RobotContainer {
   }
 
   /*
-  public AutoRoutine getAutoRoutine() {
-    return autoChooser.getSelected();
-  }
-  */
+   * public AutoRoutine getAutoRoutine() {
+   * return autoChooser.getSelected();
+   * }
+   */
 
-  public static final AHRS navx = new AHRS(Port.kUSB);
+  public static final AHRS navx = new AHRS(Port.kMXP);
 
   /**
    * Returns the angle or "yaw" of the robot in degrees. CW positive ranging from
@@ -90,14 +75,20 @@ public class RobotContainer {
 
   // Human Interface Devices (HIDs)
   public static final CommandXboxController driverController = new CommandXboxController(RobotMap.XBOX_PORT);
-  //public static final OperatorBox operatorBox = new OperatorBox(RobotMap.SWITCHBOX_PORT);
-  //public static final OperatorStick operatorStick = new OperatorStick(RobotMap.JOYSTICK_PORT);
+  // public static final OperatorBox operatorBox = new
+  // OperatorBox(RobotMap.SWITCHBOX_PORT);
+  // public static final OperatorStick operatorStick = new
+  // OperatorStick(RobotMap.JOYSTICK_PORT);
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
-  //public static final Intake intake = new Intake();
-  //public static final Launcher launcher = new Launcher();
-  //public static final Arm arm = new Arm();
+  // public static final Intake intake = new Intake();
+  // public static final Launcher launcher = new Launcher();
+  // public static final Arm arm = new Arm();
+  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
+      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  // public static final AprilTagCamera rearAprilTagCamera = new
+  // AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -122,12 +113,11 @@ public class RobotContainer {
 
   /** Automated bindings that happen without pressing any buttons. */
   private void configureAutomatedBindings() {
-   
+
   }
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-    
 
     Trigger resetOdometry = driverController.start();
     resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetOdometry()));
@@ -159,32 +149,51 @@ public class RobotContainer {
   private void configureAutonmousChooser() {
     registerNamedCommands();
 
-    
-
-    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592, new ReplanningConfig());
+    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592,
+        new ReplanningConfig());
 
     AutoBuilder.configureHolonomic(
-      swerveDrive::getPose,
-      swerveDrive::setPose,
-      swerveDrive::getChassisSpeeds,
-      swerveDrive::setModuleStates,
-      pathFollowerConfig,
-      () -> {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-          return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
-      },
-      swerveDrive
-    );
-
+        swerveDrive::getPose,
+        swerveDrive::setPose,
+        swerveDrive::getChassisSpeeds,
+        swerveDrive::setModuleStates,
+        pathFollowerConfig,
+        () -> {
+          Optional<Alliance> alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        swerveDrive);
 
     autoBuilder = new AutoBuilder();
     autoChooser = AutoBuilder.buildAutoChooser();
-    
+
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putData("field", field);
+
+    configureFieldLogging();
+  }
+
+  private void configureFieldLogging() {
+    // Logging callback for current robot pose
+    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+      // Do whatever you want with the pose here
+      field.setRobotPose(pose);
+    });
+
+    // Logging callback for target robot pose
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      // Do whatever you want with the pose here
+      field.getObject("target pose").setPose(pose);
+    });
+
+    // Logging callback for the active path, this is sent as a list of poses
+    PathPlannerLogging.setLogActivePathCallback((poses) -> {
+      // Do whatever you want with the poses here
+      field.getObject("path").setPoses(poses);
+    });
   }
 
   public Command getAutonomousCommand() {
@@ -193,8 +202,6 @@ public class RobotContainer {
 
   private void registerNamedCommands() {
     NamedCommands.registerCommand("ShootSpeaker", new LaunchSpeaker());
-    //add more here
+    // add more here
   }
-
-  
 }

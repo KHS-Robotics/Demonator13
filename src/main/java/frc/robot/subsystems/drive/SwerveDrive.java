@@ -7,6 +7,10 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -114,9 +118,6 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(rearLeft.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
       }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-
-  // private final SwerveDriveOdometry odometry = new
-  // SwerveDriveOdometry(kinematics, this.getAngle());
 
   /**
    * Constructs Swerve Drive
@@ -247,7 +248,18 @@ public class SwerveDrive extends SubsystemBase {
       poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
     }
 
+    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedFrontPose.isPresent()) {
+      poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+    }
+
+    // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+    // if (estimatedFrontPose.isPresent()) {
+    //   poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
+    // }
+
     var pose = poseEstimator.getEstimatedPosition();
+    RobotContainer.field.setRobotPose(pose);
 
     if (!this.loggedPoseError && (Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()))) {
       this.loggedPoseError = true;
@@ -255,6 +267,8 @@ public class SwerveDrive extends SubsystemBase {
         DriverStation.reportError("Bad module state! Check output for details.", false);
       }
     }
+
+    
   }
   
 
@@ -262,6 +276,7 @@ public class SwerveDrive extends SubsystemBase {
     RobotContainer.navx.reset();
     offset = Math.toDegrees(Math.PI);
     poseEstimator.resetPosition(getAngle(), getSwerveModulePositions(), new Pose2d(this.getPose().getX(), this.getPose().getY(), new Rotation2d(Math.PI)));
+    RobotContainer.field.setRobotPose(poseEstimator.getEstimatedPosition());
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -317,6 +332,7 @@ public class SwerveDrive extends SubsystemBase {
     offset = (currentPose.getRotation().getDegrees() + 180) % 360;
     RobotContainer.navx.reset();
     startingPose = currentPose;
+    RobotContainer.field.setRobotPose(currentPose);
   }
 
   public void resetPid() {

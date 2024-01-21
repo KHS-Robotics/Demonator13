@@ -31,7 +31,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void intake() {
-        
+
     }
 
     public void outtake() {
@@ -49,9 +49,9 @@ public class Intake extends SubsystemBase {
     public void getPivotAngle() {
 
     }
-    
+
     public void setPivotAngle() {
 
     }
-    
+
 }
