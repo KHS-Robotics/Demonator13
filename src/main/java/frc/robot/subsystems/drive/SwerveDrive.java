@@ -324,15 +324,7 @@ public class SwerveDrive extends SubsystemBase {
 
 
   public void resetNavx() {
-    resetNavx(getPose());
-  }
-
-  public void resetNavx(Pose2d currentPose) {
-    targetPid.reset();
-    offset = (currentPose.getRotation().getDegrees() + 180) % 360;
     RobotContainer.navx.reset();
-    startingPose = currentPose;
-    RobotContainer.field.setRobotPose(currentPose);
   }
 
   public void resetPid() {

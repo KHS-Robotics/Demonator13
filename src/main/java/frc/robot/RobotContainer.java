@@ -118,7 +118,7 @@ public class RobotContainer {
   private void configureXboxControllerBindings() {
 
     Trigger resetOdometry = driverController.start();
-    resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetOdometry()));
+    resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx()));
 
     Trigger slowDrive = driverController.leftTrigger(0.3);
     slowDrive.onTrue(new InstantCommand(() -> {
