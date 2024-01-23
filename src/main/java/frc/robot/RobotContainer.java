@@ -41,12 +41,6 @@ public class RobotContainer {
     return instance;
   }
 
-  /*
-   * public AutoRoutine getAutoRoutine() {
-   * return autoChooser.getSelected();
-   * }
-   */
-
   public static final AHRS navx = new AHRS(Port.kMXP);
 
   /**

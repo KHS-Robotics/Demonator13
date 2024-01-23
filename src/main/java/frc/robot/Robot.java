@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
     SwerveDrive.kMaxAngularSpeedRadiansPerSecond = Math.PI / 4;
     // get the auto from the chooser
     /*
-     * var auto = robotContainer.getAutoRoutine();
+
      * 
      * // only run autos that actually have a trajectory to avoid a runtime
      * exception
