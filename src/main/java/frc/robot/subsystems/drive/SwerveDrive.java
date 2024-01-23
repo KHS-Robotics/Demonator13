@@ -259,7 +259,6 @@ public class SwerveDrive extends SubsystemBase {
     // }
 
     var pose = poseEstimator.getEstimatedPosition();
-    RobotContainer.field.setRobotPose(pose);
 
     if (!this.loggedPoseError && (Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()))) {
       this.loggedPoseError = true;
@@ -350,5 +349,6 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     updateOdometry();
+    RobotContainer.field.setRobotPose(getPose());
   }
 }

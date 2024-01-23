@@ -20,6 +20,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -64,6 +65,7 @@ public class SwerveModule extends SubsystemBase {
       double drivekS, double drivekV, double drivekA, int pivotEncoderId, boolean reversed, double offsetAngle) {
 
     this.name = name;
+    setName(name + "-Module");
 
     driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
@@ -118,6 +120,9 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
+    var state = getState();
+    SmartDashboard.putNumber("Speed", state.speedMetersPerSecond);
+    SmartDashboard.putNumber("Angle", state.angle.getDegrees());
   }
 
   /**
