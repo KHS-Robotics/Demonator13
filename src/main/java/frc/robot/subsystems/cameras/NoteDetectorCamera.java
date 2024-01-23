@@ -22,6 +22,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   public List<PhotonTrackedTarget> getTargets() {
     var result = camera.getLatestResult();
     if (result.hasTargets()) {
+      System.out.println(result.getTargets().get(0).toString());
       return result.getTargets();
     }
     return new ArrayList<PhotonTrackedTarget>();

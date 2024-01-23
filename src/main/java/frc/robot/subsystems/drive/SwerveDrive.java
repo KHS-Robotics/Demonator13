@@ -248,10 +248,10 @@ public class SwerveDrive extends SubsystemBase {
       poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
     }
 
-    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
-    if (estimatedFrontPose.isPresent()) {
-      poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
-    }
+    // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+    // if (estimatedFrontPose.isPresent()) {
+    //   poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+    // }
 
     // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     // if (estimatedFrontPose.isPresent()) {

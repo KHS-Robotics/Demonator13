@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.launcher.LaunchSpeaker;
 import frc.robot.subsystems.cameras.AprilTagCamera;
+import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
@@ -77,9 +78,11 @@ public class RobotContainer {
   // public static final Intake intake = new Intake();
   // public static final Launcher launcher = new Launcher();
   // public static final Arm arm = new Arm();
-  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
-      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  //public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
+      //Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
+
+  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
