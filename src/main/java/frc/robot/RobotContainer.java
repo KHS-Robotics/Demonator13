@@ -15,7 +15,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -71,7 +70,6 @@ public class RobotContainer {
   }
 
   public static final Field2d field = new Field2d();
-  public static final PowerDistribution pdp = new PowerDistribution();
 
   // Human Interface Devices (HIDs)
   public static final CommandXboxController driverController = new CommandXboxController(RobotMap.XBOX_PORT);
