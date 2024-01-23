@@ -272,13 +272,6 @@ public class SwerveDrive extends SubsystemBase {
   }
   
 
-  public void resetOdometry() {
-    RobotContainer.navx.reset();
-    offset = Math.toDegrees(Math.PI);
-    poseEstimator.resetPosition(getAngle(), getSwerveModulePositions(), new Pose2d(this.getPose().getX(), this.getPose().getY(), new Rotation2d(Math.PI)));
-    RobotContainer.field.setRobotPose(poseEstimator.getEstimatedPosition());
-  }
-
   public ChassisSpeeds getChassisSpeeds() {
     return this.kinematics.toChassisSpeeds(getSwerveModuleStates());
   }
