@@ -65,7 +65,7 @@ public class SwerveModule extends SubsystemBase {
       double drivekS, double drivekV, double drivekA, int pivotEncoderId, boolean reversed, double offsetAngle) {
 
     this.name = name;
-    setName(name + "-Module");
+    setName("Module-" + name);
 
     driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
