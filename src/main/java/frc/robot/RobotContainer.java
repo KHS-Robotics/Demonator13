@@ -11,6 +11,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
@@ -57,11 +58,11 @@ public class RobotContainer {
    * forwards/backwards tilt of the robot.
    */
   public static double getRobotPitch() {
-    return navx.getRoll();
+    return navx.getPitch();
   }
 
   public static double getRobotRoll() {
-    return -navx.getPitch();
+    return navx.getRoll();
   }
 
   public static final Field2d field = new Field2d();
@@ -78,11 +79,13 @@ public class RobotContainer {
   // public static final Intake intake = new Intake();
   // public static final Launcher launcher = new Launcher();
   // public static final Arm arm = new Arm();
-  //public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
-      //Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  // public static final AprilTagCamera frontAprilTagCamera = new
+  // AprilTagCamera("FrontCamera",
+  // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
 
-  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("FrontCamera",
+      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
@@ -144,8 +147,12 @@ public class RobotContainer {
   private void configureAutonmousChooser() {
     registerNamedCommands();
 
-    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(Constants.MAX_SPEED, 0.31592,
-        new ReplanningConfig());
+    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+      new PIDConstants(5.0, 0.0, 0.05),
+      new PIDConstants(5.0, 0.0, 0.05),
+      SwerveDrive.kMaxSpeedMetersPerSecond,
+      0.31592,
+      new ReplanningConfig());
 
     AutoBuilder.configureHolonomic(
         swerveDrive::getPose,
@@ -196,7 +203,14 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("ShootSpeaker", new LaunchSpeaker());
-    // add more here
+    registerNamedCommand(new LaunchSpeaker());
+  }
+
+  private void registerNamedCommand(String name, Command cmd) {
+    NamedCommands.registerCommand(name, cmd);
+  }
+
+  private void registerNamedCommand(Command cmd) {
+    registerNamedCommand(cmd.getClass().getSimpleName(), cmd);
   }
 }

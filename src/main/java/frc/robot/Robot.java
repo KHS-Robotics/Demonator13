@@ -5,8 +5,7 @@
 
 package frc.robot;
 
-//import com.pathplanner.lib.path.PathPlannerServer;
-
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +23,7 @@ import frc.robot.subsystems.drive.SwerveDrive;
  */
 public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
-  private Command autonmousRoutine;
+  private Command autonomousRoutine;
 
   /**
    * This method is run when the robot is first started up and should be used for
@@ -34,7 +33,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     DriverStation.silenceJoystickConnectionWarning(true);
-    // PathPlannerServer.startServer(5811);
+
+    // Starts recording to data log
+    DataLogManager.start();
+    // Record both DS control and joystick data
+    DriverStation.startDataLog(DataLogManager.getLog());
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
@@ -59,7 +62,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
     // commands, running already-scheduled commands, removing finished or
@@ -73,8 +75,6 @@ public class Robot extends TimedRobot {
   /** This method is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-
   }
 
   @Override
@@ -87,28 +87,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    SwerveDrive.kMaxAngularSpeedRadiansPerSecond = Math.PI / 4;
-    // get the auto from the chooser
-    /*
-
-     * 
-     * // only run autos that actually have a trajectory to avoid a runtime
-     * exception
-     * if (auto.isPathPlannerRoutine() && !auto.pathplannerRoutine.isEmpty()) {
-     * this.autonmousRoutine =
-     * RobotContainer.swerveAutoBuilder.fullAuto(auto.pathplannerRoutine);
-     * } else {
-     * var startingPose = auto.startingPose != null ? auto.startingPose :
-     * RobotContainer.swerveDrive.getPose();
-     * RobotContainer.swerveDrive.setPose(startingPose);
-     * this.autonmousRoutine = auto.cmdRoutine;
-     * }
-     * 
-     * // start the auto, if there is one
-     * if (this.autonmousRoutine != null) {
-     * this.autonmousRoutine.schedule();
-     * }
-     */
+    autonomousRoutine = robotContainer.getAutonomousCommand();
+    if (autonomousRoutine != null) {
+      //autonomousRoutine.schedule();
+    }
   }
 
   /** This method is called periodically during autonomous. */
@@ -117,16 +99,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {
-
-    SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (autonmousRoutine != null) {
-      autonmousRoutine.cancel();
+  public void autonomousExit() {
+    if (autonomousRoutine != null) {
+      autonomousRoutine.cancel();
     }
+  }
+
+  @Override
+  public void teleopInit() {
 
   }
 

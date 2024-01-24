@@ -21,8 +21,6 @@ public class Constants {
   public static final double REAR_LEFT_PIVOT_OFFSET_DEGREES = 315;
   public static final double REAR_RIGHT_PIVOT_OFFSET_DEGREES = 45;
 
-  public static final double MAX_SPEED = 5;
-
   public static final double DRIVE_P = 0.01;
   public static final double DRIVE_I = 0;
   public static final double DRIVE_D = 0;
