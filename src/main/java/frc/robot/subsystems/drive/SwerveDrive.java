@@ -23,16 +23,18 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 /**
  * Represents a swerve drive style drivetrain.
  */
 public class SwerveDrive extends SubsystemBase {
-  public static double kMaxSpeedMetersPerSecond = 3.5;
+  public static double kMaxSpeedMetersPerSecond = 4.6;
   public static double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
   public static double offset;
   public Pose2d startingPose;
@@ -350,5 +352,8 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     updateOdometry();
     RobotContainer.field.setRobotPose(getPose());
+    SmartDashboard.putNumber("Navx-Yaw", RobotContainer.getRobotYaw());
+    SmartDashboard.putNumber("Navx-Roll", RobotContainer.getRobotRoll());
+    SmartDashboard.putNumber("Navx-Pitch", RobotContainer.getRobotPitch());
   }
 }
