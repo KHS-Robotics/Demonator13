@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
@@ -148,8 +149,8 @@ public class RobotContainer {
     registerNamedCommands();
 
     HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-      new PIDConstants(5.0, 0.0, 0.05),
-      new PIDConstants(5.0, 0.0, 0.05),
+      new PIDConstants(4.0, 0.0, 0.3),
+      new PIDConstants(1.8, 0.0, 0.8),
       SwerveDrive.kMaxSpeedMetersPerSecond,
       0.31592,
       new ReplanningConfig());
@@ -204,6 +205,7 @@ public class RobotContainer {
 
   private void registerNamedCommands() {
     registerNamedCommand(new LaunchSpeaker());
+    registerNamedCommand("print", new PrintCommand("asd"));
   }
 
   private void registerNamedCommand(String name, Command cmd) {

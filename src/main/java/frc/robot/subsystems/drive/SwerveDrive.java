@@ -35,7 +35,7 @@ import frc.robot.RobotContainer;
  */
 public class SwerveDrive extends SubsystemBase {
   public static double kMaxSpeedMetersPerSecond = 4.6;
-  public static double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
+  public static double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
   public static double offset;
   public Pose2d startingPose;
   public double angleSetpoint;

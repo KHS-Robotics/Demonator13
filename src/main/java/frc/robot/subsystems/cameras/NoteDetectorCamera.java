@@ -41,6 +41,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
     double distance = calculateDistance(target);
+    System.out.println(distance);
     double noteX = robotPose.getX() + (distance * robotPose.getRotation().rotateBy(Rotation2d.fromDegrees(target.getYaw())).getCos());
     double noteY = robotPose.getY() + (distance * robotPose.getRotation().rotateBy(Rotation2d.fromDegrees(target.getYaw())).getSin());
 
@@ -50,7 +51,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   @Override
   public void periodic() {
     for (PhotonTrackedTarget t : getTargets()) {
-      estimateNotePose(t);
+      //estimateNotePose(t);
     }
   }
 
