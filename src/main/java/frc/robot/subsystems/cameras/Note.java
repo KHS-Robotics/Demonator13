@@ -18,16 +18,17 @@ public class Note {
         addRay(initialRay, initialPoseGuess);
     }
 
-    public void addRay(Pose2d ray, Translation2d poseGuess) {
-        // if distance is off by >0.1m disregard this ray
-        if (Math.abs(ray.getTranslation().getDistance(poseGuess) - ray.getTranslation().getDistance(estimatedPose)) > 0.1) {
-            return;
+    public boolean addRay(Pose2d ray, Translation2d poseGuess) {
+        // if distance is off by >0.5m disregard this ray
+        if (Math.abs(ray.getTranslation().getDistance(poseGuess) - ray.getTranslation().getDistance(estimatedPose)) > 0.5) {
+            return false;
         }
 
+
         for (Pose2d otherRay : recentRays) {
-            // if parallel to any other ray, disregard
-            if (ray.getRotation().equals(otherRay.getRotation())) {
-                return;
+            // if parallelish to any other ray, disregard
+            if (Math.abs(((ray.getRotation().minus(otherRay.getRotation())).getDegrees())) > 5) {
+                return false;
             }
         }
 
@@ -39,6 +40,7 @@ public class Note {
 
         updatePointCloud();
         estimatedPose = averageOfPointCloud();
+        return true;
     }
 
     private void updatePointCloud() {

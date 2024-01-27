@@ -2,6 +2,7 @@ package frc.robot.subsystems.cameras;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -33,6 +34,15 @@ public class NoteDetectorCamera extends SubsystemBase {
     return new ArrayList<PhotonTrackedTarget>();
   }
 
+  public Optional<PhotonTrackedTarget> getNearestTarget() {
+    var result = camera.getLatestResult();
+    if (result.hasTargets()) {
+      return Optional.of(result.getBestTarget());
+    }
+    return Optional.empty();
+  }
+
+
   public double calculateDistance(PhotonTrackedTarget target) {
     double angleToNote = Math.abs((Math.PI / 2) + cameraOffset.getRotation().getY() + Math.toRadians(target.getPitch()));
     double distance = cameraOffset.getZ() * Math.tan(angleToNote);
@@ -50,10 +60,31 @@ public class NoteDetectorCamera extends SubsystemBase {
     return new Translation2d(noteX, noteY);
   }
 
+  public Translation2d estimateNotePoseOffcenter(PhotonTrackedTarget target) {
+    Rotation2d yaw = Rotation2d.fromDegrees(target.getYaw());
+
+
+
+    return new Translation2d();
+  }
+
+  public Pose2d rayFromTarget(PhotonTrackedTarget target) {
+    return RobotContainer.swerveDrive.getPose().rotateBy(Rotation2d.fromDegrees(target.getYaw()));
+  }
+
   @Override
   public void periodic() {
-    for (PhotonTrackedTarget t : getTargets()) {
-      
+    var target = getNearestTarget();
+    
+
+    if (target.isPresent()) {
+      var t = target.get();
+
+      if (notes.isEmpty()) {
+        notes.add(new Note(rayFromTarget(t), estimateNotePose(t)));
+      } else {
+        notes.get(0).addRay(rayFromTarget(t), estimateNotePose(t));
+      }
     }
   }
 
