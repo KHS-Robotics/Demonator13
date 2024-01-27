@@ -153,7 +153,7 @@ public class RobotContainer {
       new PIDConstants(1.8, 0.0, 0.8),
       SwerveDrive.kMaxSpeedMetersPerSecond,
       0.31592,
-      new ReplanningConfig());
+      new ReplanningConfig(true, true));
 
     AutoBuilder.configureHolonomic(
         swerveDrive::getPose,
