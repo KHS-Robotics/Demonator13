@@ -10,32 +10,33 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
-public class Launcher extends SubsystemBase {
+public class Shooter extends SubsystemBase {
 
-  private CANSparkMax launchLeader;
-  private CANSparkMax launchFollower;
-  private RelativeEncoder launcherEncoder;
+  private CANSparkMax shooterLeader;
+  private CANSparkMax shooterFollower;
+  private RelativeEncoder shooterEncoder;
 
-  private SparkPIDController launchVelocityController;
+  private SparkPIDController shooterVelocityController;
 
   private CANSparkMax pivotMotor;
   private RelativeEncoder pivotEncoder;
 
   private PIDController pivotPositionController;
 
-  private final double LAUNCHER_GEAR_RATIO = 0;
+  private final double SHOOTER_GEAR_RATIO = 0;
+  private final double SHOOTER_WHEEL_RADIUS = 0.0508; // 4in to meters
   private final double PIVOT_GEAR_RATIO = 0;
 
-  public Launcher() {
-    launchLeader = new CANSparkMax(RobotMap.LAUNCH_LEADER, MotorType.kBrushless);
-    launchFollower = new CANSparkMax(RobotMap.LAUNCH_FOLLOWER, MotorType.kBrushless);
-    pivotMotor = new CANSparkMax(RobotMap.LAUNCH_PIVOT, MotorType.kBrushless);
+  public Shooter() {
+    shooterLeader = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
+    shooterFollower = new CANSparkMax(RobotMap.SHOOTER_FOLLOWER, MotorType.kBrushless);
+    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
 
-    launchFollower.follow(launchLeader);
-    launcherEncoder = launchLeader.getEncoder();
+    shooterFollower.follow(shooterLeader);
+    shooterEncoder = shooterLeader.getEncoder();
     pivotEncoder = pivotMotor.getEncoder();
 
-    launchVelocityController = launchLeader.getPIDController();
+    shooterVelocityController = shooterLeader.getPIDController();
     pivotPositionController = new PIDController(0, 0, 0);
   }
 

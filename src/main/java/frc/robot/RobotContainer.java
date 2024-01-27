@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.commands.launcher.LaunchSpeaker;
+import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -78,7 +78,7 @@ public class RobotContainer {
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
   // public static final Intake intake = new Intake();
-  // public static final Launcher launcher = new Launcher();
+  // public static final Shooter shooter = new Shooter();
   // public static final Arm arm = new Arm();
   // public static final AprilTagCamera frontAprilTagCamera = new
   // AprilTagCamera("FrontCamera",
@@ -204,7 +204,7 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    registerNamedCommand(new LaunchSpeaker());
+    registerNamedCommand(new ShootSpeaker());
     registerNamedCommand("print", new PrintCommand("asd"));
   }
 

@@ -1,10 +1,10 @@
-package frc.robot.commands.launcher;
+package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class LaunchSpeaker extends Command {
+public class ShootSpeaker extends Command {
 
-  public LaunchSpeaker() {
+  public ShootSpeaker() {
     // this.addRequirements();
   }
 

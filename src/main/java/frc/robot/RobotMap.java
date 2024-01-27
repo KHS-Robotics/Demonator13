@@ -21,9 +21,9 @@ public class RobotMap {
   public static final int INTAKE_MOTOR = 0;
   public static final int INTAKE_PIVOT = 0;
 
-  public static final int LAUNCH_LEADER = 0;
-  public static final int LAUNCH_FOLLOWER = 0;
-  public static final int LAUNCH_PIVOT = 0;
+  public static final int SHOOTER_LEADER = 0;
+  public static final int SHOOTER_FOLLOWER = 0;
+  public static final int SHOOTER_PIVOT = 0;
 
   public static final int ARM_PIVOT = 0;
   public static final int ARM_CANCODER = 0;
