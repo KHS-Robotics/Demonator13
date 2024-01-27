@@ -16,10 +16,12 @@ import frc.robot.RobotContainer;
 public class NoteDetectorCamera extends SubsystemBase {
   public PhotonCamera camera;
   public Transform3d cameraOffset;
+  public List<Note> notes;
 
   public NoteDetectorCamera(String cameraName, Transform3d cameraOffset) {
     camera = new PhotonCamera(cameraName);
     this.cameraOffset = cameraOffset;
+    notes = new ArrayList<>();
     
   }
 
@@ -51,7 +53,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   @Override
   public void periodic() {
     for (PhotonTrackedTarget t : getTargets()) {
-      //estimateNotePose(t);
+      
     }
   }
 
