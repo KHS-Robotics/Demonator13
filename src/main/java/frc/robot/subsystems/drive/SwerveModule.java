@@ -156,11 +156,11 @@ public class SwerveModule extends SubsystemBase {
    * @param useShortestPath whether or not to use the shortest path
    */
   public void setDesiredState(SwerveModuleState state, boolean useShortestPath) {
+    pivotMotor.set(MathUtil.clamp(pivotPID.calculate(getAngle(),
+        useShortestPath ? calculateShortestPath(state.angle.getDegrees()) : state.angle.getDegrees()), -1, 1));
     drivePID.setReference(state.speedMetersPerSecond * (isFlipped && useShortestPath ? -1 : 1),
         CANSparkMax.ControlType.kVoltage, 1,
         driveFeedForward.calculate(state.speedMetersPerSecond * (isFlipped && useShortestPath ? -1 : 1)));
-    pivotMotor.set(MathUtil.clamp(pivotPID.calculate(getAngle(),
-        useShortestPath ? calculateShortestPath(state.angle.getDegrees()) : state.angle.getDegrees()), -1, 1));
   }
 
   /**
