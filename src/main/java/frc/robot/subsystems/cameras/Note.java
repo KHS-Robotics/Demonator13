@@ -6,81 +6,80 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Note {
-    Translation2d estimatedPose;
-    ArrayList<Pose2d> recentRays;
-    ArrayList<Translation2d> pointCloud;
-    private int MAX_RAYS = 5;
+  Translation2d estimatedPose;
+  ArrayList<Pose2d> recentRays;
+  ArrayList<Translation2d> pointCloud;
+  private int MAX_RAYS = 5;
 
-    public Note(Pose2d initialRay, Translation2d initialPoseGuess) {
-        estimatedPose = initialPoseGuess;
-        pointCloud = new ArrayList<>();
-        recentRays = new ArrayList<>();
-        addRay(initialRay, initialPoseGuess);
+  public Note(Pose2d initialRay, Translation2d initialPoseGuess) {
+    estimatedPose = initialPoseGuess;
+    pointCloud = new ArrayList<>();
+    recentRays = new ArrayList<>();
+    addRay(initialRay, initialPoseGuess);
+  }
+
+  public boolean addRay(Pose2d ray, Translation2d poseGuess) {
+    // if distance is off by >0.5m disregard this ray
+    if (Math.abs(ray.getTranslation().getDistance(poseGuess) - ray.getTranslation().getDistance(estimatedPose)) > 0.5) {
+      return false;
     }
 
-    public boolean addRay(Pose2d ray, Translation2d poseGuess) {
-        // if distance is off by >0.5m disregard this ray
-        if (Math.abs(ray.getTranslation().getDistance(poseGuess) - ray.getTranslation().getDistance(estimatedPose)) > 0.5) {
-            return false;
-        }
-
-
-        for (Pose2d otherRay : recentRays) {
-            // if parallelish to any other ray, disregard
-            if (Math.abs(((ray.getRotation().minus(otherRay.getRotation())).getDegrees())) > 5) {
-                return false;
-            }
-        }
-
-        if (recentRays.size() == MAX_RAYS) {
-            recentRays.remove(0);
-        }
-
-        recentRays.add(ray);
-
-        updatePointCloud();
-        estimatedPose = averageOfPointCloud();
-        return true;
+    for (Pose2d otherRay : recentRays) {
+      // if parallelish to any other ray, disregard
+      if (Math.abs(((ray.getRotation().minus(otherRay.getRotation())).getDegrees())) > 5) {
+        return false;
+      }
     }
 
-    private void updatePointCloud() {
-        pointCloud.clear();
-        for (Pose2d ray : recentRays) {
-            for (Pose2d rayToIntersect : recentRays) {
-                if (!ray.equals(rayToIntersect)) {
-                    pointCloud.add(intersect(ray, rayToIntersect));
-                }
-            }
+    if (recentRays.size() == MAX_RAYS) {
+      recentRays.remove(0);
+    }
+
+    recentRays.add(ray);
+
+    updatePointCloud();
+    estimatedPose = averageOfPointCloud();
+    return true;
+  }
+
+  private void updatePointCloud() {
+    pointCloud.clear();
+    for (Pose2d ray : recentRays) {
+      for (Pose2d rayToIntersect : recentRays) {
+        if (!ray.equals(rayToIntersect)) {
+          pointCloud.add(intersect(ray, rayToIntersect));
         }
+      }
+    }
+  }
+
+  private Translation2d averageOfPointCloud() {
+    double x = 0.0;
+    double y = 0.0;
+
+    for (Translation2d point : pointCloud) {
+      x += point.getX();
+      y += point.getY();
     }
 
-    private Translation2d averageOfPointCloud() {
-        double x = 0.0;
-        double y = 0.0;
+    x /= pointCloud.size();
+    y /= pointCloud.size();
 
-        for (Translation2d point : pointCloud) {
-            x += point.getX();
-            y += point.getY();
-        }
+    return new Translation2d(x, y);
+  }
 
-        x /= pointCloud.size();
-        y /= pointCloud.size();
+  private Translation2d intersect(Pose2d a, Pose2d b) {
+    double ma = a.getRotation().getTan();
+    double mb = b.getRotation().getTan();
 
-        return new Translation2d(x, y);
-    }
+    double ax = a.getX();
+    double ay = a.getY();
+    double bx = b.getX();
+    double by = b.getY();
 
-    private Translation2d intersect(Pose2d a, Pose2d b) {
-        double ma = a.getRotation().getTan();
-        double mb = b.getRotation().getTan();
+    double x = ((ma * ax) - (mb * bx) + by - ay) / (ma - mb);
+    double y = ma * (x - ax) + ay;
 
-        double ax = a.getX();
-        double ay = a.getY();
-        double bx = b.getX();
-        double by = b.getY();
-
-        double x = ((ma * ax) - (mb * bx) + by - ay) / (ma - mb);
-        double y = ma * (x - ax) + ay;
-
-        return new Translation2d(x, y);
-    }
+    return new Translation2d(x, y);
+  }
 }

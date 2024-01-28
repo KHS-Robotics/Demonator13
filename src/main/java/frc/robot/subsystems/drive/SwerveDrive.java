@@ -7,11 +7,14 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,8 +40,6 @@ public class SwerveDrive extends SubsystemBase {
   public static double kMaxSpeedMetersPerSecond = 4.6;
   public static double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
   public static double offset;
-  public Pose2d startingPose;
-  public double angleSetpoint;
   private PIDController targetPid;
   private final Translation2d frontLeftLocation = new Translation2d(0.2921, 0.2921);
   private final Translation2d frontRightLocation = new Translation2d(0.2921, -0.2921);
@@ -119,8 +120,10 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(frontRight.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(rearLeft.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
-      }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-
+      }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)), 
+      VecBuilder.fill(0.1, 0.1, 0.1),
+      VecBuilder.fill(0.9, 0.9, 0.3));
+ 
   /**
    * Constructs Swerve Drive
    */
@@ -252,13 +255,40 @@ public class SwerveDrive extends SubsystemBase {
 
     // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     // if (estimatedFrontPose.isPresent()) {
-    //   poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+    //   List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
+
+    //   poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
+
+    //   boolean goodMeasurements = true;
+    //   for (PhotonTrackedTarget t : targetsUsed) {
+    //     if (t.getPoseAmbiguity() < 0.2) {
+    //       goodMeasurements = false;
+    //       break;
+    //     }
+    //   }
+
+    //   if (goodMeasurements) {
+    //     poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+    //   }
     // }
 
     // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedFrontPose.isPresent()) {
-    //   poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
-    // }
+    // if (estimatedRearPose.isPresent()) {
+    //   List<PhotonTrackedTarget> targetsUsed = estimatedRearPose.get().targetsUsed;
+
+    //   poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
+
+    //   boolean goodMeasurements = true;
+    //   for (PhotonTrackedTarget t : targetsUsed) {
+    //     if (t.getPoseAmbiguity() < 0.2) {
+    //       goodMeasurements = false;
+    //       break;
+    //     }
+    //   }
+
+    //   if (goodMeasurements) {
+    //     poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
+    //   }
 
     var pose = poseEstimator.getEstimatedPosition();
 
