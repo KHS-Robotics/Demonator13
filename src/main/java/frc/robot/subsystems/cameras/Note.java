@@ -1,59 +1,35 @@
 package frc.robot.subsystems.cameras;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Note {
-  Translation2d estimatedPose;
-  ArrayList<Pose2d> recentRays;
-  ArrayList<Translation2d> pointCloud;
-  private int MAX_RAYS = 5;
+  public Translation2d position;
+  private List<Translation2d> pointCloud;
+  private final double MAX_ERROR_METERS = 0.5;
 
-  public Note(Pose2d initialRay, Translation2d initialPoseGuess) {
-    estimatedPose = initialPoseGuess;
-    pointCloud = new ArrayList<>();
-    recentRays = new ArrayList<>();
-    addRay(initialRay, initialPoseGuess);
+
+  public Note(Translation2d initialPose) {
+    this.position = initialPose;
+    this.pointCloud = new ArrayList<>();
+    this.pointCloud.add(initialPose);
   }
 
-  public boolean addRay(Pose2d ray, Translation2d poseGuess) {
-    // if distance is off by >0.5m disregard this ray
-    if (Math.abs(ray.getTranslation().getDistance(poseGuess) - ray.getTranslation().getDistance(estimatedPose)) > 0.5) {
+  // attempts to add a pose to the point cloud, if it's further than the max error, reject it and return false
+  // when it returns false, a new Note will be added to the note array
+  public boolean addPose(Translation2d newPose) {
+    if (newPose.getDistance(position) > MAX_ERROR_METERS) {
       return false;
     }
 
-    for (Pose2d otherRay : recentRays) {
-      // if parallelish to any other ray, disregard
-      if (Math.abs(((ray.getRotation().minus(otherRay.getRotation())).getDegrees())) > 5) {
-        return false;
-      }
-    }
-
-    if (recentRays.size() == MAX_RAYS) {
-      recentRays.remove(0);
-    }
-
-    recentRays.add(ray);
-
-    updatePointCloud();
-    estimatedPose = averageOfPointCloud();
+    pointCloud.add(newPose);
+    updatePose();
     return true;
   }
 
-  private void updatePointCloud() {
-    pointCloud.clear();
-    for (Pose2d ray : recentRays) {
-      for (Pose2d rayToIntersect : recentRays) {
-        if (!ray.equals(rayToIntersect)) {
-          pointCloud.add(intersect(ray, rayToIntersect));
-        }
-      }
-    }
-  }
-
-  private Translation2d averageOfPointCloud() {
+  private void updatePose() {
     double x = 0.0;
     double y = 0.0;
 
@@ -65,21 +41,6 @@ public class Note {
     x /= pointCloud.size();
     y /= pointCloud.size();
 
-    return new Translation2d(x, y);
-  }
-
-  private Translation2d intersect(Pose2d a, Pose2d b) {
-    double ma = a.getRotation().getTan();
-    double mb = b.getRotation().getTan();
-
-    double ax = a.getX();
-    double ay = a.getY();
-    double bx = b.getX();
-    double by = b.getY();
-
-    double x = ((ma * ax) - (mb * bx) + by - ay) / (ma - mb);
-    double y = ma * (x - ax) + ay;
-
-    return new Translation2d(x, y);
+    this.position = new Translation2d(x, y);
   }
 }

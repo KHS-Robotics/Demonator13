@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -44,9 +43,9 @@ public class NoteDetectorCamera extends SubsystemBase {
     return Optional.empty();
   }
 
-  public double calculateDistance(Translation2d notePose) {
+  public double distanceToNote(Note note) {
     Translation2d robotPose = RobotContainer.swerveDrive.getPose().getTranslation();
-    return robotPose.getDistance(notePose);
+    return robotPose.getDistance(note.position);
   }
 
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
@@ -70,12 +69,36 @@ public class NoteDetectorCamera extends SubsystemBase {
     return RobotContainer.swerveDrive.getPose().rotateBy(Rotation2d.fromDegrees(target.getYaw()));
   }
 
+  private Note getNearestNote() {
+    Note minimum = notes.get(0);
+
+    for (Note n : notes) {
+      if (distanceToNote(n) < distanceToNote(minimum)) {
+        minimum = n;
+      }
+    }
+
+    return minimum;
+  }
+
   @Override
   public void periodic() {
-    var target = getNearestTarget();
-    if (target.isPresent()) {
-      
+    for (PhotonTrackedTarget t : getTargets()) {
+      Translation2d notePose = estimateNotePose(t);
+
+      if (notes.isEmpty()) {
+        notes.add(new Note(notePose));
+      } else {
+        for (Note n : notes) {
+          if (!n.addPose(notePose)) {
+            notes.add(new Note(notePose));
+            break;
+          }
+        }
+      }
     }
+
+    RobotContainer.field.getObject("NearestNote").setPose(new Pose2d(getNearestNote().position, new Rotation2d()));
   }
 
   
