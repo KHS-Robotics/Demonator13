@@ -20,7 +20,6 @@ public class TargetPointWhileDriving extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    this.angleSetpoint = RobotContainer.swerveDrive.getPose().getRotation();
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -28,6 +27,9 @@ public class TargetPointWhileDriving extends Command {
   public void execute() {
 
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    Translation2d vec = targetPoint.minus(robotPose.getTranslation());
+
+    angleSetpoint = Rotation2d.fromRadians(Math.atan2(vec.getY(), vec.getX()));
 
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
@@ -47,22 +49,6 @@ public class TargetPointWhileDriving extends Command {
 
 
     RobotContainer.swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
-  }
-
-  private double normalizeDegrees(double angle) {
-    if (angle > 0) {
-      angle %= 360;
-      if (angle > 180) {
-        angle -= 360;
-      }
-    } else if (angle < 0) {
-      angle %= -360;
-      if (angle < -180) {
-        angle += 360;
-      }
-    }
-
-    return angle;
   }
 
   // Make this return true when this Command no longer needs to run execute()
