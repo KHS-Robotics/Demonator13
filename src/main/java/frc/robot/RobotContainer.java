@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -130,6 +132,9 @@ public class RobotContainer {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
       SwerveDrive.kMaxSpeedMetersPerSecond = 3.5;
     }));
+
+    Trigger pointToNote = driverController.leftBumper();
+    pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
   }
 
   /** Binds commands to the operator box. */

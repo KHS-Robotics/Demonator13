@@ -24,6 +24,7 @@ public class NoteDetectorCamera extends SubsystemBase {
     camera = new PhotonCamera(cameraName);
     this.cameraOffset = cameraOffset;
     notes = new ArrayList<>();
+    notes.add(new Note(new Translation2d(0, 0)));
     
   }
 
@@ -50,17 +51,16 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
-    double theta = -target.getYaw();
-    double phi = target.getPitch() + cameraOffset.getRotation().getY();
+    double phi = -Math.toRadians(target.getYaw());
+    double theta = (Math.PI / 2) - cameraOffset.getRotation().getY() - Math.toRadians(target.getPitch());
 
-    Translation3d targetVector = new Translation3d(Math.cos(theta) * Math.sin(phi), Math.sin(theta) * Math.sin(phi), Math.cos(phi));
-
+    Translation3d targetVector = new Translation3d(Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi), Math.cos(theta));
     double z = cameraOffset.getZ();
     double t = -z / targetVector.getZ();
 
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
     Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d());
-    Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation().times(-1)).plus(robotPose.getTranslation());
+    Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
 
     return noteFieldRelative;
   }
@@ -84,21 +84,24 @@ public class NoteDetectorCamera extends SubsystemBase {
   @Override
   public void periodic() {
     for (PhotonTrackedTarget t : getTargets()) {
-      Translation2d notePose = estimateNotePose(t);
+      // Translation2d notePose = estimateNotePose(t);
 
-      if (notes.isEmpty()) {
-        notes.add(new Note(notePose));
-      } else {
-        for (Note n : notes) {
-          if (!n.addPose(notePose)) {
-            notes.add(new Note(notePose));
-            break;
-          }
-        }
-      }
+      // if (notes.isEmpty()) {
+      //   notes.add(new Note(notePose));
+      // } else {
+      //   for (Note n : notes) {
+      //     if (!n.addPose(notePose)) {
+      //       notes.add(new Note(notePose));
+      //       break;
+      //     }
+      //   }
+      // }
+      Translation2d notePose = estimateNotePose(t);
+      notes.get(0).addPose(notePose);
     }
 
-    RobotContainer.field.getObject("NearestNote").setPose(new Pose2d(getNearestNote().position, new Rotation2d()));
+    RobotContainer.field.getObject("note").setPose(new Pose2d(notes.get(0).position, new Rotation2d()));
+    //RobotContainer.field.getObject("note").setPose(new Pose2d(getNearestNote().position, new Rotation2d()));
   }
 
   
