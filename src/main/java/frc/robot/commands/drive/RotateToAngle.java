@@ -8,10 +8,10 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
-public class RotateToAngle extends CommandBase {
+public class RotateToAngle extends Command {
   private Timer timer = new Timer();
 
   private double angle, error;
