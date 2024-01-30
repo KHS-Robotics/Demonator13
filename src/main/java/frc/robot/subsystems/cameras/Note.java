@@ -3,13 +3,15 @@ package frc.robot.subsystems.cameras;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
 
 public class Note {
   public Translation2d position;
   private List<Translation2d> pointCloud;
   private final double MAX_ERROR_METERS = 0.5;
-
 
   public Note(Translation2d initialPose) {
     this.position = initialPose;
