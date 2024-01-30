@@ -25,7 +25,7 @@ public class NoteDetectorCamera extends SubsystemBase {
     this.cameraOffset = cameraOffset;
     notes = new ArrayList<>();
     notes.add(new Note(new Translation2d(0, 0)));
-    
+
   }
 
   public List<PhotonTrackedTarget> getTargets() {
@@ -54,13 +54,15 @@ public class NoteDetectorCamera extends SubsystemBase {
     double phi = -Math.toRadians(target.getYaw());
     double theta = (Math.PI / 2) - cameraOffset.getRotation().getY() - Math.toRadians(target.getPitch());
 
-    Translation3d targetVector = new Translation3d(Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi), Math.cos(theta));
+    Translation3d targetVector = new Translation3d(Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi),
+        Math.cos(theta));
     double z = cameraOffset.getZ();
     double t = -z / targetVector.getZ();
 
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
     Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d());
-    Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation()).plus(robotPose.getTranslation());
+    Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation())
+        .plus(robotPose.getTranslation());
 
     return noteFieldRelative;
   }
@@ -88,15 +90,16 @@ public class NoteDetectorCamera extends SubsystemBase {
 
       if (notes.isEmpty()) {
         notes.add(new Note(notePose));
-      } else {
-        for (Note n : notes) {
-          if (!n.addPose(notePose)) {
-            notes.add(new Note(notePose));
-          }
+      }
+
+      ArrayList<Note> toAdd = new ArrayList<>();
+      for (Note n : notes) {
+        if (!n.addPose(notePose)) {
+          toAdd.add(new Note(notePose));
         }
       }
 
-
+      notes.addAll(toAdd);
 
       notes.get(0).addPose(notePose);
     }
@@ -109,5 +112,4 @@ public class NoteDetectorCamera extends SubsystemBase {
     RobotContainer.field.getObject("note").setPoses(allNotes);
   }
 
-  
 }
