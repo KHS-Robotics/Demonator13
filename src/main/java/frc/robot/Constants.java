@@ -34,5 +34,6 @@ public class Constants {
 
   public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0.43815, new Rotation3d(0, Math.toRadians(-23.6607), 0));
   public static final Transform3d REAR_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0, new Rotation3d());
+  public static final double FRONT_NOTE_CAMERA_HFOV = 53;
 
 }
