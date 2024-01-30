@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.datalog.IntegerLogEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,9 +46,6 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d frontRightLocation = new Translation2d(0.2921, -0.2921);
   private final Translation2d rearLeftLocation = new Translation2d(-0.2921, 0.2921);
   private final Translation2d rearRightLocation = new Translation2d(-0.2921, -0.2921);
-
-
-  private boolean loggedPoseError = false;
 
   public static final SwerveModule frontLeft = new SwerveModule(
     "FL",
@@ -238,20 +236,8 @@ public class SwerveDrive extends SubsystemBase {
    * 
    */
   public void updateOdometry() {
-    var hasValidMeasurements = true;
     var modulePositions = getSwerveModulePositions();
-    for (var i = 0; i < modulePositions.length; i++) {
-      var pos = modulePositions[i];
-      if (Double.isNaN(pos.distanceMeters) || Double.isNaN(pos.angle.getRadians())) {
-        DriverStation.reportError("Rejected module state! (index=" + i + ")", false);
-        hasValidMeasurements = false;
-        break;
-      }
-    }
-
-    if (hasValidMeasurements) {
-      poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
-    }
+    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     // if (estimatedFrontPose.isPresent()) {
@@ -290,16 +276,6 @@ public class SwerveDrive extends SubsystemBase {
     //     poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
     //   }
 
-    var pose = poseEstimator.getEstimatedPosition();
-
-    if (!this.loggedPoseError && (Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()))) {
-      this.loggedPoseError = true;
-      for(var pos : modulePositions) {
-        DriverStation.reportError("Bad module state! Check output for details.", false);
-      }
-    }
-
-    
   }
   
 
