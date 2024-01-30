@@ -130,7 +130,7 @@ public class RobotContainer {
     }));
     slowDrive.onFalse(new InstantCommand(() -> {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-      SwerveDrive.kMaxSpeedMetersPerSecond = 3.5;
+      SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
     Trigger pointToNote = driverController.leftBumper();

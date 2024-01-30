@@ -4,6 +4,7 @@
 # Robot Simulation
 simgui-ds.json
 simgui.json
+networktables.json
 
 ### C++ ###
 # Prerequisites
