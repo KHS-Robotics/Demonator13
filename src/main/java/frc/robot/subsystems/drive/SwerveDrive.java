@@ -7,12 +7,6 @@
 
 package frc.robot.subsystems.drive;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;

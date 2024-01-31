@@ -51,7 +51,7 @@ public class AutoIntake extends Command {
 
     // drive to robotTarget
     fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
-    RobotContainer.swerveDrive.goToPose(robotTarget, true);
+    RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()
