@@ -51,14 +51,21 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    // phi is the angle on the xy plane from the x axis
     double phi = -Math.toRadians(target.getYaw());
+    // theta is the angle from the z axis
     double theta = (Math.PI / 2) - cameraOffset.getRotation().getY() - Math.toRadians(target.getPitch());
 
+    // this is a unit vector, its length is 1, but it is in the direction of the note
     Translation3d targetVector = new Translation3d(Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi),
         Math.cos(theta));
+
+    // z is the camera's height above the ground
     double z = cameraOffset.getZ();
+    // t is the number of unit vectors needed to reach the note, like a multiplier
     double t = -z / targetVector.getZ();
 
+    // find x and y by multiplying the x and y components of the unit vector by t
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
     Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d());
     Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation())
@@ -88,8 +95,6 @@ public class NoteDetectorCamera extends SubsystemBase {
     // if any targets are a note that already exists, update that note
     // if none are, make a new note
     // if a note is in fov and a target does not update that note's pose in this tick, remove the note
-
-    // this is god awful if anyone has a better way to do all this please change it
 
     ArrayList<Note> newNotes = new ArrayList<>();
     ArrayList<Note> notesToRemove = new ArrayList<>();

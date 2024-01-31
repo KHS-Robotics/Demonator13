@@ -30,7 +30,7 @@ public class AutoIntake extends Command {
   public void execute() {
     this.robotPose = RobotContainer.swerveDrive.getPose();
 
-    //update target based on camera
+    // update target based on camera
     this.target = RobotContainer.frontNoteCamera.getNearestNote();
 
     // vector from robot to target (imagine the robot center is at 0,0)
