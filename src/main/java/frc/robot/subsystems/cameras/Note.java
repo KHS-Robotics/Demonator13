@@ -3,7 +3,11 @@ package frc.robot.subsystems.cameras;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants;
 
 public class Note {
   public Translation2d position;
@@ -27,6 +31,14 @@ public class Note {
     //updatePose();
     this.position = newPose;
     return true;
+  }
+
+  public boolean isInFov(Pose2d robotPose) {
+    Translation2d vec = position.minus(robotPose.getTranslation());
+    Rotation2d robotToNote = new Rotation2d(vec.getX(), vec.getY());
+    Rotation2d yawToNote = robotPose.getRotation().rotateBy(robotToNote);
+
+    return Math.abs(MathUtil.inputModulus(yawToNote.getDegrees(), -180, 180)) < (Constants.FRONT_NOTE_CAMERA_HFOV / 2);
   }
 
   private void updatePose() {
