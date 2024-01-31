@@ -16,6 +16,8 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -37,13 +39,17 @@ import frc.robot.subsystems.drive.SwerveDrive;
 public class RobotContainer {
   private static RobotContainer instance;
   public static AutoBuilder autoBuilder;
-  private static SendableChooser<Command> autoChooser;
 
   public static RobotContainer getInstance() {
     if (instance == null) {
       instance = new RobotContainer();
     }
     return instance;
+  }
+
+  private static SendableChooser<Command> autoChooser;
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
   }
 
   public static final AHRS navx = new AHRS(Port.kMXP);
@@ -64,6 +70,10 @@ public class RobotContainer {
     return navx.getPitch();
   }
 
+  /**
+   * Returns the roll angle of the robot in degrees. This tracks the
+   * left/right tilt of the robot.
+   */
   public static double getRobotRoll() {
     return navx.getRoll();
   }
@@ -130,7 +140,7 @@ public class RobotContainer {
     }));
     slowDrive.onFalse(new InstantCommand(() -> {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-      SwerveDrive.kMaxSpeedMetersPerSecond = 3.5;
+      SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
     Trigger pointToNote = driverController.leftBumper();
@@ -185,16 +195,32 @@ public class RobotContainer {
   }
 
   private void configureFieldLogging() {
+    var logPPCurrentPoseX = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/x");
+    var logPPCurrentPoseY = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/y");
+    var logPPCurrentPoseTheta = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/theta");
+
     // Logging callback for current robot pose
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
       // Do whatever you want with the pose here
       field.setRobotPose(pose);
+
+      logPPCurrentPoseX.append(pose.getX());
+      logPPCurrentPoseY.append(pose.getY());
+      logPPCurrentPoseTheta.append(pose.getRotation().getDegrees());
     });
+
+    var logPPTargetPoseX = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/x");
+    var logPPTargetPoseY = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/y");
+    var logPPTargetPoseTheta = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/theta");
 
     // Logging callback for target robot pose
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       // Do whatever you want with the pose here
       field.getObject("target pose").setPose(pose);
+
+      logPPTargetPoseX.append(pose.getX());
+      logPPTargetPoseY.append(pose.getY());
+      logPPTargetPoseTheta.append(pose.getRotation().getDegrees());
     });
 
     // Logging callback for the active path, this is sent as a list of poses
@@ -202,10 +228,6 @@ public class RobotContainer {
       // Do whatever you want with the poses here
       field.getObject("path").setPoses(poses);
     });
-  }
-
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
   }
 
   private void registerNamedCommands() {

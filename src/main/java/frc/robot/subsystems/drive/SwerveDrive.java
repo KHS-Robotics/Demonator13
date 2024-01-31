@@ -24,13 +24,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 /**
@@ -48,8 +49,14 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d rearLeftLocation = new Translation2d(-0.2921, 0.2921);
   private final Translation2d rearRightLocation = new Translation2d(-0.2921, -0.2921);
 
-
-  private boolean loggedPoseError = false;
+  private static final DoubleLogEntry LogLinearSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/speed");
+  private static final DoubleLogEntry LogAngularSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/omega");
+  private static final DoubleLogEntry LogOdometryX = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/x");
+  private static final DoubleLogEntry LogOdometryY = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/y");
+  private static final DoubleLogEntry LogOdometryTheta = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/theta");
+  private static final DoubleLogEntry LogNavxYaw = new DoubleLogEntry(DataLogManager.getLog(), "/navx/yaw");
+  private static final DoubleLogEntry LogNavxRoll = new DoubleLogEntry(DataLogManager.getLog(), "/navx/roll");
+  private static final DoubleLogEntry LogNavxPitch = new DoubleLogEntry(DataLogManager.getLog(), "/navx/pitch");
 
   public static final SwerveModule frontLeft = new SwerveModule(
     "FL",
@@ -68,7 +75,7 @@ public class SwerveDrive extends SubsystemBase {
     Constants.FRONT_LEFT_PIVOT_OFFSET_DEGREES
   );
   public static final SwerveModule frontRight = new SwerveModule(
-      "FR",
+    "FR",
     RobotMap.FRONT_RIGHT_DRIVE,
     RobotMap.FRONT_RIGHT_PIVOT,
     Constants.PIVOT_P,
@@ -81,7 +88,8 @@ public class SwerveDrive extends SubsystemBase {
     Constants.DRIVE_KV,
     Constants.DRIVE_KA,
     RobotMap.FRONT_RIGHT_PIVOT_ENCODER,
-    Constants.FRONT_RIGHT_PIVOT_OFFSET_DEGREES);
+    Constants.FRONT_RIGHT_PIVOT_OFFSET_DEGREES
+  );
   public static final SwerveModule rearLeft = new SwerveModule(
     "RL",
     RobotMap.REAR_LEFT_DRIVE,
@@ -96,9 +104,10 @@ public class SwerveDrive extends SubsystemBase {
     Constants.DRIVE_KV,
     Constants.DRIVE_KA,
     RobotMap.REAR_LEFT_PIVOT_ENCODER,
-    Constants.REAR_LEFT_PIVOT_OFFSET_DEGREES);
+    Constants.REAR_LEFT_PIVOT_OFFSET_DEGREES
+  );
   public static final SwerveModule rearRight = new SwerveModule(
-      "RR",
+    "RR",
     RobotMap.REAR_RIGHT_DRIVE,
     RobotMap.REAR_RIGHT_PIVOT,
     Constants.PIVOT_P,
@@ -111,7 +120,8 @@ public class SwerveDrive extends SubsystemBase {
     Constants.DRIVE_KV,
     Constants.DRIVE_KA,
     RobotMap.REAR_RIGHT_PIVOT_ENCODER,
-    Constants.REAR_RIGHT_PIVOT_OFFSET_DEGREES);
+    Constants.REAR_RIGHT_PIVOT_OFFSET_DEGREES
+  );
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation,
       frontRightLocation, rearLeftLocation, rearRightLocation);
@@ -252,20 +262,8 @@ public class SwerveDrive extends SubsystemBase {
    * 
    */
   public void updateOdometry() {
-    var hasValidMeasurements = true;
     var modulePositions = getSwerveModulePositions();
-    for (var i = 0; i < modulePositions.length; i++) {
-      var pos = modulePositions[i];
-      if (Double.isNaN(pos.distanceMeters) || Double.isNaN(pos.angle.getRadians())) {
-        DriverStation.reportError("Rejected module state! (index=" + i + ")", false);
-        hasValidMeasurements = false;
-        break;
-      }
-    }
-
-    if (hasValidMeasurements) {
-      poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
-    }
+    poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     // if (estimatedFrontPose.isPresent()) {
@@ -304,16 +302,6 @@ public class SwerveDrive extends SubsystemBase {
     //     poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
     //   }
 
-    var pose = poseEstimator.getEstimatedPosition();
-
-    if (!this.loggedPoseError && (Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()))) {
-      this.loggedPoseError = true;
-      for(var pos : modulePositions) {
-        DriverStation.reportError("Bad module state! Check output for details.", false);
-      }
-    }
-
-    
   }
   
 
@@ -395,9 +383,30 @@ public class SwerveDrive extends SubsystemBase {
   @Override
   public void periodic() {
     updateOdometry();
-    RobotContainer.field.setRobotPose(getPose());
-    SmartDashboard.putNumber("Navx-Yaw", RobotContainer.getRobotYaw());
-    SmartDashboard.putNumber("Navx-Roll", RobotContainer.getRobotRoll());
-    SmartDashboard.putNumber("Navx-Pitch", RobotContainer.getRobotPitch());
+
+    var pose = getPose();
+    RobotContainer.field.setRobotPose(pose);
+
+    var yaw = RobotContainer.getRobotYaw();
+    var roll = RobotContainer.getRobotRoll();
+    var pitch = RobotContainer.getRobotPitch();
+    SmartDashboard.putNumber("Navx-Yaw", yaw);
+    SmartDashboard.putNumber("Navx-Roll", roll);
+    SmartDashboard.putNumber("Navx-Pitch", pitch);
+
+    if (RobotState.isEnabled()) {
+      var chassis = getChassisSpeeds();
+      var speed = Math.hypot(chassis.vxMetersPerSecond, chassis.vyMetersPerSecond);
+      LogLinearSpeed.append(speed);
+      var omega = chassis.omegaRadiansPerSecond;
+      LogAngularSpeed.append(omega);
+
+      LogOdometryX.append(pose.getX());
+      LogOdometryY.append(pose.getY());
+      LogOdometryTheta.append(pose.getRotation().getDegrees());
+      LogNavxYaw.append(yaw);
+      LogNavxRoll.append(roll);
+      LogNavxPitch.append(pitch);
+    }
   }
 }

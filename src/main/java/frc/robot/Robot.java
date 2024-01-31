@@ -5,12 +5,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.drive.SwerveDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods
@@ -24,6 +24,10 @@ import frc.robot.subsystems.drive.SwerveDrive;
 public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private Command autonomousRoutine;
+
+  private StringLogEntry LogCmdStarted = new StringLogEntry(DataLogManager.getLog(), "/commands/started");
+  private StringLogEntry LogCmdInterrupted = new StringLogEntry(DataLogManager.getLog(), "/commands/interrupted");
+  private StringLogEntry LogCmdEnded = new StringLogEntry(DataLogManager.getLog(), "/commands/ended");
 
   /**
    * This method is run when the robot is first started up and should be used for
@@ -44,11 +48,21 @@ public class Robot extends TimedRobot {
     robotContainer = RobotContainer.getInstance();
 
     // for debugging
-    CommandScheduler.getInstance()
-        .onCommandInitialize((command) -> System.out.println(command.getName() + " starting..."));
-    CommandScheduler.getInstance()
-        .onCommandInterrupt((command) -> System.out.println(command.getName() + " interrupted!"));
-    CommandScheduler.getInstance().onCommandFinish((command) -> System.out.println(command.getName() + " ended."));
+    CommandScheduler.getInstance().onCommandInitialize((command) -> {
+      var cmdName = command.getName();
+      System.out.println(cmdName + " started.");
+      LogCmdStarted.append(cmdName);
+    });
+    CommandScheduler.getInstance().onCommandInterrupt((command) -> {
+      var cmdName = command.getName();
+      System.out.println(cmdName + " interrupted.");
+      LogCmdInterrupted.append(cmdName);
+    });
+    CommandScheduler.getInstance().onCommandFinish((command) -> {
+      var cmdName = command.getName();
+      System.out.println(cmdName + " ended.");
+      LogCmdEnded.append(cmdName);
+    });
   }
 
   /**
