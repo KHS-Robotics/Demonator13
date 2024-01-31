@@ -2,16 +2,10 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
-import frc.robot.subsystems.drive.SwerveDrive;
 
-public class OldLEDStrip extends SubsystemBase {
+public class OldLEDStrip {
     Thread t;
     AddressableLED strip;
     AddressableLEDBuffer buffer;
@@ -19,8 +13,6 @@ public class OldLEDStrip extends SubsystemBase {
     int counter;
     int ticksPerSecond = 50;
 
-    // int stackercount = 0;
-    // Color[] stacker = new Color[Constants.LED_LENGTH];
     public OldLEDStrip() {
         // multithreading this has got to be genius
         t = new Thread(() -> {
@@ -67,17 +59,17 @@ public class OldLEDStrip extends SubsystemBase {
         }
     }
 
-    public void setAllOff() {
-        ticksPerSecond = 5;
-        for (int i = 0; i < Constants.LED_LENGTH; i++) {
-            setRGBMirrored(i, 0, 0, 0);
-        }
-    }
-
     public void setAllBlue() {
         ticksPerSecond = 5;
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
             setRGBMirrored(i, 0, 0, 255);
+        }
+    }
+
+    public void setAllOff() {
+        ticksPerSecond = 5;
+        for (int i = 0; i < Constants.LED_LENGTH; i++) {
+            setRGBMirrored(i, 0, 0, 0);
         }
     }
 
@@ -89,29 +81,11 @@ public class OldLEDStrip extends SubsystemBase {
         // }
     }
 
-    public void setPurple() {
-        ticksPerSecond = 5;
-        for (int i = 0; i < Constants.LED_LENGTH; i++) {
-            setRGBMirrored(i, 255, 0, 255);
-        }
-    }
-
-    public void setYellow() {
-        ticksPerSecond = 5;
-        for (int i = 0; i < Constants.LED_LENGTH; i++) {
-            setRGBMirrored(i, 255, 255, 0);
-        }
-    }
-
     public void runBlue() {
         ticksPerSecond = 20;
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
             setRGBMirrored((i + counter) % Constants.LED_LENGTH, 0, 0,
                     (int) ((-Math.cos((2 * Math.PI * 2 * i) / Constants.LED_LENGTH)) + 1) * 50);
-            // double alternate = (255 / 1) * ((-Math.cos((2 * Math.PI * 2 * i) /
-            // Constants.LED_LENGTH)) + 1);
-            // setRGBMirrored((i + counter) % Constants.LED_LENGTH, 0, (int) alternate,
-            // 255);
         }
     }
 
@@ -120,11 +94,6 @@ public class OldLEDStrip extends SubsystemBase {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
             setRGBMirrored((i + counter) % Constants.LED_LENGTH,
                     (int) ((-Math.cos((2 * Math.PI * 2 * i) / Constants.LED_LENGTH)) + 1) * 50, 0, 0);
-
-            // double alternate = (25 / 2) * ((-Math.cos((2 * Math.PI * 2 * i) /
-            // Constants.LED_LENGTH)) + 1);
-            // setRGBMirrored((i + counter) % Constants.LED_LENGTH, 255, 0, (int)
-            // alternate);
         }
     }
 
@@ -156,10 +125,5 @@ public class OldLEDStrip extends SubsystemBase {
 
         strip.setData(buffer);
         counter++;
-    }
-
-    @Override
-    public void periodic() {
-        // this runs off thread so it doesn't stutter
     }
 }
