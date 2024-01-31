@@ -40,7 +40,9 @@ public class SwerveDrive extends SubsystemBase {
   public static double kMaxSpeedMetersPerSecond = 4.6;
   public static double kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
   public static double offset;
-  private PIDController targetPid;
+  private PIDController anglePid;
+  private PIDController xPid;
+  private PIDController yPid;
   private final Translation2d frontLeftLocation = new Translation2d(0.2921, 0.2921);
   private final Translation2d frontRightLocation = new Translation2d(0.2921, -0.2921);
   private final Translation2d rearLeftLocation = new Translation2d(-0.2921, 0.2921);
@@ -129,9 +131,13 @@ public class SwerveDrive extends SubsystemBase {
    */
   public SwerveDrive() {
 
-    targetPid = new PIDController(Constants.TARGET_P, Constants.TARGET_I, Constants.TARGET_D);
-    targetPid.enableContinuousInput(-180.0, 180.0);
-    targetPid.setTolerance(1);
+    anglePid = new PIDController(Constants.DRIVE_ANGLE_P, Constants.DRIVE_ANGLE_I, Constants.DRIVE_ANGLE_D);
+    xPid = new PIDController(Constants.DRIVE_X_P, Constants.DRIVE_X_I, Constants.DRIVE_X_D);
+    yPid = new PIDController(Constants.DRIVE_Y_P, Constants.DRIVE_Y_I, Constants.DRIVE_Y_D);
+    anglePid.enableContinuousInput(-180.0, 180.0);
+    anglePid.setTolerance(1);
+    xPid.setTolerance(0.1);
+    yPid.setTolerance(0.1);
   }
 
   /**
@@ -204,7 +210,7 @@ public class SwerveDrive extends SubsystemBase {
 
 
   public void setPID(double p, double i, double d) {
-    targetPid.setPID(p, i, d);
+    anglePid.setPID(p, i, d);
   }
 
   public void rotateToAngleInPlace(double setAngle) {
@@ -212,7 +218,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void holdAngleWhileDriving(double x, double y, Rotation2d setAngle, boolean fieldOriented) {
-    var rotateOutput = MathUtil.clamp(targetPid.calculate(poseEstimator.getEstimatedPosition().getRotation().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    var rotateOutput = MathUtil.clamp(anglePid.calculate(poseEstimator.getEstimatedPosition().getRotation().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
     this.drive(x, y, rotateOutput, fieldOriented);
   }
 
@@ -220,13 +226,21 @@ public class SwerveDrive extends SubsystemBase {
     holdAngleWhileDriving(x, y, Rotation2d.fromDegrees(setAngle), fieldOriented);
   }
 
+  public void goToPose(Pose2d target, boolean fieldOriented) {
+    Pose2d pose = getPose();
+    double vX = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
+    double vY = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
+    double vTheta = MathUtil.clamp(anglePid.calculate(pose.getRotation().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    this.drive(vX, vY, vTheta, fieldOriented);
+  }
+
   public boolean atSetpoint() {
-    return targetPid.atSetpoint();
+    return anglePid.atSetpoint();
   }
 
   public boolean atSetpoint(double allowableError) {
-    targetPid.setTolerance(allowableError);
-    return targetPid.atSetpoint();
+    anglePid.setTolerance(allowableError);
+    return anglePid.atSetpoint();
   }
 
   public Pose2d getPose() {
@@ -352,7 +366,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void resetPid() {
-    targetPid.reset();
+    anglePid.reset();
   }
 
   public boolean facingInfield() {

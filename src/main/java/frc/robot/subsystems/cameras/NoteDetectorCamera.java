@@ -69,7 +69,7 @@ public class NoteDetectorCamera extends SubsystemBase {
     return RobotContainer.swerveDrive.getPose().rotateBy(Rotation2d.fromDegrees(target.getYaw()));
   }
 
-  private Note getNearestNote() {
+  public Note getNearestNote() {
     Note minimum = notes.get(0);
 
     for (Note n : notes) {
@@ -86,14 +86,21 @@ public class NoteDetectorCamera extends SubsystemBase {
     for (PhotonTrackedTarget t : getTargets()) {
       Translation2d notePose = estimateNotePose(t);
 
+      boolean newNote = true;
+
       if (notes.isEmpty()) {
-        notes.add(new Note(notePose));
+        newNote = true;
       } else {
         for (Note n : notes) {
-          if (!n.addPose(notePose)) {
-            notes.add(new Note(notePose));
+          newNote = !n.addPose(notePose);
+          if (newNote = false) {
+            break;
           }
         }
+      }
+
+      if (newNote) {
+        notes.add(new Note(notePose));
       }
 
 
@@ -101,12 +108,12 @@ public class NoteDetectorCamera extends SubsystemBase {
       notes.get(0).addPose(notePose);
     }
 
-    List<Pose2d> allNotes = new ArrayList<>();
+    List<Pose2d> allNotePoses = new ArrayList<>();
     for (Note n : notes) {
-      allNotes.add(new Pose2d(n.position, new Rotation2d()));
+      allNotePoses.add(new Pose2d(n.position, new Rotation2d()));
     }
 
-    RobotContainer.field.getObject("note").setPoses(allNotes);
+    RobotContainer.field.getObject("note").setPoses(allNotePoses);
   }
 
   
