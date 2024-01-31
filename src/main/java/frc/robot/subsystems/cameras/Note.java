@@ -23,9 +23,9 @@ public class Note {
   // attempts to add a pose to the point cloud, if it's further than the max error, reject it and return false
   // when it returns false, a new Note will be added to the note array
   public boolean addPose(Translation2d newPose) {
-    // if (newPose.getDistance(position) > MAX_ERROR_METERS) {
-    //   return false;
-    // }
+    if (newPose.getDistance(position) > MAX_ERROR_METERS) {
+      return false;
+    }
 
     //pointCloud.add(newPose);
     //updatePose();
