@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 
@@ -47,5 +46,4 @@ public class Constants {
   public static final double INTAKE_RADIUS = 0.5;
 
   public static final int LED_LENGTH = 10;
-
 }
