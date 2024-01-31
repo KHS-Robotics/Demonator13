@@ -41,6 +41,10 @@ public class Note {
     return Math.abs(MathUtil.inputModulus(yawToNote.getDegrees(), -180, 180)) < (Constants.FRONT_NOTE_CAMERA_HFOV / 2);
   }
 
+  // at some point this should be changed to be a weighted average 
+  // weights should be based on yaw value, close to edge should be weighted very little
+  // maybe 0-1 with a factor x^2 or x^3
+  // avg = (sum(W*X)/sum(W))
   private void updatePose() {
     double x = 0.0;
     double y = 0.0;
