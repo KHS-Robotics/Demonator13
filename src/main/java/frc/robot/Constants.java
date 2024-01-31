@@ -46,4 +46,6 @@ public class Constants {
 
   public static final double INTAKE_RADIUS = 0.5;
 
+  public static final int LED_LENGTH = 10;
+
 }
