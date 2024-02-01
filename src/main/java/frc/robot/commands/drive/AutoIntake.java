@@ -14,8 +14,7 @@ public class AutoIntake extends Command {
   private Pose2d robotTarget;
   private Pose2d robotPose;
 
-  public AutoIntake(Note target) {
-    this.target = target;
+  public AutoIntake() {
     this.addRequirements(RobotContainer.swerveDrive);
     //addRequirements intake, arm?
   }
@@ -32,6 +31,10 @@ public class AutoIntake extends Command {
 
     // update target based on camera
     this.target = RobotContainer.frontNoteCamera.getNearestNote();
+
+    if (this.target == null) {
+      return;
+    }
 
     // vector from robot to target (imagine the robot center is at 0,0)
     Translation2d vec = target.position.minus(robotPose.getTranslation());

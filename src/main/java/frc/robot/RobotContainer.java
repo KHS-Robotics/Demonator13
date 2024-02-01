@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
@@ -143,8 +144,11 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-    Trigger pointToNote = driverController.leftBumper();
-    pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
+    // Trigger pointToNote = driverController.leftBumper();
+    // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
+
+    Trigger autoIntake = driverController.rightBumper();
+    autoIntake.whileTrue(new AutoIntake());
   }
 
   /** Binds commands to the operator box. */
