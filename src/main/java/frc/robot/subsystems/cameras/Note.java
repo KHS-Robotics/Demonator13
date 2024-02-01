@@ -12,7 +12,7 @@ import frc.robot.Constants;
 public class Note {
   public Translation2d position;
   private List<Translation2d> pointCloud;
-  private final double MAX_ERROR_METERS = 0.5;
+  private final double MAX_ERROR_METERS = 0.1;
 
   public Note(Translation2d initialPose) {
     this.position = initialPose;
@@ -23,7 +23,7 @@ public class Note {
   // attempts to add a pose to the point cloud, if it's further than the max error, reject it and return false
   // when it returns false, a new Note will be added to the note array
   public boolean addPose(Translation2d newPose) {
-    if (newPose.getDistance(position) > MAX_ERROR_METERS) {
+    if (!isNear(newPose)) {
       return false;
     }
 
@@ -31,6 +31,10 @@ public class Note {
     //updatePose();
     this.position = newPose;
     return true;
+  }
+
+  public boolean isNear(Translation2d newPose) {
+    return newPose.getDistance(position) < MAX_ERROR_METERS;
   }
 
   public boolean isInFov(Pose2d robotPose) {
