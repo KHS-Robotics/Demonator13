@@ -19,8 +19,6 @@ public class OldLEDStrip extends SubsystemBase {
     int counter;
     int ticksPerSecond = 50;
 
-    // int stackercount = 0;
-    // Color[] stacker = new Color[Constants.LED_LENGTH];
     public OldLEDStrip() {
         // multithreading this has got to be genius
         t = new Thread(() -> {
@@ -87,20 +85,6 @@ public class OldLEDStrip extends SubsystemBase {
         // } else {
         // setAllBlue();
         // }
-    }
-
-    public void setPurple() {
-        ticksPerSecond = 5;
-        for (int i = 0; i < Constants.LED_LENGTH; i++) {
-            setRGBMirrored(i, 255, 0, 255);
-        }
-    }
-
-    public void setYellow() {
-        ticksPerSecond = 5;
-        for (int i = 0; i < Constants.LED_LENGTH; i++) {
-            setRGBMirrored(i, 255, 255, 0);
-        }
     }
 
     public void runBlue() {
