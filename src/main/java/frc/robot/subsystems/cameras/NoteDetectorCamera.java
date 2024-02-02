@@ -51,14 +51,22 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    // phi is the angle on the xy plane from the x axis
     double phi = -Math.toRadians(target.getYaw());
+    // theta is the angle from the z axis
     double theta = (Math.PI / 2) - cameraOffset.getRotation().getY() - Math.toRadians(target.getPitch());
 
+    // this is a unit vector, its length is 1, but it is in the direction of the
+    // note
     Translation3d targetVector = new Translation3d(Math.sin(theta) * Math.cos(phi), Math.sin(theta) * Math.sin(phi),
         Math.cos(theta));
+
+    // z is the camera's height above the ground
     double z = cameraOffset.getZ();
+    // t is the number of unit vectors needed to reach the note, like a multiplier
     double t = -z / targetVector.getZ();
 
+    // find x and y by multiplying the x and y components of the unit vector by t
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
     Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d());
     Translation2d noteFieldRelative = noteRobotRelative.rotateBy(robotPose.getRotation())
@@ -85,61 +93,21 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // if any targets are a note that already exists, update that note
-    // if none are, make a new note
-    // if a note is in fov and a target does not update that note's pose in this tick, remove the note
-
-    // this is god awful if anyone has a better way to do all this please change it
-
-    ArrayList<Note> newNotes = new ArrayList<>();
-    ArrayList<Note> notesToRemove = new ArrayList<>();
-    ArrayList<Note> notesInFrame = new ArrayList<>();
-    ArrayList<Translation2d> detectedNotes = new ArrayList<>();
-    List<Pose2d> allNotePoses = new ArrayList<>();
+    // no more caching
+    ArrayList<Pose2d> allNotePoses = new ArrayList<>();
+    notes.clear();
 
 
-    // create list of notes that should be in frame
-    for (Note n : notes) {
-      if (n.isInFov(RobotContainer.swerveDrive.getPose())) {
-        notesInFrame.add(n);
-      }
-    }
 
-    // create list of positions for notes that are actually in frame
     for (PhotonTrackedTarget t : getTargets()) {
-      detectedNotes.add(estimateNotePose(t));
+      notes.add(new Note(estimateNotePose(t)));
     }
 
-    // if any notes that should be in frame don't get updated, add them to the list of notes to be removed
-    // the implication is that the robot can't see it when it should, so it's probably not there
-    for (Note n : notesInFrame) {
-      boolean hasBeenUpdated = false;
-      // if any note gets updated, set hasBeenUpdated to true, and stop looping (can only update one note)
-      for (Translation2d newPose : detectedNotes) {
-        // if a detected note is new, add it to newNotes, if it is not new, it updates the note that it actually is
-        if (n.addPose(newPose)) {
-          hasBeenUpdated = true;
-          break;
-        } else {
-          newNotes.add(new Note(newPose));
-        }
-      }
-
-      // update remove list
-      if (!hasBeenUpdated) {
-        notesToRemove.add(n);
-      }
-    }
-
-    // updates note list based on remove/new lists
-    notes.removeAll(notesToRemove);
-    notes.addAll(newNotes);
-
-    // get notes as Pose2ds because glass takes in Pose2d list
     for (Note n : notes) {
       allNotePoses.add(new Pose2d(n.position, new Rotation2d()));
     }
 
+    
     RobotContainer.field.getObject("note").setPoses(allNotePoses);
   }
 

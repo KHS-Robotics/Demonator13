@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 
@@ -32,11 +31,11 @@ public class Constants {
   public static final double DRIVE_ANGLE_I = 0;
   public static final double DRIVE_ANGLE_D = 0.00001;
 
-  public static final double DRIVE_X_P = 0;
+  public static final double DRIVE_X_P = 1.0;
   public static final double DRIVE_X_I = 0;
   public static final double DRIVE_X_D = 0;
 
-  public static final double DRIVE_Y_P = 0;
+  public static final double DRIVE_Y_P = 1.0;
   public static final double DRIVE_Y_I = 0;
   public static final double DRIVE_Y_D = 0;
 
@@ -47,5 +46,4 @@ public class Constants {
   public static final double INTAKE_RADIUS = 0.5;
 
   public static final int LED_LENGTH = 10;
-
 }
