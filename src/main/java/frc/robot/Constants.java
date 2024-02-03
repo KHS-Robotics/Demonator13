@@ -27,19 +27,19 @@ public class Constants {
   public static final double DRIVE_KV = 3.2717;
   public static final double DRIVE_KA = 0.17904;
 
-  public static final double DRIVE_ANGLE_P = 0.015;
+  public static final double DRIVE_ANGLE_P = 0.009;
   public static final double DRIVE_ANGLE_I = 0;
-  public static final double DRIVE_ANGLE_D = 0.00001;
+  public static final double DRIVE_ANGLE_D = 0;
 
-  public static final double DRIVE_X_P = 1.0;
+  public static final double DRIVE_X_P = 0.3;
   public static final double DRIVE_X_I = 0;
   public static final double DRIVE_X_D = 0;
 
-  public static final double DRIVE_Y_P = 1.0;
+  public static final double DRIVE_Y_P = 0.3;
   public static final double DRIVE_Y_I = 0;
   public static final double DRIVE_Y_D = 0;
 
-  public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0.43815, new Rotation3d(0, Math.toRadians(-23.6607), 0));
+  public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0.7112, new Rotation3d(0, Math.toRadians(-20), 0));
   public static final Transform3d REAR_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0, new Rotation3d());
   public static final double FRONT_NOTE_CAMERA_HFOV = 53;
 
