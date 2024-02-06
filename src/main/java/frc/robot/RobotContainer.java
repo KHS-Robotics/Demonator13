@@ -231,15 +231,6 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    registerNamedCommand(new ShootSpeaker());
-    registerNamedCommand("print", new PrintCommand("asd"));
-  }
-
-  private void registerNamedCommand(String name, Command cmd) {
-    NamedCommands.registerCommand(name, cmd);
-  }
-
-  private void registerNamedCommand(Command cmd) {
-    registerNamedCommand(cmd.getClass().getSimpleName(), cmd);
+    NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
   }
 }
