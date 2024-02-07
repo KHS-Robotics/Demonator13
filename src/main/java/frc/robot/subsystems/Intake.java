@@ -3,8 +3,10 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -29,11 +31,15 @@ public class Intake extends SubsystemBase {
   public ProfiledPIDController pivotPositionController;
   public ArmFeedforward pivotFeedforward;
 
+  public SparkLimitSwitch intakeSensor;
+
   private final double PIVOT_GEAR_RATIO = 0.0;
 
-  private final double kS = 0.0;
-  private final double kG = 0.0;
-  private final double kV = 0.0;
+  // sane? values from last year we can tune later
+  private final double kS = 0.15463;
+  private final double kG = 0.59328;
+  private final double kV = 0.9972;
+  private final double kA = 0.025145;
 
   private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
 
@@ -44,11 +50,13 @@ public class Intake extends SubsystemBase {
     pivotEncoder = new CANcoder(RobotMap.INTAKE_PIVOT_ENCODER);
     pivotMotor.setIdleMode(IdleMode.kBrake);
 
+    intakeSensor = pivotMotor.getForwardLimitSwitch(Type.kNormallyClosed);
+
     pivotPositionController = new ProfiledPIDController(Constants.INTAKE_PIVOT_P, Constants.INTAKE_PIVOT_I,
         Constants.DRIVE_ANGLE_D, pivotConstraints);
     pivotPositionController.setTolerance(1);
 
-    pivotFeedforward = new ArmFeedforward(kS, kG, kV);
+    pivotFeedforward = new ArmFeedforward(kS, kG, kV, kA);
   }
 
   public void goToAngle(Rotation2d angle) {
@@ -88,8 +96,8 @@ public class Intake extends SubsystemBase {
     }
   }
 
-  public void hasNoteInside() {
-
+  public boolean hasNoteInside() {
+    return intakeSensor.isPressed();
   }
 
   public enum IntakeSetpoint {
