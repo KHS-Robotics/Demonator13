@@ -34,6 +34,8 @@ import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeSetpoint;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -91,7 +93,7 @@ public class RobotContainer {
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
-  // public static final Intake intake = new Intake();
+  public static final Intake intake = new Intake();
   // public static final Shooter shooter = new Shooter();
   // public static final Arm arm = new Arm();
   // public static final AprilTagCamera frontAprilTagCamera = new
@@ -145,6 +147,12 @@ public class RobotContainer {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
+
+    Trigger intakeDown = driverController.b();
+    intakeDown.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kDown);}));
+
+    Trigger intakeUp = driverController.y();
+    intakeUp.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kUp);}));
 
     // Trigger pointToNote = driverController.leftBumper();
     // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
