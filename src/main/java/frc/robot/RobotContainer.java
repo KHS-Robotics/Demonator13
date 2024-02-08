@@ -35,7 +35,6 @@ import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.NewLEDStrip;
 import frc.robot.subsystems.Intake.IntakeSetpoint;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -101,7 +100,7 @@ public class RobotContainer {
   // AprilTagCamera("FrontCamera",
   // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
-  public static final NewLEDStrip ledStrip = new NewLEDStrip();
+  // public static final NewLEDStrip ledStrip = new NewLEDStrip();
 
   public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera",
       Constants.FRONT_APRILTAG_CAMERA_OFFSET);
