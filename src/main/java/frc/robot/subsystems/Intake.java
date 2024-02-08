@@ -53,7 +53,7 @@ public class Intake extends SubsystemBase {
     intakeSensor = pivotMotor.getForwardLimitSwitch(Type.kNormallyClosed);
 
     pivotPositionController = new ProfiledPIDController(Constants.INTAKE_PIVOT_P, Constants.INTAKE_PIVOT_I,
-        Constants.DRIVE_ANGLE_D, pivotConstraints);
+        Constants.INTAKE_PIVOT_D, pivotConstraints);
     pivotPositionController.setTolerance(1);
 
     pivotFeedforward = new ArmFeedforward(kS, kG, kV, kA);

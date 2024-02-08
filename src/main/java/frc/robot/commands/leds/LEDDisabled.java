@@ -4,7 +4,6 @@
 
 package frc.robot.commands.leds;
 
-import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
@@ -45,6 +44,8 @@ public class LEDDisabled extends Command {
       } else {
         setPixels(Color.BLUE);
       }
+    } else {
+      setPixels(Color.WHITE);
     }
     counter++;
   }
