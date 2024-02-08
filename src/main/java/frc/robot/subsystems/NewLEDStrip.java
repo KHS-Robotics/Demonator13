@@ -6,11 +6,12 @@ import java.awt.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotMap;
+import frc.robot.commands.leds.LEDDisabled;
 
 public class NewLEDStrip extends SubsystemBase {
   AddressableLED strip;
   AddressableLEDBuffer buffer;
-  int counter = 0;
+  public int counter = 0;
   public Color[] pixelArray;
 
   public NewLEDStrip() {
@@ -24,6 +25,8 @@ public class NewLEDStrip extends SubsystemBase {
     buffer = new AddressableLEDBuffer(Constants.LED_LENGTH * 2);
     strip.setData(buffer);
     strip.start();
+
+    this.setDefaultCommand(new LEDDisabled());
   }
 
   public void setColorArray(Color[] colors) {
