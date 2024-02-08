@@ -1,5 +1,7 @@
 package frc.robot.commands.drive;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -10,7 +12,7 @@ import frc.robot.subsystems.cameras.Note;
 
 public class AutoIntake extends Command {
   private boolean fieldRelative = false;
-  private Note target;
+  private Optional<Note> target;
   private Pose2d robotTarget;
   private Pose2d robotPose;
 
@@ -32,12 +34,12 @@ public class AutoIntake extends Command {
     // update target based on camera
     this.target = RobotContainer.frontNoteCamera.getNearestNote();
 
-    if (this.target == null) {
+    if (this.target.isEmpty()) {
       return;
     }
 
     // vector from robot to target (imagine the robot center is at 0,0)
-    Translation2d vec = target.position.minus(robotPose.getTranslation());
+    Translation2d vec = target.get().position.minus(robotPose.getTranslation());
 
     // angle from robot center to note
     Rotation2d angleToNote = new Rotation2d(vec.getX(), vec.getY());

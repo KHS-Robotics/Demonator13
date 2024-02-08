@@ -79,7 +79,11 @@ public class NoteDetectorCamera extends SubsystemBase {
     return RobotContainer.swerveDrive.getPose().rotateBy(Rotation2d.fromDegrees(target.getYaw()));
   }
 
-  public Note getNearestNote() {
+  public Optional<Note> getNearestNote() {
+    if (notes.isEmpty()) {
+      return Optional.empty();
+    }
+
     Note minimum = notes.get(0);
 
     for (Note n : notes) {
@@ -88,7 +92,7 @@ public class NoteDetectorCamera extends SubsystemBase {
       }
     }
 
-    return minimum;
+    return Optional.of(minimum);
   }
 
   @Override
