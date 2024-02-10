@@ -13,9 +13,12 @@ import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
 
 public class Shooter extends SubsystemBase {
@@ -37,6 +40,9 @@ public class Shooter extends SubsystemBase {
   Function<Vector<N5>, Vector<N5>> projectileEquation;
   private final double MU = 0.5;
   private final double SPEAKER_HEIGHT = 3;
+
+  private final double SHOOTER_PIVOT_TO_END = 0.37516;
+  private final Translation2d SHOOTER_PIVOT_ROBOT_REL = new Translation2d(-0.2757, 0.5972);
 
   public Shooter() {
     shooterLeader = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
@@ -121,8 +127,41 @@ public class Shooter extends SubsystemBase {
     return Optional.empty();
   }
 
+  public Translation2d shooterExitRobotRelative(double theta) {
+    double x = SHOOTER_PIVOT_TO_END * Math.cos(theta);
+    double y = SHOOTER_PIVOT_TO_END * Math.sin(theta);
+
+    return SHOOTER_PIVOT_ROBOT_REL.plus(new Translation2d(x, y));
+  }
+
+  public double modelIntersectionToAngle(double x) {
+    return 1.58 + (-0.446 * x) + (0.0683 * x * x) + (-4.89E-03 * x * x * x) + (1.34E-04 * x * x * x * x);
+  }
+
+  public double modelTimeToIntersection(double x) {
+    return 0.0532 + (0.0134 * x) + (0.0131 * x * x) + (-1.9E-03 * x * x * x) + (1.05E-04 * x * x * x * x);
+  }
+
   public void calculateAngleToSpeaker() {
 
+  }
+
+  public Translation2d translationToSpeaker() {
+    Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    Translation2d speakerPose = new Translation2d(0, 5.5528);
+    return speakerPose.minus(robotPose.getTranslation());
+  }
+
+  public double speakerOpeningAngleVertical() {
+    Translation2d translationToSpeaker = translationToSpeaker();
+    Translation2d translationToOutsideSpeaker = translationToSpeaker.plus(new Translation2d(0.46, 0));
+
+    double speakerInsideHeight = 1.98;
+    double speakerOutsideHeight = 2.11;
+
+    double theta1 = Math.atan2(speakerInsideHeight, translationToSpeaker.getX());
+    double theta2 = Math.atan2(speakerOutsideHeight, translationToOutsideSpeaker.getX());
+    return theta2 - theta1;
   }
 
 }
