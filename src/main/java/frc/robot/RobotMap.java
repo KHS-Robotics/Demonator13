@@ -22,6 +22,7 @@ public class RobotMap {
 
   public static final int INTAKE_MOTOR = 0;
   public static final int INTAKE_PIVOT = 0;
+  public static final int INTAKE_PIVOT_ENCODER = 0;
 
   public static final int SHOOTER_LEADER = 0;
   public static final int SHOOTER_FOLLOWER = 0;
@@ -30,15 +31,18 @@ public class RobotMap {
   public static final int ARM_PIVOT = 0;
   public static final int ARM_CANCODER = 0;
 
+  public static final int WRIST_PIVOT = 0;
+  public static final int WRIST_CANCODER = 0;
+
   public static final int FRONT_LEFT_PIVOT = 10;
-  public static final int FRONT_RIGHT_PIVOT = 20;
-  public static final int REAR_LEFT_PIVOT = 30;
-  public static final int REAR_RIGHT_PIVOT = 40;
+  public static final int FRONT_RIGHT_PIVOT = 8;
+  public static final int REAR_LEFT_PIVOT = 18;
+  public static final int REAR_RIGHT_PIVOT = 20;
 
   public static final int FRONT_LEFT_DRIVE = 11;
-  public static final int FRONT_RIGHT_DRIVE = 21;
-  public static final int REAR_LEFT_DRIVE = 31;
-  public static final int REAR_RIGHT_DRIVE = 41;
+  public static final int FRONT_RIGHT_DRIVE = 9;
+  public static final int REAR_LEFT_DRIVE = 19;
+  public static final int REAR_RIGHT_DRIVE = 1;
 
   public static final int FRONT_LEFT_PIVOT_ENCODER = 12;
   public static final int FRONT_RIGHT_PIVOT_ENCODER = 22;

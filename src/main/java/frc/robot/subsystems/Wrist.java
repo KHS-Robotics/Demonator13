@@ -5,20 +5,18 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
-public class Arm extends SubsystemBase {
+public class Wrist extends SubsystemBase {
     private CANSparkMax pivotMotor;
     private CANcoder pivotEncoder;
-    private PIDController pivotPID;
-    private final double gearRatio = 0.0;
-    private ProfiledPIDController armPid;
-    private ArmFeedforward armFf;
+
+    private ProfiledPIDController wristPid;
+    private ArmFeedforward wristFf;
     private final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(1.5, 5);
 
     private final double kP = 0;
@@ -30,19 +28,19 @@ public class Arm extends SubsystemBase {
     private final double kV = 0;
     private final double kA = 0;
 
-    public Arm() {
-        pivotMotor = new CANSparkMax(RobotMap.ARM_PIVOT, MotorType.kBrushless);
-        pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
-        
-        armPid = new ProfiledPIDController(kP, kI, kD, constraints);
-        armFf = new ArmFeedforward(kS, kG, kV, kA);
+    public Wrist() {
+        pivotMotor = new CANSparkMax(RobotMap.WRIST_PIVOT, MotorType.kBrushless);
+        pivotEncoder = new CANcoder(RobotMap.WRIST_CANCODER);
+
+        wristPid = new ProfiledPIDController(kP, kI, kD, constraints);
+        wristFf = new ArmFeedforward(kS, kG, kV, kA);
     }
 
     public void goToAngle(Rotation2d angle) {
         double goalRadians = angle.getRadians();
-        armPid.setGoal(goalRadians);
-        double pidOutput = armPid.calculate(getPivotAngle());
-        double ffOutput = armFf.calculate(getPivotAngle(), armPid.getSetpoint().velocity);
+        wristPid.setGoal(goalRadians);
+        double pidOutput = wristPid.calculate(getPivotAngle());
+        double ffOutput = wristFf.calculate(getPivotAngle(), wristPid.getSetpoint().velocity);
         pivotMotor.setVoltage(pidOutput + ffOutput);
     }
 
@@ -50,7 +48,7 @@ public class Arm extends SubsystemBase {
         return 2 * Math.PI * pivotEncoder.getAbsolutePosition().getValueAsDouble();
     }
 
-    public enum ArmPosition {
+    public enum WristPosition {
         kStow,
         kIntake,
         kShoot

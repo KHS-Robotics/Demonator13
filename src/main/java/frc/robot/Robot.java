@@ -105,6 +105,8 @@ public class Robot extends TimedRobot {
     if (autonomousRoutine != null) {
       autonomousRoutine.schedule();
     }
+
+    
   }
 
   /** This method is called periodically during autonomous. */

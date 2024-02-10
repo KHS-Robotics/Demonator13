@@ -7,6 +7,12 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -268,42 +274,42 @@ public class SwerveDrive extends SubsystemBase {
     var modulePositions = getSwerveModulePositions();
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
-    // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedFrontPose.isPresent()) {
-    //   List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
+    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontCamera.getEstimatedGlobalPose();
+    if (estimatedFrontPose.isPresent()) {
+      List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
 
-    //   poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
+      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 0.3));
 
-    //   boolean goodMeasurements = true;
-    //   for (PhotonTrackedTarget t : targetsUsed) {
-    //     if (t.getPoseAmbiguity() < 0.2) {
-    //       goodMeasurements = false;
-    //       break;
-    //     }
-    //   }
+      boolean goodMeasurements = true;
+      for (PhotonTrackedTarget t : targetsUsed) {
+        if (t.getPoseAmbiguity() < 0.2) {
+          goodMeasurements = false;
+          break;
+        }
+      }
 
-    //   if (goodMeasurements) {
-    //     poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
-    //   }
-    // }
+      if (goodMeasurements) {
+        poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+      }
+    }
 
     // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     // if (estimatedRearPose.isPresent()) {
     //   List<PhotonTrackedTarget> targetsUsed = estimatedRearPose.get().targetsUsed;
 
-    //   poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
+      // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
 
-    //   boolean goodMeasurements = true;
-    //   for (PhotonTrackedTarget t : targetsUsed) {
-    //     if (t.getPoseAmbiguity() < 0.2) {
-    //       goodMeasurements = false;
-    //       break;
-    //     }
-    //   }
+      // boolean goodMeasurements = true;
+      // for (PhotonTrackedTarget t : targetsUsed) {
+      //   if (t.getPoseAmbiguity() < 0.2) {
+      //     goodMeasurements = false;
+      //     break;
+      //   }
+      // }
 
-    //   if (goodMeasurements) {
-    //     poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
-    //   }
+      // if (goodMeasurements) {
+      //   poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
+      // }
 
   }
   

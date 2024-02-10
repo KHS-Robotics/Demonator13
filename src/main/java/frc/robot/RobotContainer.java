@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -29,9 +30,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeSetpoint;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -89,17 +93,19 @@ public class RobotContainer {
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
-  // public static final Intake intake = new Intake();
+  public static final Intake intake = new Intake();
   // public static final Shooter shooter = new Shooter();
   // public static final Arm arm = new Arm();
   // public static final AprilTagCamera frontAprilTagCamera = new
   // AprilTagCamera("FrontCamera",
   // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
+  // public static final NewLEDStrip ledStrip = new NewLEDStrip();
 
-  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("FrontCamera",
+  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera",
       Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera frontCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -143,8 +149,17 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-    Trigger pointToNote = driverController.leftBumper();
-    pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
+    Trigger intakeDown = driverController.b();
+    intakeDown.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kDown);}));
+
+    Trigger intakeUp = driverController.y();
+    intakeUp.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kUp);}));
+
+    // Trigger pointToNote = driverController.leftBumper();
+    // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
+    
+    Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
+    autoIntake.whileTrue(new AutoIntake());
   }
 
   /** Binds commands to the operator box. */
@@ -231,15 +246,6 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    registerNamedCommand(new ShootSpeaker());
-    registerNamedCommand("print", new PrintCommand("asd"));
-  }
-
-  private void registerNamedCommand(String name, Command cmd) {
-    NamedCommands.registerCommand(name, cmd);
-  }
-
-  private void registerNamedCommand(Command cmd) {
-    registerNamedCommand(cmd.getClass().getSimpleName(), cmd);
+    NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
   }
 }
