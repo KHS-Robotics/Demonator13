@@ -12,6 +12,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -23,7 +24,7 @@ public class Intake extends SubsystemBase {
   private RelativeEncoder intakeEncoder;
 
   private CANSparkMax pivotMotor;
-  private CANcoder pivotEncoder;
+  private DutyCycleEncoder dutyCycleEncoder;
 
   double motorSpeed = 0.5;
 
@@ -47,7 +48,7 @@ public class Intake extends SubsystemBase {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
     intakeEncoder = intakeMotor.getEncoder();
     pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
-    pivotEncoder = new CANcoder(RobotMap.INTAKE_PIVOT_ENCODER);
+    dutyCycleEncoder = new DutyCycleEncoder(RobotMap.INTAKE_PIVOT_ENCODER);
     pivotMotor.setIdleMode(IdleMode.kBrake);
 
     intakeSensor = pivotMotor.getForwardLimitSwitch(Type.kNormallyClosed);
@@ -85,7 +86,7 @@ public class Intake extends SubsystemBase {
 
   public double getPivotAngle() {
     // radians 0 is up 180ish is down
-    return 2 * Math.PI * pivotEncoder.getAbsolutePosition().getValueAsDouble();
+    return 2 * Math.PI * dutyCycleEncoder.getAbsolutePosition();
   }
 
   public void setPosition(IntakeSetpoint setpoint) {
