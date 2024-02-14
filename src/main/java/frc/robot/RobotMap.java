@@ -31,6 +31,8 @@ public class RobotMap {
   public static final int ARM_PIVOT = 0;
   public static final int ARM_CANCODER = 0;
 
+  public static final int DutyCycleEncoder = 0;
+
   public static final int WRIST_PIVOT = 0;
   public static final int WRIST_CANCODER = 0;
 
@@ -48,4 +50,6 @@ public class RobotMap {
   public static final int FRONT_RIGHT_PIVOT_ENCODER = 22;
   public static final int REAR_LEFT_PIVOT_ENCODER = 32;
   public static final int REAR_RIGHT_PIVOT_ENCODER = 42;
+
+
 }
