@@ -50,4 +50,7 @@ public class Constants {
   public static final double INTAKE_PIVOT_P = 0;
   public static final double INTAKE_PIVOT_I = 0;
   public static final double INTAKE_PIVOT_D = 0;
+
+  public static final double INTAKE_TOP = 0.582;
+  public static final double INTAKE_BOTTOM = 0.223;
 }

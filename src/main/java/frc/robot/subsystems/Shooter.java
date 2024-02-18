@@ -1,149 +1,223 @@
 package frc.robot.subsystems;
 
+import java.sql.ShardingKey;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.MaxIter;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleValueChecker;
+import org.apache.commons.math3.optim.linear.NonNegativeConstraint;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.MultiDirectionalSimplex;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.math.numbers.N5;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Main;
 import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
 
 public class Shooter extends SubsystemBase {
 
-  private CANSparkMax shooterLeader;
-  private CANSparkMax shooterFollower;
+  private CANSparkMax shootMotor;
   private RelativeEncoder shooterEncoder;
 
-  private SparkPIDController shooterVelocityController;
+  private SimpleMotorFeedforward shooterVelocityFF;
+  private PIDController shooterVelocityPID;
 
   private CANSparkMax pivotMotor;
-  private RelativeEncoder pivotEncoder;
+  private AbsoluteEncoder pivotEncoder;
 
-  private PIDController pivotPositionController;
+  private ArmFeedforward pivotFF;
+  private ProfiledPIDController pivotPID;
 
   private final double SHOOTER_GEAR_RATIO = 0;
   private final double SHOOTER_WHEEL_RADIUS = 0.0508; // 4in to meters
   private final double PIVOT_GEAR_RATIO = 0;
-  Function<Vector<N5>, Vector<N5>> projectileEquation;
-  private final double MU = 0.5;
-  private final double SPEAKER_HEIGHT = 3;
+  Function<double[], double[]> projectileEquation3d;
+
+  private final double DRAG_COEFFICIENT = 0.5;
+  private final double AIR_DENSITY = 1.225;
+  private final double CROSS_SECTIONAL_AREA = 0.018;
+  private final double NOTE_MASS = 0.2353;
+  private final double MU = (DRAG_COEFFICIENT * AIR_DENSITY * CROSS_SECTIONAL_AREA) / (2 * NOTE_MASS);
 
   private final double SHOOTER_PIVOT_TO_END = 0.37516;
-  private final Translation2d SHOOTER_PIVOT_ROBOT_REL = new Translation2d(-0.2757, 0.5972);
+  private final Translation3d SHOOTER_PIVOT_ROBOT_REL = new Translation3d(-0.2757, 0, 0.5972);
+
+  private final double v0 = 20;
+
+  private final double shootkS = 0;
+  private final double shootkV = 0;
+  private final double shootkP = 0;
+  private final double shootkI = 0;
+  private final double shootkD = 0;
+
+  private final double pivotkS = 0;
+  private final double pivotkG = 0;
+  private final double pivotkV = 0;
+  private final double pivotkA = 0;
+  private final double pivotkP = 0;
+  private final double pivotkI = 0;
+  private final double pivotkD = 0;
+
+  private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
 
   public Shooter() {
-    shooterLeader = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
-    shooterFollower = new CANSparkMax(RobotMap.SHOOTER_FOLLOWER, MotorType.kBrushless);
+    shootMotor = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
 
-    shooterFollower.follow(shooterLeader);
-    shooterEncoder = shooterLeader.getEncoder();
-    pivotEncoder = pivotMotor.getEncoder();
+    shooterEncoder = shootMotor.getEncoder();
+    // rpm to rev/s to m/s
+    shooterEncoder.setVelocityConversionFactor(0.016667 * (Math.PI * 4));
+    pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    pivotEncoder.setZeroOffset(0);
 
-    shooterVelocityController = shooterLeader.getPIDController();
-    pivotPositionController = new PIDController(0, 0, 0);
+    shooterVelocityFF = new SimpleMotorFeedforward(shootkS, shootkV);
+    shooterVelocityPID = new PIDController(shootkP, shootkI, shootkD);
 
-    projectileEquation = (Vector<N5> x) -> {
-      double[] in = x.getData();
-      double vx = in[2];
-      double vy = in[3];
-      double v = Math.sqrt((vx * vx) + (vy * vy));
+    pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
+    pivotPID = new ProfiledPIDController(pivotkP, pivotkI, pivotkD, pivotConstraints);
+
+    projectileEquation3d = (double[] x) -> {
+      double vx = x[3];
+      double vy = x[4];
+      double vz = x[5];
+      double v = Math.sqrt((vx * vx) + (vy * vy) + (vz * vz));
       double ax = -MU * vx * v;
-      double ay = -9.8 - (MU * vy * v);
+      double ay = -MU * vy * v;
+      double az = -9.8 - (MU * vz * v);
 
-      Vector<N5> out = VecBuilder.fill(vx, vy, ax, ay, 0);
-
-      return out;
+      return new double[] { vx, vy, vz, ax, ay, az, 0, 0 };
     };
   }
 
-  public Vector<N5> rkFour(Vector<N5> x) {
-    Vector<N5> k_1 = projectileEquation.apply(x);
-    Vector<N5> k_2 = projectileEquation.apply(x.plus(k_1.times(x.getData()[4] / 2.0)));
-    Vector<N5> k_3 = projectileEquation.apply(x.plus(k_2.times(x.getData()[4] / 2.0)));
-    Vector<N5> k_4 = projectileEquation.apply(x.plus(k_3.times(x.getData()[4])));
-  
-    Vector<N5> out = x.plus((k_1.plus(k_2.times(2)).plus(k_3.times(2)).plus(k_4)).times(x.getData()[4]));
-    return out; 
+  public void goToAngle(Rotation2d angle) {
+    double goalRadians = angle.getRadians();
+    pivotPID.setGoal(goalRadians);
+    double pidOutput = pivotPID.calculate(getPivotAngle());
+    double ffOutput = pivotFF.calculate(getPivotAngle(), pivotPID.getSetpoint().velocity);
+    pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
-  public Vector<N5> propagateState(Vector<N4> x, double t, int intervals) {
+  public double getPivotAngle() {
+    return 2 * Math.PI * pivotEncoder.getPosition();
+  }
+
+  public enum WristPosition {
+    kAmp,
+    kIntake,
+    kShoot
+  }
+
+  // m/s
+  public void setVelocity(double velocity) {
+    double pidOutput = shooterVelocityPID.calculate(getVelocity(), velocity);
+    double ffOutput = shooterVelocityFF.calculate(velocity);
+    shootMotor.setVoltage(ffOutput + pidOutput);
+  }
+
+  // m/s
+  public double getVelocity() {
+    return shooterEncoder.getVelocity();
+  }
+
+  public double[] rkFour(double[] x, Function<double[], double[]> f) {
+    double h = x[x.length - 1];
+
+    double[] k_1 = f.apply(x);
+    double[] k_2 = f.apply(addVectors(x, multiplyByScalar(k_1, h / 2)));
+    double[] k_3 = f.apply(addVectors(x, multiplyByScalar(k_2, h / 2)));
+    double[] k_4 = f.apply(addVectors(x, multiplyByScalar(k_3, h)));
+
+    double[] out = addVectors(
+        multiplyByScalar(
+            addVectors(addVectors(addVectors(k_1, multiplyByScalar(k_2, 2)), multiplyByScalar(k_3, 2)), k_4), h / 6),
+        x);
+    out[x.length - 2] += h;
+    return out;
+  }
+
+  public double[] addVectors(double[] a, double[] b) {
+    double[] out = new double[a.length];
+    for (int i = 0; i < a.length; i++) {
+      out[i] = a[i] + b[i];
+    }
+    return out;
+  }
+
+  public double[] multiplyByScalar(double[] a, double b) {
+    double[] out = new double[8];
+    for (int i = 0; i < a.length; i++) {
+      out[i] = a[i] * b;
+    }
+    return out;
+  }
+
+  public double[][] propagateWholeTrajectory3d(double[] k, double t, int intervals) {
+    double x = k[0];
+    double y = k[1];
+    double z = k[2];
+    double vx = k[3];
+    double vy = k[4];
+    double vz = k[5];
+
+    double[][] out = new double[intervals][k.length + 2];
     double dt = t / intervals;
-    Vector<N5> state = VecBuilder.fill(x.get(0, 0), x.get(0, 1), x.get(0, 2), x.get(0, 3), dt);
+
+    double[] state = { x, y, z, vx, vy, vz, 0, dt };
+
     for (int i = 0; i < intervals; i++) {
-      state = rkFour(state);
+      state = rkFour(state, projectileEquation3d);
+      out[i] = state;
     }
 
-    return state;
+    return out;
   }
 
+  public Translation3d shooterExitRobotRelative(double theta) {
+    double tx = SHOOTER_PIVOT_TO_END * Math.cos(theta);
+    double ty = 0;
+    double tz = SHOOTER_PIVOT_TO_END * Math.sin(theta);
 
-
-
-
-  public void setAngle() {
-
+    return SHOOTER_PIVOT_ROBOT_REL.plus(new Translation3d(tx, ty, tz));
   }
 
-  public void getAngle() {
+  public Translation3d shooterExitFieldRelative(Pose2d robotPose, Translation3d shooterRobotRelative) {
+    double diffX = shooterRobotRelative.getX();
 
-  }
-
-  public void setVelocity() {
-
-  }
-
-  public void getVelocity() {
-
-  }
-
-  public Optional<Double> calcTrajectoryIntersectWithSpeakerHeightPlane(Vector<N4> x, double dt) {
-    Vector<N5> state = VecBuilder.fill(x.get(0, 0), x.get(0, 1), x.get(0, 2), x.get(0, 3), dt);
-
-    while (state.get(0, 3) > 0) {
-      state = rkFour(state);
-
-      if (state.get(0, 1) > SPEAKER_HEIGHT) {
-        double timeAgo = (state.get(0, 1) - SPEAKER_HEIGHT) / state.get(0, 3);
-        double intersectX = state.get(0, 0) - (timeAgo * state.get(0, 2));
-        return Optional.of(intersectX);
-      }
-      
-    }
-
-    return Optional.empty();
-  }
-
-  public Translation2d shooterExitRobotRelative(double theta) {
-    double x = SHOOTER_PIVOT_TO_END * Math.cos(theta);
-    double y = SHOOTER_PIVOT_TO_END * Math.sin(theta);
-
-    return SHOOTER_PIVOT_ROBOT_REL.plus(new Translation2d(x, y));
-  }
-
-  public double modelIntersectionToAngle(double x) {
-    return 1.58 + (-0.446 * x) + (0.0683 * x * x) + (-4.89E-03 * x * x * x) + (1.34E-04 * x * x * x * x);
-  }
-
-  public double modelTimeToIntersection(double x) {
-    return 0.0532 + (0.0134 * x) + (0.0131 * x * x) + (-1.9E-03 * x * x * x) + (1.05E-04 * x * x * x * x);
-  }
-
-  public void calculateAngleToSpeaker() {
-
+    Translation3d shooterFieldRelative = new Translation3d(
+        robotPose.getX() + (diffX * robotPose.getRotation().getCos()),
+        robotPose.getY() + (diffX * robotPose.getRotation().getSin()), shooterRobotRelative.getZ());
+    return shooterFieldRelative;
   }
 
   public Translation2d translationToSpeaker() {
@@ -162,6 +236,55 @@ public class Shooter extends SubsystemBase {
     double theta1 = Math.atan2(speakerInsideHeight, translationToSpeaker.getX());
     double theta2 = Math.atan2(speakerOutsideHeight, translationToOutsideSpeaker.getX());
     return theta2 - theta1;
+  }
+
+  public double[] optimizeShooterOrientation(double initialTheta, double initialPhi, double initialTime,
+      double targetX, double targetY, double targetZ) {
+    MultivariateFunction f = point -> {
+      // calculate trajectory given theta phi and t
+      Pose2d pose = RobotContainer.swerveDrive.getPose();
+      Translation3d shooterPose = shooterExitFieldRelative(pose, shooterExitRobotRelative(initialPhi));
+
+      double[] in = { shooterPose.getX(), shooterPose.getY(), shooterPose.getZ(),
+          RobotContainer.swerveDrive.vX + (v0 * Math.sin(Math.PI / 2 - point[0]) * Math.cos(point[1])),
+          RobotContainer.swerveDrive.vY + (v0 * Math.sin(Math.PI / 2 - point[0]) * Math.sin(point[1])),
+          v0 * Math.cos(Math.PI / 2 - point[0]) };
+      double[][] trajectory = propagateWholeTrajectory3d(in, point[2], 1);
+      double[] finalPosition = trajectory[trajectory.length - 1];
+
+      double xdiff = targetX - finalPosition[0];
+      double ydiff = targetY - finalPosition[1];
+      double zdiff = targetZ - finalPosition[2];
+
+      double distance = Math.sqrt((xdiff * xdiff) + (ydiff * ydiff) + (zdiff * zdiff));
+
+      return distance;
+    };
+
+    ObjectiveFunction objective = new ObjectiveFunction(f);
+
+    double[] initialGuess = new double[] { initialTheta, initialPhi, initialTime };
+    InitialGuess guess = new InitialGuess(initialGuess);
+    MaxIter maxIter = new MaxIter(20000);
+    // look at my lawyer dawg I'm goin to jail!!!
+    MaxEval maxEval = new MaxEval(100000);
+    MultiDirectionalSimplex simplex = new MultiDirectionalSimplex(3, 0.001);
+    SimplexOptimizer optimizer = new SimplexOptimizer(new SimpleValueChecker(0.000001, 0.000001));
+
+    NonNegativeConstraint constraint = new NonNegativeConstraint(true);
+
+    PointValuePair optimum = optimizer.optimize(
+        maxIter,
+        maxEval,
+        objective,
+        GoalType.MINIMIZE,
+        guess,
+        simplex,
+        constraint
+
+    );
+
+    return optimum.getPoint();
   }
 
 }

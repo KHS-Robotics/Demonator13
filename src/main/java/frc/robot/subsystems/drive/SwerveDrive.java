@@ -44,6 +44,8 @@ public class SwerveDrive extends SubsystemBase {
   private PIDController anglePid;
   private PIDController xPid;
   private PIDController yPid;
+  public double vX;
+  public double vY;
   private final Translation2d frontLeftLocation = new Translation2d(0.2921, 0.2921);
   private final Translation2d frontRightLocation = new Translation2d(0.2921, -0.2921);
   private final Translation2d rearLeftLocation = new Translation2d(-0.2921, 0.2921);
@@ -191,6 +193,8 @@ public class SwerveDrive extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+    this.vX = xSpeed;
+    this.vY = ySpeed;
     if (Math.abs(rot) < 0.005 && Math.abs(xSpeed) < 0.015 && Math.abs(ySpeed) < 0.015) {
       frontLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontLeft.getAngle())));
       frontRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontRight.getAngle())));
@@ -219,6 +223,8 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
+    vX = chassisSpeeds.vxMetersPerSecond;
+    vY = chassisSpeeds.vyMetersPerSecond;
     setModuleStates(kinematics.toSwerveModuleStates(
         ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, poseEstimator.getEstimatedPosition().getRotation())));
   }
@@ -247,10 +253,10 @@ public class SwerveDrive extends SubsystemBase {
 
   public void goToPose(Pose2d target, boolean fieldOriented) {
     Pose2d pose = getPose();
-    double vX = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
-    double vY = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
+    double xSpeed = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
+    double ySpeed = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
     double vTheta = MathUtil.clamp(anglePid.calculate(pose.getRotation().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
-    this.drive(vX, vY, vTheta, fieldOriented);
+    this.drive(xSpeed, ySpeed, vTheta, fieldOriented);
   }
 
   public boolean atSetpoint() {

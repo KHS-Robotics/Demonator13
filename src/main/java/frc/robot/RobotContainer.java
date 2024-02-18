@@ -34,8 +34,10 @@ import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NewLEDStrip;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake.IntakeSetpoint;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -95,8 +97,8 @@ public class RobotContainer {
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
   public static final Intake intake = new Intake();
-  // public static final Shooter shooter = new Shooter();
-  // public static final Arm arm = new Arm();
+  public static final Shooter shooter = new Shooter();
+  public static final Arm arm = new Arm();
   // public static final AprilTagCamera frontAprilTagCamera = new
   // AprilTagCamera("FrontCamera",
   // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
