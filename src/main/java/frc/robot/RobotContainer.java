@@ -15,8 +15,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,12 +25,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.commands.drive.TargetPointWhileDriving;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
@@ -153,10 +149,10 @@ public class RobotContainer {
     }));
 
     Trigger intakeDown = driverController.b();
-    intakeDown.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kDown);}));
+    intakeDown.onTrue(new InstantCommand(() -> {RobotContainer.intake.goToSetpoint(IntakeSetpoint.kDown);}));
 
     Trigger intakeUp = driverController.y();
-    intakeUp.onTrue(new InstantCommand(() -> {RobotContainer.intake.setPosition(IntakeSetpoint.kUp);}));
+    intakeUp.onTrue(new InstantCommand(() -> {RobotContainer.intake.goToSetpoint(IntakeSetpoint.kUp);}));
 
     Trigger intake = driverController.povLeft();
     intake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));

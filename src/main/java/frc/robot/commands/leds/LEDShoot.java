@@ -4,12 +4,8 @@
 
 package frc.robot.commands.leds;
 
-import java.util.Arrays;
-import java.util.Optional;
 import java.util.Random;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.awt.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;

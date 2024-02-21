@@ -24,17 +24,12 @@ public class RobotMap {
   public static final int INTAKE_PIVOT = 5;
   public static final int INTAKE_PIVOT_ENCODER = 0;
 
-  public static final int SHOOTER_LEADER = 0;
-  public static final int SHOOTER_FOLLOWER = 0;
+  public static final int SHOOTER_LEADER = 4;
   public static final int SHOOTER_PIVOT = 0;
+  public static final int INDEXER = 6;
 
   public static final int ARM_PIVOT = 0;
   public static final int ARM_CANCODER = 0;
-
-  public static final int DutyCycleEncoder = 0;
-
-  public static final int WRIST_PIVOT = 0;
-  public static final int WRIST_CANCODER = 0;
 
   public static final int FRONT_LEFT_PIVOT = 10;
   public static final int FRONT_RIGHT_PIVOT = 8;

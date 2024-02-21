@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
@@ -89,11 +88,10 @@ public class Intake extends SubsystemBase {
     return 2 * Math.PI * dutyCycleEncoder.getAbsolutePosition();
   }
 
-  public void setPosition(IntakeSetpoint setpoint) {
-    if (setpoint.equals(IntakeSetpoint.kDown)) {
-      goToAngle(Rotation2d.fromDegrees(0));
-    } else {
-      goToAngle(Rotation2d.fromDegrees(177));
+  public void goToSetpoint(IntakeSetpoint setpoint) {
+    switch (setpoint) {
+      case kUp: goToAngle(Rotation2d.fromDegrees(0));
+      case kDown: goToAngle(Rotation2d.fromDegrees(177));
     }
   }
 

@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.sql.ShardingKey;
-import java.util.Optional;
 import java.util.function.Function;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
@@ -19,14 +17,9 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
-import edu.wpi.first.math.MathShared;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -35,13 +28,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N4;
-import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Main;
 import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
 
@@ -58,6 +46,9 @@ public class Shooter extends SubsystemBase {
 
   private ArmFeedforward pivotFF;
   private ProfiledPIDController pivotPID;
+
+
+  private CANSparkMax indexMotor;
 
   private final double SHOOTER_GEAR_RATIO = 0;
   private final double SHOOTER_WHEEL_RADIUS = 0.0508; // 4in to meters
@@ -94,6 +85,7 @@ public class Shooter extends SubsystemBase {
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
+    indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
@@ -150,6 +142,14 @@ public class Shooter extends SubsystemBase {
     return shooterEncoder.getVelocity();
   }
 
+  public void feed() {
+    indexMotor.setVoltage(12);
+  }
+
+  public void stopFeeding() {
+    indexMotor.setVoltage(0);
+  }
+
   public double[] rkFour(double[] x, Function<double[], double[]> f) {
     double h = x[x.length - 1];
 
@@ -175,7 +175,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public double[] multiplyByScalar(double[] a, double b) {
-    double[] out = new double[8];
+    double[] out = new double[a.length];
     for (int i = 0; i < a.length; i++) {
       out[i] = a[i] * b;
     }
@@ -240,6 +240,7 @@ public class Shooter extends SubsystemBase {
 
   public double[] optimizeShooterOrientation(double initialTheta, double initialPhi, double initialTime,
       double targetX, double targetY, double targetZ) {
+
     MultivariateFunction f = point -> {
       // calculate trajectory given theta phi and t
       Pose2d pose = RobotContainer.swerveDrive.getPose();

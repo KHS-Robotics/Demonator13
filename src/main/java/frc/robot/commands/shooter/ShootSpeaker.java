@@ -3,20 +3,22 @@ package frc.robot.commands.shooter;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.drive.SwerveDrive;
 
 public class ShootSpeaker extends Command {
   Shooter shooter;
   Alliance color;
   boolean hasAlliance;
   double targetX, targetY, targetZ;
-  final double v0 = 15;
-  boolean goodTrajectory = false;
+  final double v0 = 25;
+  boolean goodTrajectory = true;
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter);
@@ -46,6 +48,7 @@ public class ShootSpeaker extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
+    shooter.setVelocity(v0);
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
 
     double[] optimalParams = shooter.optimizeShooterOrientation(1,
@@ -68,7 +71,34 @@ public class ShootSpeaker extends Command {
       goodTrajectory = true;
     }
 
-    
+    if (goodTrajectory) {
+      shooter.goToAngle(Rotation2d.fromRadians(optimalParams[0]));
+    }
+
+    Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
+
+    // Get the x speed. We are inverting this because Xbox controllers return
+    // negative values when we push forward.
+    var xSpeed = 0.0;
+    if (Math.abs(RobotContainer.driverController.getLeftY()) > 0.05) {
+      xSpeed = RobotContainer.swerveDrive.sensControl(-RobotContainer.driverController.getLeftY()) * SwerveDrive.kMaxSpeedMetersPerSecond;
+    }
+
+    // Get the y speed or sideways/strafe speed. We are inverting this because
+    // we want a positive value when we pull to the left. Xbox controllers
+    // return positive values when you pull to the right by default.
+    var ySpeed = 0.0;
+    if (Math.abs(RobotContainer.driverController.getLeftX()) > 0.05) {
+      ySpeed = RobotContainer.swerveDrive.sensControl(-RobotContainer.driverController.getLeftX()) * SwerveDrive.kMaxSpeedMetersPerSecond;
+    }
+    boolean fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
+
+
+    RobotContainer.swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
+
+    if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPivotAngle() - optimalParams[0]) < 0.3) {
+      shooter.feed();
+    }
 
 
   }
@@ -77,7 +107,8 @@ public class ShootSpeaker extends Command {
   @Override
   public boolean isFinished() {
     if (!hasAlliance) {
-      return false;
+      System.out.println("NO ALLIANCE or bad trajectory");
+      return true;
     }
     return false;
   }
@@ -85,5 +116,7 @@ public class ShootSpeaker extends Command {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
+    shooter.setVelocity(0);
+    shooter.stopFeeding();
   }
 }

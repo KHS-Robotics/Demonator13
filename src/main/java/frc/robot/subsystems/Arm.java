@@ -5,7 +5,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -15,7 +14,6 @@ import frc.robot.RobotMap;
 public class Arm extends SubsystemBase {
     private CANSparkMax pivotMotor;
     private CANcoder pivotEncoder;
-    private PIDController pivotPID;
     private final double gearRatio = 0.0;
     private ProfiledPIDController armPid;
     private ArmFeedforward armFf;
@@ -46,6 +44,15 @@ public class Arm extends SubsystemBase {
         pivotMotor.setVoltage(pidOutput + ffOutput);
     }
 
+    public void goToSetpoint(ArmPosition setpoint) {
+        switch (setpoint) {
+            case kStow: goToAngle(Rotation2d.fromDegrees(120));
+            case kIntake: goToAngle(Rotation2d.fromDegrees(200));
+            case kShoot: goToAngle(Rotation2d.fromDegrees(180));
+            case kAmp: goToAngle(Rotation2d.fromDegrees(70));
+        }
+    }
+
     public double getPivotAngle() {
         return 2 * Math.PI * pivotEncoder.getAbsolutePosition().getValueAsDouble();
     }
@@ -53,6 +60,7 @@ public class Arm extends SubsystemBase {
     public enum ArmPosition {
         kStow,
         kIntake,
-        kShoot
+        kShoot,
+        kAmp
     }
 }
