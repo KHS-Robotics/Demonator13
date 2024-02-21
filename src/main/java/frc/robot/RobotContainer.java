@@ -167,6 +167,8 @@ public class RobotContainer {
 
     Trigger shoot = new Trigger(operatorStick::shoot);
     shoot.whileTrue(new ShootSpeaker());
+
+    
   }
 
   /** Binds commands to the operator box. */

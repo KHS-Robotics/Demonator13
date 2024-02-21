@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -23,7 +25,7 @@ public class Intake extends SubsystemBase {
   private RelativeEncoder intakeEncoder;
 
   private CANSparkMax pivotMotor;
-  private DutyCycleEncoder dutyCycleEncoder;
+  private AbsoluteEncoder pivotEncoder;
 
   double motorSpeed = 0.5;
 
@@ -47,7 +49,7 @@ public class Intake extends SubsystemBase {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
     intakeEncoder = intakeMotor.getEncoder();
     pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
-    dutyCycleEncoder = new DutyCycleEncoder(RobotMap.INTAKE_PIVOT_ENCODER);
+    pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     pivotMotor.setIdleMode(IdleMode.kBrake);
 
     intakeSensor = pivotMotor.getForwardLimitSwitch(Type.kNormallyClosed);
@@ -85,7 +87,7 @@ public class Intake extends SubsystemBase {
 
   public double getPivotAngle() {
     // radians 0 is up 180ish is down
-    return 2 * Math.PI * dutyCycleEncoder.getAbsolutePosition();
+    return 2 * Math.PI * pivotEncoder.getPosition();
   }
 
   public void goToSetpoint(IntakeSetpoint setpoint) {
