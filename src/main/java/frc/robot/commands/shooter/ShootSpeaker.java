@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
@@ -19,10 +20,12 @@ public class ShootSpeaker extends Command {
   double targetX, targetY, targetZ;
   final double v0 = 25;
   boolean goodTrajectory = true;
+  Timer timer;
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter);
     shooter = RobotContainer.shooter;
+    timer = new Timer();
   }
 
   // Called just before this Command runs the first time
@@ -98,6 +101,7 @@ public class ShootSpeaker extends Command {
 
     if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPivotAngle() - optimalParams[0]) < 0.3) {
       shooter.feed();
+      timer.start();
     }
 
 
@@ -106,8 +110,7 @@ public class ShootSpeaker extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    if (!hasAlliance) {
-      System.out.println("NO ALLIANCE or bad trajectory");
+    if (!hasAlliance || timer.hasElapsed(1)) {
       return true;
     }
     return false;

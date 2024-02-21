@@ -47,6 +47,8 @@ public class Shooter extends SubsystemBase {
   private ArmFeedforward pivotFF;
   private ProfiledPIDController pivotPID;
 
+  private boolean hasNote = true;
+
 
   private CANSparkMax indexMotor;
 
@@ -141,7 +143,7 @@ public class Shooter extends SubsystemBase {
   public double getVelocity() {
     return shooterEncoder.getVelocity();
   }
-
+  
   public void feed() {
     indexMotor.setVoltage(12);
   }
@@ -286,6 +288,14 @@ public class Shooter extends SubsystemBase {
     );
 
     return optimum.getPoint();
+  }
+
+  public boolean noteReady() {
+    return hasNote;
+  }
+
+  public void setNoteReady(boolean hasNote) {
+    this.hasNote = hasNote;
   }
 
 }
