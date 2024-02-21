@@ -18,7 +18,7 @@ public class LEDShoot extends Command {
   float currentPosition;
   float sections;
 
-  /** Creates a new LEDDisabled. */
+  /** Creates a new LEDShoot. */
   public LEDShoot() {
     addRequirements(RobotContainer.ledStrip);
     strip = RobotContainer.ledStrip;
@@ -35,7 +35,7 @@ public class LEDShoot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    setPixels(null);
+    setPixels(new Color(255, 100, 0));
     strip.counter++;
   }
 

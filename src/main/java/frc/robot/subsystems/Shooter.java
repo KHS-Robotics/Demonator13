@@ -122,6 +122,14 @@ public class Shooter extends SubsystemBase {
     pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
+  public void goToSetpoint(ShooterAngle setpoint) {
+    switch (setpoint) {
+      case kAmp: goToAngle(Rotation2d.fromDegrees(90));
+      case kIntake: goToAngle(Rotation2d.fromDegrees(20));
+      case kShoot: goToAngle(Rotation2d.fromDegrees(30));
+    }
+  }
+
   public double getPivotAngle() {
     return 2 * Math.PI * pivotEncoder.getPosition();
   }
@@ -143,7 +151,7 @@ public class Shooter extends SubsystemBase {
   public double getVelocity() {
     return shooterEncoder.getVelocity();
   }
-  
+
   public void feed() {
     indexMotor.setVoltage(12);
   }
@@ -298,4 +306,9 @@ public class Shooter extends SubsystemBase {
     this.hasNote = hasNote;
   }
 
+  public enum ShooterAngle {
+    kIntake,
+    kShoot,
+    kAmp
+  }
 }

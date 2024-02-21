@@ -5,31 +5,52 @@ import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Arm.ArmPosition;
+import frc.robot.subsystems.Intake.IntakeSetpoint;
+import frc.robot.subsystems.Shooter.ShooterAngle;
 import frc.robot.subsystems.cameras.Note;
+import frc.robot.subsystems.drive.SwerveDrive;
 
 public class AutoIntake extends Command {
   private boolean fieldRelative = false;
   private Optional<Note> target;
   private Pose2d robotTarget;
   private Pose2d robotPose;
+  private SwerveDrive swerveDrive;
+  private Intake intake;
+  private Arm arm;
+  private Shooter shooter;
+  private Timer t = new Timer();
 
   public AutoIntake() {
-    this.addRequirements(RobotContainer.swerveDrive);
-    //addRequirements intake, arm?
+    this.addRequirements(RobotContainer.swerveDrive, RobotContainer.intake, RobotContainer.arm, RobotContainer.shooter);
+    swerveDrive = RobotContainer.swerveDrive;
+    intake = RobotContainer.intake;
+    arm = RobotContainer.arm;
+    shooter = RobotContainer.shooter;
   }
 
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
+    intake.goToSetpoint(IntakeSetpoint.kDown);
+    arm.goToSetpoint(ArmPosition.kIntake);
+    shooter.goToSetpoint(ShooterAngle.kIntake);
+    intake.intake();
+    shooter.feed();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    this.robotPose = RobotContainer.swerveDrive.getPose();
+    this.robotPose = swerveDrive.getPose();
 
     // update target based on camera
     this.target = RobotContainer.frontNoteCamera.getNearestNote();
@@ -51,25 +72,33 @@ public class AutoIntake extends Command {
     // this is the field position of our x,y target, and rotation, our final target
     this.robotTarget = new Pose2d(vec.plus(robotPose.getTranslation()), angleToNote);
 
-    // set arm/intake to intake setpoint
-    // continuously run intake wheels
-
     // drive to robotTarget
     fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
-    RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
+    swerveDrive.goToPose(robotTarget, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    // check for note in intake tripped beambreak?
+    if (intake.hasNoteInside()) {
+      t.start();
+
+      // test this and find a better number
+      if (t.hasElapsed(0.5)) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }
     return false;
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    // stow
-    RobotContainer.swerveDrive.stop();
+    swerveDrive.stop();
+    intake.stop();
+    shooter.stopFeeding();
   }
 }

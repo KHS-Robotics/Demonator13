@@ -10,21 +10,27 @@ import frc.robot.commands.leds.LEDDisabled;
 
 public class NewLEDStrip extends SubsystemBase {
   AddressableLED strip;
+  AddressableLED strip2;
   AddressableLEDBuffer buffer;
   public int counter = 0;
   public Color[] pixelArray;
 
   public NewLEDStrip() {
     pixelArray = new Color[Constants.LED_LENGTH];
-    for (Color c : pixelArray) {
-      c = new Color(0);
+    for (int i = 0; i < pixelArray.length; i++) {
+      pixelArray[i] = new Color(0);
     }
 
     strip = new AddressableLED(RobotMap.LED_PORT);
-    strip.setLength(Constants.LED_LENGTH * 2);
-    buffer = new AddressableLEDBuffer(Constants.LED_LENGTH * 2);
+    strip2 = new AddressableLED(RobotMap.LED_PORT_2);
+    strip.setLength(Constants.LED_LENGTH);
+    strip2.setLength(Constants.LED_LENGTH);
+
+    buffer = new AddressableLEDBuffer(Constants.LED_LENGTH);
     strip.setData(buffer);
+    strip2.setData(buffer);
     strip.start();
+    strip2.start();
 
     this.setDefaultCommand(new LEDDisabled());
   }
@@ -84,6 +90,7 @@ public class NewLEDStrip extends SubsystemBase {
   @Override
   public void periodic() {
     strip.setData(buffer);
+    strip2.setData(buffer);
     counter++;
   }
 

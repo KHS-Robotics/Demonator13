@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.shooter.ShootSpeaker;
+import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.NewLEDStrip;
@@ -85,10 +86,8 @@ public class RobotContainer {
 
   // Human Interface Devices (HIDs)
   public static final CommandXboxController driverController = new CommandXboxController(RobotMap.XBOX_PORT);
-  // public static final OperatorBox operatorBox = new
-  // OperatorBox(RobotMap.SWITCHBOX_PORT);
-  // public static final OperatorStick operatorStick = new
-  // OperatorStick(RobotMap.JOYSTICK_PORT);
+  public static final OperatorStick operatorStick = new
+  OperatorStick(RobotMap.JOYSTICK_PORT);
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
@@ -165,6 +164,9 @@ public class RobotContainer {
     
     Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
     autoIntake.whileTrue(new AutoIntake());
+
+    Trigger shoot = new Trigger(operatorStick::shoot);
+    shoot.whileTrue(new ShootSpeaker());
   }
 
   /** Binds commands to the operator box. */

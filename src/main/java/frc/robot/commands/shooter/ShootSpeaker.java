@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.commands.leds.LEDShoot;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveDrive;
 
@@ -46,6 +47,8 @@ public class ShootSpeaker extends Command {
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
     }
+
+    new LEDShoot().schedule();
   }
 
   // Called repeatedly when this Command is scheduled to run
