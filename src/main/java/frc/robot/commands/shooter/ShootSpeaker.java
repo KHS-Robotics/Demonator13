@@ -20,18 +20,19 @@ public class ShootSpeaker extends Command {
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter);
-    Optional<Alliance> alliance = DriverStation.getAlliance();
-    hasAlliance = alliance.isPresent();
-    if (hasAlliance) {
-      color = alliance.get();
-    }
     shooter = RobotContainer.shooter;
   }
 
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    if (color.equals(Alliance.Blue)) {
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    hasAlliance = alliance.isPresent();
+    if (hasAlliance) {
+      color = alliance.get();
+    }
+
+    if (color == Alliance.Blue) {
       targetX = 0.4572 / 2;
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
