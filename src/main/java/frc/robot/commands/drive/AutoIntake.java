@@ -40,7 +40,7 @@ public class AutoIntake extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    intake.goToSetpoint(IntakeSetpoint.kDown);
+    intake.angleSetpoint = IntakeSetpoint.kDown.angle;
     arm.goToSetpoint(ArmPosition.kIntake);
     shooter.goToSetpoint(ShooterAngle.kIntake);
     intake.intake();

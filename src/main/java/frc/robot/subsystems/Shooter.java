@@ -29,6 +29,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
@@ -56,6 +57,8 @@ public class Shooter extends SubsystemBase {
   private final double SHOOTER_WHEEL_RADIUS = 0.0508; // 4in to meters
   private final double PIVOT_GEAR_RATIO = 0;
   Function<double[], double[]> projectileEquation3d;
+
+  private double indexSpeed = 0.5;
 
   private final double DRAG_COEFFICIENT = 0.5;
   private final double AIR_DENSITY = 1.225;
@@ -85,7 +88,7 @@ public class Shooter extends SubsystemBase {
   private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
 
   public Shooter() {
-    shootMotor = new CANSparkMax(RobotMap.SHOOTER_LEADER, MotorType.kBrushless);
+    shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
 
@@ -150,6 +153,19 @@ public class Shooter extends SubsystemBase {
   // m/s
   public double getVelocity() {
     return shooterEncoder.getVelocity();
+  }
+
+  public void index() {
+    this.indexMotor.setVoltage(12 * indexSpeed);
+  }
+
+  public void outdex() {
+    this.indexMotor.setVoltage(-12 * indexSpeed);
+  }
+
+  public void stopIndexer() {
+    this.indexMotor.setVoltage(0);
+    this.indexMotor.stopMotor();
   }
 
   public void feed() {
@@ -310,5 +326,10 @@ public class Shooter extends SubsystemBase {
     kIntake,
     kShoot,
     kAmp
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("angle", getPivotAngle());
   }
 }

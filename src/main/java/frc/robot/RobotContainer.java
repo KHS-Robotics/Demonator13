@@ -29,11 +29,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.intake.AngleIntake;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.NewLEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake.IntakeSetpoint;
 import frc.robot.subsystems.cameras.AprilTagCamera;
@@ -56,7 +56,7 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  public static final AHRS navx = new AHRS(Port.kMXP);
+  public static final AHRS navx = new AHRS(Port.kUSB);
 
   /**
    * Returns the angle or "yaw" of the robot in degrees. CW positive ranging from
@@ -98,7 +98,7 @@ public class RobotContainer {
   // AprilTagCamera("FrontCamera",
   // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
-  public static final NewLEDStrip ledStrip = new NewLEDStrip();
+  //public static final NewLEDStrip ledStrip = new NewLEDStrip();
 
   public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera",
       Constants.FRONT_APRILTAG_CAMERA_OFFSET);
@@ -148,16 +148,28 @@ public class RobotContainer {
     }));
 
     Trigger intakeDown = driverController.b();
-    intakeDown.onTrue(new InstantCommand(() -> {RobotContainer.intake.goToSetpoint(IntakeSetpoint.kDown);}));
+    intakeDown.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.angleSetpoint = 0;
+    }));
 
     Trigger intakeUp = driverController.y();
-    intakeUp.onTrue(new InstantCommand(() -> {RobotContainer.intake.goToSetpoint(IntakeSetpoint.kUp);}));
+    intakeUp.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.angleSetpoint = 0.44;
+    }));
+
+    Trigger intakeMid = driverController.x();
+    intakeMid.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.angleSetpoint = 0.22;
+    }));
+
 
     Trigger intake = driverController.povLeft();
     intake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
+    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
 
     Trigger outtake = driverController.povRight();
     outtake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
+    outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
 
     // Trigger pointToNote = driverController.leftBumper();
     // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
@@ -168,7 +180,23 @@ public class RobotContainer {
     Trigger shoot = new Trigger(operatorStick::shoot);
     shoot.whileTrue(new ShootSpeaker());
 
-    
+    Trigger index = driverController.povUp();
+    index.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.index();
+    }));
+    index.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
+    }));
+
+    Trigger outdex = driverController.povDown();
+    outdex.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.outdex();
+    }));
+    outdex.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
+    }));
+
+
   }
 
   /** Binds commands to the operator box. */

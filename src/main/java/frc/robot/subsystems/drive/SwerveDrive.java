@@ -149,17 +149,7 @@ public class SwerveDrive extends SubsystemBase {
     anglePid.setTolerance(1);
     xPid.setTolerance(0.1);
     yPid.setTolerance(0.1);
-    SmartDashboard.putNumber("target_p", Constants.DRIVE_ANGLE_P);
-    SmartDashboard.putNumber("target_i", Constants.DRIVE_ANGLE_I);
-    SmartDashboard.putNumber("target_d", Constants.DRIVE_ANGLE_D);
-    SmartDashboard.putNumber("x_p", Constants.DRIVE_X_P);
-    SmartDashboard.putNumber("x_i", Constants.DRIVE_X_I);
-    SmartDashboard.putNumber("x_d", Constants.DRIVE_X_D);
-    SmartDashboard.putNumber("y_p", Constants.DRIVE_Y_P);
-    SmartDashboard.putNumber("y_i", Constants.DRIVE_Y_I);
-    SmartDashboard.putNumber("y_d", Constants.DRIVE_Y_D);
-
-  }
+    }
 
   /**
    * Returns the angle of the robot as a Rotation2d as read by the navx.
@@ -424,10 +414,6 @@ public class SwerveDrive extends SubsystemBase {
       LogNavxRoll.append(roll);
       LogNavxPitch.append(pitch);
     }
-
-    xPid.setPID(SmartDashboard.getNumber("x_p", 0), SmartDashboard.getNumber("x_i", 0), SmartDashboard.getNumber("x_d", 0));
-    yPid.setPID(SmartDashboard.getNumber("y_p", 0), SmartDashboard.getNumber("y_i", 0), SmartDashboard.getNumber("y_d", 0));
-    anglePid.setPID(SmartDashboard.getNumber("target_p", 0), SmartDashboard.getNumber("target_i", 0), SmartDashboard.getNumber("target_d", 0));
 
   }
 }

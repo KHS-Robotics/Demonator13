@@ -21,16 +21,16 @@ public class RobotMap {
   public static final int LED_PORT = 1;
   public static final int LED_PORT_2 = 2;
 
-  public static final int INTAKE_MOTOR = 0;
+  public static final int INTAKE_MOTOR = 12;
   public static final int INTAKE_PIVOT = 5;
-  public static final int INTAKE_PIVOT_ENCODER = 0;
 
-  public static final int SHOOTER_LEADER = 4;
-  public static final int SHOOTER_PIVOT = 0;
+  public static final int SHOOTER = 4;
+  public static final int SHOOTER_PIVOT = 3;
   public static final int INDEXER = 6;
 
-  public static final int ARM_PIVOT = 0;
-  public static final int ARM_CANCODER = 0;
+  public static final int ARM_PIVOT = 2;
+  public static final int ARM_FOLLOWER = 17;
+  public static final int ARM_CANCODER = 17;
 
   public static final int FRONT_LEFT_PIVOT = 10;
   public static final int FRONT_RIGHT_PIVOT = 8;
