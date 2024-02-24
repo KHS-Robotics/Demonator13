@@ -29,6 +29,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -82,7 +83,7 @@ public class Shooter extends SubsystemBase {
   private final double pivotkI = 0;
   private final double pivotkD = 0;
 
-  private final double kShooterFF = 1 / (5800 * (0.016667 * (Math.PI * 4)));
+  private final double kShooterFF = 1 / (5800 * ((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)))); // 1/max m/s
 
   public double veloctiySetpoint;
 
@@ -97,7 +98,7 @@ public class Shooter extends SubsystemBase {
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
-    shooterEncoder.setVelocityConversionFactor(0.016667 * (Math.PI * 4));
+    shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.1159);
 
