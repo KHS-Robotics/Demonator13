@@ -39,14 +39,13 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax shootMotor;
   private RelativeEncoder shooterEncoder;
 
-  private SimpleMotorFeedforward shooterVelocityFF;
   private PIDController shooterVelocityPID;
 
   private CANSparkMax pivotMotor;
   private AbsoluteEncoder pivotEncoder;
 
   private ArmFeedforward pivotFF;
-  private ProfiledPIDController pivotPID;
+  private PIDController pivotPID;
 
   private boolean hasNote = true;
 
@@ -71,9 +70,7 @@ public class Shooter extends SubsystemBase {
 
   private final double v0 = 20;
 
-  private final double shootkS = 0;
-  private final double shootkV = 0;
-  private final double shootkP = 0;
+  private final double shootkP = 1;
   private final double shootkI = 0;
   private final double shootkD = 0;
 
@@ -85,24 +82,29 @@ public class Shooter extends SubsystemBase {
   private final double pivotkI = 0;
   private final double pivotkD = 0;
 
+  private final double kShooterFF = 1 / (5800 * (0.016667 * (Math.PI * 4)));
+
+  public double veloctiySetpoint;
+
   private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
+  public double shooterAngle = 0;
 
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
+    shootMotor.setInverted(true);
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
     shooterEncoder.setVelocityConversionFactor(0.016667 * (Math.PI * 4));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0);
+    pivotEncoder.setZeroOffset(0.1159);
 
-    shooterVelocityFF = new SimpleMotorFeedforward(shootkS, shootkV);
     shooterVelocityPID = new PIDController(shootkP, shootkI, shootkD);
 
     pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
-    pivotPID = new ProfiledPIDController(pivotkP, pivotkI, pivotkD, pivotConstraints);
+    pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
 
     projectileEquation3d = (double[] x) -> {
       double vx = x[3];
@@ -117,37 +119,35 @@ public class Shooter extends SubsystemBase {
     };
   }
 
-  public void goToAngle(Rotation2d angle) {
-    double goalRadians = angle.getRadians();
-    pivotPID.setGoal(goalRadians);
-    double pidOutput = pivotPID.calculate(getPivotAngle());
-    double ffOutput = pivotFF.calculate(getPivotAngle(), pivotPID.getSetpoint().velocity);
+  public void goToAngle(double angle) {
+    double pidOutput = pivotPID.calculate(getPivotAngle(), shooterAngle);
+    double ffOutput = pivotFF.calculate(getPivotAngle() + RobotContainer.arm.getPivotAngle(), 0);
     pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
+  public double getAbsoluteAngle() {
+    return getPivotAngle() + (RobotContainer.arm.getPivotAngle() - 0.5);
+  }
+
   public void goToSetpoint(ShooterAngle setpoint) {
-    switch (setpoint) {
-      case kAmp: goToAngle(Rotation2d.fromDegrees(90));
-      case kIntake: goToAngle(Rotation2d.fromDegrees(20));
-      case kShoot: goToAngle(Rotation2d.fromDegrees(30));
-    }
+    goToAngle(setpoint.angle);
+  }
+
+  public void driveShooter(double volts) {
+    pivotMotor.setVoltage(volts);
+    System.out.println(volts);
   }
 
   public double getPivotAngle() {
-    return 2 * Math.PI * pivotEncoder.getPosition();
-  }
-
-  public enum WristPosition {
-    kAmp,
-    kIntake,
-    kShoot
+    return pivotEncoder.getPosition();
   }
 
   // m/s
   public void setVelocity(double velocity) {
     double pidOutput = shooterVelocityPID.calculate(getVelocity(), velocity);
-    double ffOutput = shooterVelocityFF.calculate(velocity);
+    double ffOutput = (kShooterFF * velocity) * 12;
     shootMotor.setVoltage(ffOutput + pidOutput);
+    System.out.println(velocity);
   }
 
   // m/s
@@ -323,13 +323,23 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterAngle {
-    kIntake,
-    kShoot,
-    kAmp
+    kIntake(0.44),
+    kShoot(0.22),
+    kAmp(0);
+
+    public final double angle;
+
+    ShooterAngle(double rotations) {
+      this.angle = rotations;
+    }
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("angle", getPivotAngle());
+    SmartDashboard.putNumber("shooterAngle", getPivotAngle());
+    SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
+    SmartDashboard.putNumber("kG", pivotkG);
+    setVelocity(veloctiySetpoint);
+
   }
 }

@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     RobotContainer.intake.angleSetpoint = RobotContainer.intake.getPivotAngle();
+    RobotContainer.arm.armPosition = RobotContainer.arm.getPivotAngle();
   }
 
   /**

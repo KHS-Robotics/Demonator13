@@ -87,7 +87,6 @@ public class Intake extends SubsystemBase {
     double pidOutput = pivotPositionController.calculate(getPivotAngle(), rotations);
     double ffOutput = pivotFeedforward.calculate(rotations, 0);
     pivotMotor.setVoltage(pidOutput + ffOutput);
-    System.out.println(pidOutput + ffOutput);
   }
 
   public void logMotors() {
@@ -140,13 +139,13 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putNumber("IntakeSetpoint", angleSetpoint);
     SmartDashboard.putNumber("IntakeVelocityRPM", intakeEncoder.getVelocity());
 
-    kP = SmartDashboard.getNumber("kp", kP);
-    kI = SmartDashboard.getNumber("ki", kI);
-    kD = SmartDashboard.getNumber("kd", kD);
-    SmartDashboard.putNumber("kp", kP);
-    SmartDashboard.putNumber("ki", kI);
-    SmartDashboard.putNumber("kd", kD);
-    pivotPositionController.setPID(kP, kI, kD);
+    // kP = SmartDashboard.getNumber("kp", kP);
+    // kI = SmartDashboard.getNumber("ki", kI);
+    // kD = SmartDashboard.getNumber("kd", kD);
+    // SmartDashboard.putNumber("kp", kP);
+    // SmartDashboard.putNumber("ki", kI);
+    // SmartDashboard.putNumber("kd", kD);
+    // pivotPositionController.setPID(kP, kI, kD);
 
     goToAngle(angleSetpoint);
   }

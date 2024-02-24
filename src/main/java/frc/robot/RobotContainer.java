@@ -177,24 +177,35 @@ public class RobotContainer {
     Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
     autoIntake.whileTrue(new AutoIntake());
 
-    Trigger shoot = new Trigger(operatorStick::shoot);
-    shoot.whileTrue(new ShootSpeaker());
+    // Trigger shoot = new Trigger(operatorStick::shoot);
+    // shoot.whileTrue(new ShootSpeaker());
 
-    Trigger index = driverController.povUp();
-    index.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.index();
-    }));
-    index.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopIndexer();
+    // Trigger index = driverController.povUp();
+    // index.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.shooter.index();
+    // }));
+    // index.onFalse(new InstantCommand(() -> {
+    //   RobotContainer.shooter.stopIndexer();
+    // }));
+
+    // Trigger outdex = driverController.povDown();
+    // outdex.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.shooter.outdex();
+    // }));
+    // outdex.onFalse(new InstantCommand(() -> {
+    //   RobotContainer.shooter.stopIndexer();
+    // }));
+
+    Trigger shooter = driverController.povUp();
+    shooter.whileTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.veloctiySetpoint = 5;
     }));
 
-    Trigger outdex = driverController.povDown();
-    outdex.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.outdex();
-    }));
-    outdex.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopIndexer();
-    }));
+    // Trigger shooterDown = driverController.povDown();
+    // shooterDown.whileTrue(new InstantCommand(() -> {
+    //   //RobotContainer.arm.armPosition -= 0.05;
+    //   RobotContainer.shooter.driveShooter(4);
+    // }));
 
 
   }

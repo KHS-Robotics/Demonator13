@@ -77,7 +77,7 @@ public class ShootSpeaker extends Command {
     }
 
     if (goodTrajectory) {
-      shooter.goToAngle(Rotation2d.fromRadians(optimalParams[0]));
+      shooter.goToAngle(optimalParams[0] / (2 * Math.PI));
     }
 
     Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
