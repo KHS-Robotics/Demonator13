@@ -17,6 +17,8 @@ import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
@@ -65,15 +67,16 @@ public class Shooter extends SubsystemBase {
   private final double CROSS_SECTIONAL_AREA = 0.018;
   private final double NOTE_MASS = 0.2353;
   private final double MU = (DRAG_COEFFICIENT * AIR_DENSITY * CROSS_SECTIONAL_AREA) / (2 * NOTE_MASS);
+  private final SparkPIDController shooterPID;
 
   private final double SHOOTER_PIVOT_TO_END = 0.37516;
   private final Translation3d SHOOTER_PIVOT_ROBOT_REL = new Translation3d(-0.2757, 0, 0.5972);
 
   private final double v0 = 20;
 
-  private final double shootkP = 1;
-  private final double shootkI = 0;
-  private final double shootkD = 0;
+  private final double kShooterP = 1;
+  private final double kShooterI = 0;
+  private final double kShooterD = 0;
 
   private final double pivotkS = 0;
   private final double pivotkG = 0;
@@ -83,7 +86,11 @@ public class Shooter extends SubsystemBase {
   private final double pivotkI = 0;
   private final double pivotkD = 0;
 
-  private final double kShooterFF = 1 / (5800 * ((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)))); // 1/max m/s
+  //private final double kShooterFF = 1 / (5800 * ((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)))); // 1/max m/s
+  private final double kMaxNeoRPM = 5676;
+  private final double kWheelRadius = Units.inchesToMeters(2);
+  private final double kMaxSpeedMetersPerSecond = (kMaxNeoRPM * (2 * Math.PI * kWheelRadius));
+  private final double kShooterFF = 1 / kMaxSpeedMetersPerSecond;
 
   public double veloctiySetpoint;
 
@@ -102,7 +109,14 @@ public class Shooter extends SubsystemBase {
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.1159);
 
-    shooterVelocityPID = new PIDController(shootkP, shootkI, shootkD);
+    shooterVelocityPID = new PIDController(kShooterP, kShooterI, kShooterD);
+    shooterPID = shootMotor.getPIDController();
+    shooterPID.setP(kShooterP);
+    shooterPID.setI(kShooterI);
+    shooterPID.setD(kShooterD);
+    shooterPID.setFF(kShooterFF);
+    shooterPID.setIZone(500);
+
 
     pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
     pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
@@ -145,15 +159,20 @@ public class Shooter extends SubsystemBase {
 
   // m/s
   public void setVelocity(double velocity) {
-    double pidOutput = shooterVelocityPID.calculate(getVelocity(), velocity);
-    double ffOutput = (kShooterFF * velocity) * 12;
-    shootMotor.setVoltage(ffOutput + pidOutput);
-    System.out.println(velocity);
+    // double pidOutput = shooterVelocityPID.calculate(getVelocity(), velocity);
+    // double ffOutput = (kShooterFF * velocity) * 12;
+    shooterPID.setReference(velocity, ControlType.kVelocity);
+    //System.out.println(velocity);
   }
 
   // m/s
   public double getVelocity() {
     return shooterEncoder.getVelocity();
+  }
+
+  public boolean atAngleSetpoint(double tolerance) {
+    pivotPID.setTolerance(tolerance);
+    return pivotPID.atSetpoint();
   }
 
   public void index() {

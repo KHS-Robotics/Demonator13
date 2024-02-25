@@ -80,6 +80,15 @@ public class Arm extends SubsystemBase {
     }
   }
 
+  public void resetPID() {
+    this.armPid.reset();
+  }
+
+  public void setSetpoint(double setpoint) {
+    armPosition = setpoint;
+    resetPID();
+  }
+
   @Override
   public void periodic() {
     // SmartDashboard.putNumber("armAngle", Units.rotationsToDegrees(getPivotAngle()));

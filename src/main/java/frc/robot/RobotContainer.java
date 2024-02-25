@@ -174,8 +174,8 @@ public class RobotContainer {
     // Trigger pointToNote = driverController.leftBumper();
     // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
     
-    Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
-    autoIntake.whileTrue(new AutoIntake());
+    // Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
+    // autoIntake.whileTrue(new AutoIntake());
 
     // Trigger shoot = new Trigger(operatorStick::shoot);
     // shoot.whileTrue(new ShootSpeaker());
