@@ -75,26 +75,24 @@ public class Shooter extends SubsystemBase {
   private final double v0 = 20;
 
   private final double kShooterP = 1;
-  private final double kShooterI = 0;
-  private final double kShooterD = 0;
+  private final double kShooterI = 0.01;
+  private final double kShooterD = 0.5;
 
-  private final double pivotkS = 0;
-  private final double pivotkG = 0;
-  private final double pivotkV = 0;
-  private final double pivotkA = 0;
-  private final double pivotkP = 0;
-  private final double pivotkI = 0;
+  private final double pivotkS = 0.15463;
+  private final double pivotkG = 0.59328;
+  private final double pivotkV = 0.9972;
+  private final double pivotkA = 0.025145;
+  private final double pivotkP = 40;
+  private final double pivotkI = 1;
   private final double pivotkD = 0;
 
-  //private final double kShooterFF = 1 / (5800 * ((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)))); // 1/max m/s
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
-  private final double kMaxSpeedMetersPerSecond = (kMaxNeoRPM * (2 * Math.PI * kWheelRadius));
+  private final double kWheelCircumference = 2 * Math.PI * kWheelRadius;
+  private final double kMaxSpeedMetersPerSecond = kMaxNeoRPM * kWheelCircumference;
   private final double kShooterFF = 1 / kMaxSpeedMetersPerSecond;
 
   public double veloctiySetpoint;
-
-  private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
   public double shooterAngle = 0;
 
   public Shooter() {
@@ -105,7 +103,7 @@ public class Shooter extends SubsystemBase {
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
-    shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * Units.inchesToMeters(2)));
+    shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * kWheelRadius));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.1159);
 
@@ -115,8 +113,8 @@ public class Shooter extends SubsystemBase {
     shooterPID.setI(kShooterI);
     shooterPID.setD(kShooterD);
     shooterPID.setFF(kShooterFF);
-    shooterPID.setIZone(500);
-
+    shooterPID.setIZone(3);
+    shooterPID.setOutputRange(0, 1);
 
     pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
     pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
@@ -150,7 +148,6 @@ public class Shooter extends SubsystemBase {
 
   public void driveShooter(double volts) {
     pivotMotor.setVoltage(volts);
-    System.out.println(volts);
   }
 
   public double getPivotAngle() {
@@ -168,6 +165,10 @@ public class Shooter extends SubsystemBase {
   // m/s
   public double getVelocity() {
     return shooterEncoder.getVelocity();
+  }
+
+  public void stopShooting() {
+    shootMotor.stopMotor();
   }
 
   public boolean atAngleSetpoint(double tolerance) {
@@ -343,9 +344,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterAngle {
-    kIntake(0.44),
-    kShoot(0.22),
-    kAmp(0);
+    kIntake(0.3),
+    kShoot(0.2),
+    kAmp(0.1);
 
     public final double angle;
 
@@ -359,7 +360,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngle", getPivotAngle());
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("kG", pivotkG);
-    setVelocity(veloctiySetpoint);
-
+    SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
+    //setVelocity(veloctiySetpoint);
+    goToAngle(shooterAngle);
   }
 }

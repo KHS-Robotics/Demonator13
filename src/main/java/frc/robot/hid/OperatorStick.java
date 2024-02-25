@@ -12,27 +12,51 @@ public class OperatorStick extends Joystick {
   }
 
   public boolean intakeDown() {
-    return this.getRawButton(8);
+    return this.getRawButton(10);
   }
 
   public boolean intakeUp() {
-    return this.getRawButton(7);
+    return this.getRawButton(5);
   }
 
   public boolean intakeSetpoint() {
-    return this.getRawButton(13);
+    return this.getRawButton(9);
   }
 
   public boolean shootSetpoint() {
-    return this.getRawButton(14);
+    return this.getRawButton(7);
   }
 
   public boolean ampSetpoint() {
-    return this.getRawButton(11);
+    return this.getRawButton(6);
+  }
+
+  public boolean stowSetpoint() {
+    return this.getRawButton(8);
+  }
+
+  public boolean wristIntake() {
+    return this.getRawButton(13);
+  }
+
+  public boolean wristShoot() {
+    return this.getRawButton(14);
   }
 
   public double climberSpeed() {
     return this.getRawAxis(1);
+  }
+
+  public boolean fastUp() {
+    return this.getRawButton(16);
+  }
+
+  public boolean index() {
+    return getPOV() == 270;
+  }
+
+  public boolean outdex() {
+    return getPOV() == 90;
   }
 
   public boolean intake() {

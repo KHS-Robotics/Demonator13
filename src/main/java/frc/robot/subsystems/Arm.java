@@ -57,10 +57,15 @@ public class Arm extends SubsystemBase {
     double ffOutput = armFf.calculate(angle, 0);
     
     pivotMotor.setVoltage(pidOutput + ffOutput);
+    System.out.println(pidOutput + ffOutput);
+  }
+
+  public void setVoltage(double voltage) {
+    pivotMotor.setVoltage(voltage);
   }
 
   public void goToSetpoint(ArmPosition setpoint) {
-    goToAngle(setpoint.angle);
+    setSetpoint(setpoint.angle);
   }
 
   public double getPivotAngle() {
@@ -68,10 +73,10 @@ public class Arm extends SubsystemBase {
   }
 
   public enum ArmPosition {
-    kStow(Units.degreesToRotations(120)),
-    kIntake(Units.degreesToRotations(200)),
-    kShoot(Units.degreesToRotations(180)),
-    kAmp(Units.degreesToRotations(80));
+    kStow(0.618),
+    kIntake(0.8),
+    kShoot(0.75),
+    kAmp(0.5);
 
     public final double angle;
 
@@ -91,9 +96,9 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("armAngle", Units.rotationsToDegrees(getPivotAngle()));
-    // SmartDashboard.putNumber("armSetpoint", Units.rotationsToDegrees(armPosition));
-    // SmartDashboard.putNumber("armError", Units.rotationsToDegrees((Math.abs(armPosition - getPivotAngle()))));
+    SmartDashboard.putNumber("armAngle", Units.rotationsToDegrees(getPivotAngle()));
+    SmartDashboard.putNumber("armSetpoint", Units.rotationsToDegrees(armPosition));
+    SmartDashboard.putNumber("armError", Units.rotationsToDegrees((Math.abs(armPosition - getPivotAngle()))));
     //kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);
     // kI = SmartDashboard.getNumber("kI", kI);

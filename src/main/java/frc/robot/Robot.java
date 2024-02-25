@@ -25,10 +25,6 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private Command autonomousRoutine;
 
-  private StringLogEntry LogCmdStarted = new StringLogEntry(DataLogManager.getLog(), "/commands/started");
-  private StringLogEntry LogCmdInterrupted = new StringLogEntry(DataLogManager.getLog(), "/commands/interrupted");
-  private StringLogEntry LogCmdEnded = new StringLogEntry(DataLogManager.getLog(), "/commands/ended");
-
   /**
    * This method is run when the robot is first started up and should be used for
    * any
@@ -47,6 +43,10 @@ public class Robot extends TimedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = RobotContainer.getInstance();
 
+    var LogCmdStarted = new StringLogEntry(DataLogManager.getLog(), "/commands/started");
+    var LogCmdInterrupted = new StringLogEntry(DataLogManager.getLog(), "/commands/interrupted");
+    var LogCmdEnded = new StringLogEntry(DataLogManager.getLog(), "/commands/ended");
+    
     // for debugging
     CommandScheduler.getInstance().onCommandInitialize((command) -> {
       var cmdName = command.getName();
@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     RobotContainer.intake.angleSetpoint = RobotContainer.intake.getPivotAngle();
     RobotContainer.arm.armPosition = RobotContainer.arm.getPivotAngle();
+    RobotContainer.shooter.shooterAngle = RobotContainer.shooter.getPivotAngle();
   }
 
   /**

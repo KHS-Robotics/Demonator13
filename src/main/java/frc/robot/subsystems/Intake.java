@@ -57,7 +57,7 @@ public class Intake extends SubsystemBase {
   private final double kV = 0.9972;
   private final double kA = 0.025145;
 
-  private  double kP = 10;
+  private  double kP = 6;
   private  double kI = 0;
   private  double kD = 0;
 

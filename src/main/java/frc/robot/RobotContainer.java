@@ -35,7 +35,9 @@ import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Arm.ArmPosition;
 import frc.robot.subsystems.Intake.IntakeSetpoint;
+import frc.robot.subsystems.Shooter.ShooterAngle;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -86,8 +88,7 @@ public class RobotContainer {
 
   // Human Interface Devices (HIDs)
   public static final CommandXboxController driverController = new CommandXboxController(RobotMap.XBOX_PORT);
-  public static final OperatorStick operatorStick = new
-  OperatorStick(RobotMap.JOYSTICK_PORT);
+  public static final OperatorStick operatorStick = new OperatorStick(RobotMap.JOYSTICK_PORT);
 
   // Subsystems
   public static final SwerveDrive swerveDrive = new SwerveDrive();
@@ -147,19 +148,58 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-    Trigger intakeDown = driverController.b();
+    Trigger intakeDown = new Trigger(operatorStick::intakeDown);
     intakeDown.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0;
     }));
 
-    Trigger intakeUp = driverController.y();
+    Trigger intakeUp = new Trigger(operatorStick::intakeUp);
     intakeUp.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0.44;
     }));
 
-    Trigger intakeMid = driverController.x();
-    intakeMid.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.angleSetpoint = 0.22;
+    // Trigger intakeMid = driverController.x();
+    // intakeMid.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.intake.angleSetpoint = 0.22;
+    // }));
+
+    Trigger armIntake = new Trigger(operatorStick::intakeSetpoint);
+    armIntake.onTrue(new InstantCommand(() -> {
+      RobotContainer.arm.goToSetpoint(ArmPosition.kIntake);
+    }));
+
+    Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
+    armAmp.onTrue(new InstantCommand(() -> {
+      RobotContainer.arm.goToSetpoint(ArmPosition.kAmp);
+    }));
+
+    // Trigger fastUp = new Trigger(operatorStick::fastUp);
+    // fastUp.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.arm.setVoltage(-10);
+    // }));
+
+    // fastUp.onFalse(new InstantCommand(() -> {
+    //   RobotContainer.arm.setVoltage(0);
+    // }));
+
+    Trigger armShoot = new Trigger(operatorStick::shootSetpoint);
+    armShoot.onTrue(new InstantCommand(() -> {
+      RobotContainer.arm.goToSetpoint(ArmPosition.kShoot);
+    }));
+
+    Trigger armStow = new Trigger(operatorStick::stowSetpoint);
+    armStow.onTrue(new InstantCommand(() -> {
+      RobotContainer.arm.goToSetpoint(ArmPosition.kStow);
+    }));
+
+    Trigger wristIntake = new Trigger(operatorStick::wristIntake);
+    wristIntake.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.goToSetpoint(ShooterAngle.kIntake);
+    }));
+
+    Trigger wristShoot = new Trigger(operatorStick::wristShoot);
+    wristShoot.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.goToSetpoint(ShooterAngle.kShoot);
     }));
 
 
@@ -171,41 +211,36 @@ public class RobotContainer {
     outtake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
     outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
 
-    // Trigger pointToNote = driverController.leftBumper();
-    // pointToNote.whileTrue(new TargetPointWhileDriving(new Translation2d()));
-    
-    // Trigger autoIntake = driverController.rightBumper().and(() -> {return !RobotContainer.frontNoteCamera.notes.isEmpty();});
-    // autoIntake.whileTrue(new AutoIntake());
-
-    // Trigger shoot = new Trigger(operatorStick::shoot);
-    // shoot.whileTrue(new ShootSpeaker());
-
-    // Trigger index = driverController.povUp();
-    // index.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.shooter.index();
-    // }));
-    // index.onFalse(new InstantCommand(() -> {
-    //   RobotContainer.shooter.stopIndexer();
-    // }));
-
-    // Trigger outdex = driverController.povDown();
-    // outdex.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.shooter.outdex();
-    // }));
-    // outdex.onFalse(new InstantCommand(() -> {
-    //   RobotContainer.shooter.stopIndexer();
-    // }));
-
-    Trigger shooter = driverController.povUp();
-    shooter.whileTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.veloctiySetpoint = 5;
+    Trigger index = new Trigger(operatorStick::index);
+    index.whileTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.index();
+    }));
+    index.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
     }));
 
-    // Trigger shooterDown = driverController.povDown();
-    // shooterDown.whileTrue(new InstantCommand(() -> {
-    //   //RobotContainer.arm.armPosition -= 0.05;
-    //   RobotContainer.shooter.driveShooter(4);
-    // }));
+
+    Trigger outdex = new Trigger(operatorStick::outdex);
+    outdex.whileTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.index();
+    }));
+    outdex.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
+    }));
+
+
+
+    Trigger shooterDown = driverController.povDown();
+    shooterDown.whileTrue(new InstantCommand(() -> {
+      //RobotContainer.arm.armPosition -= 0.05;
+      RobotContainer.shooter.shooterAngle = 0.1;
+    }));
+
+    Trigger shooterUp = driverController.povUp();
+    shooterUp.whileTrue(new InstantCommand(() -> {
+      //RobotContainer.arm.armPosition -= 0.05;
+      RobotContainer.shooter.shooterAngle = 0.3;
+    }));
 
 
   }
@@ -229,7 +264,7 @@ public class RobotContainer {
     HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
       new PIDConstants(4.0, 0.0, 0.3),
       new PIDConstants(1.8, 0.0, 0.8),
-      SwerveDrive.kMaxSpeedMetersPerSecond,
+      3.5,
       0.31592,
       new ReplanningConfig(true, true));
 
