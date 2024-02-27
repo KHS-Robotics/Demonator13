@@ -27,9 +27,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.commands.intake.AngleIntake;
+import frc.robot.commands.intake.SetIntakeState;
+import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
@@ -123,7 +125,6 @@ public class RobotContainer {
   private void configureBindings() {
     this.configureAutomatedBindings();
     this.configureXboxControllerBindings();
-    this.configureOperatorBoxBindings();
     this.configureOperatorStickBindings();
   }
 
@@ -148,59 +149,10 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-    Trigger intakeDown = new Trigger(operatorStick::intakeDown);
-    intakeDown.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.angleSetpoint = 0;
-    }));
 
-    Trigger intakeUp = new Trigger(operatorStick::intakeUp);
-    intakeUp.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.angleSetpoint = 0.44;
-    }));
 
-    // Trigger intakeMid = driverController.x();
-    // intakeMid.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.intake.angleSetpoint = 0.22;
-    // }));
+    
 
-    Trigger armIntake = new Trigger(operatorStick::intakeSetpoint);
-    armIntake.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmState.kIntake);
-    }));
-
-    Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
-    armAmp.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmState.kAmp);
-    }));
-
-    // Trigger fastUp = new Trigger(operatorStick::fastUp);
-    // fastUp.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.arm.setVoltage(-10);
-    // }));
-
-    // fastUp.onFalse(new InstantCommand(() -> {
-    //   RobotContainer.arm.setVoltage(0);
-    // }));
-
-    Trigger armShoot = new Trigger(operatorStick::shootSetpoint);
-    armShoot.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmState.kShoot);
-    }));
-
-    Trigger armStow = new Trigger(operatorStick::stowSetpoint);
-    armStow.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmState.kStow);
-    }));
-
-    Trigger wristIntake = new Trigger(operatorStick::wristIntake);
-    wristIntake.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.goToSetpoint(ShooterState.kIntake);
-    }));
-
-    Trigger wristShoot = new Trigger(operatorStick::wristShoot);
-    wristShoot.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.goToSetpoint(ShooterState.kShoot);
-    }));
 
 
     Trigger intake = driverController.povLeft();
@@ -245,14 +197,44 @@ public class RobotContainer {
 
   }
 
-  /** Binds commands to the operator box. */
-  private void configureOperatorBoxBindings() {
-
-  }
-
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
+    Trigger intakeDown = new Trigger(operatorStick::intakeDown);
+    intakeDown.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.angleSetpoint = 0;
+    }));
 
+    Trigger intakeUp = new Trigger(operatorStick::intakeUp);
+    intakeUp.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.angleSetpoint = 0.44;
+    }));
+
+    // Trigger intakeMid = driverController.x();
+    // intakeMid.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.intake.angleSetpoint = 0.22;
+    // }));
+
+
+
+    Trigger armIntake = new Trigger(operatorStick::intakeSetpoint);
+    armIntake.onTrue(new SetArmState(ArmState.kIntake, false));
+
+    Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
+    armAmp.onTrue(new SetArmState(ArmState.kAmp, false));
+
+    Trigger armShoot = new Trigger(operatorStick::shootSetpoint);
+    armShoot.onTrue(new SetArmState(ArmState.kShoot, false));
+
+    Trigger armStow = new Trigger(operatorStick::stowSetpoint);
+    armStow.onTrue(new SetArmState(ArmState.kStow, false));
+
+
+
+    Trigger wristIntake = new Trigger(operatorStick::wristIntake);
+    wristIntake.onTrue(new SetShooterState(ShooterState.kIntake, false));
+
+    Trigger wristShoot = new Trigger(operatorStick::wristShoot);
+    wristShoot.onTrue(new SetShooterState(ShooterState.kShoot, false));
   }
 
   /**

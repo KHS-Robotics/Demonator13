@@ -167,7 +167,7 @@ public class Shooter extends SubsystemBase {
     return shooterEncoder.getVelocity();
   }
 
-  public void setAngleSetpoint(ShooterState setpoint) {
+  public void setSetpoint(ShooterState setpoint) {
     this.shooterAngle = setpoint.angle;
     pivotPID.reset();
   }

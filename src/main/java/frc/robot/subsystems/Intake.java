@@ -89,6 +89,11 @@ public class Intake extends SubsystemBase {
     pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
+  public void setSetpoint(IntakeState setpoint) {
+    angleSetpoint = setpoint.angle;
+    pivotPositionController.reset();
+  }
+
   public void logMotors() {
   }
 

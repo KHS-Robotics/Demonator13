@@ -4,39 +4,34 @@
 
 package frc.robot.commands.shooter;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterState;
 
-public class AngleShooter extends Command {
+public class SetShooterState extends Command {
   private Shooter shooter;
-  private ShooterState setpoint;
-  private double angleRadians;
+  private ShooterState shooterState;
+  private boolean wait;
 
-  /** Creates a new ArmToAngle. */
-  public AngleShooter(ShooterState setpoint) {
-    shooter = RobotContainer.shooter;
-    this.setpoint = setpoint;
-    switch (setpoint) {
-      case kAmp:  angleRadians = Math.toRadians(90);
-      case kIntake: angleRadians = Math.toRadians(60);
-      case kShoot:  angleRadians = Math.toRadians(45);
-    }
+  /** Creates a new SetShooterState. */
+  public SetShooterState(ShooterState shooterState, boolean wait) {
+    this.shooter = RobotContainer.shooter;
+    this.shooterState = shooterState;
+    this.wait = wait;
     addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+    shooter.setSetpoint(shooterState);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    shooter.goToSetpoint(setpoint);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -45,6 +40,6 @@ public class AngleShooter extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(shooter.getPivotAngle() - angleRadians) < 0.3;
+    return !wait || Math.abs(Units.rotationsToDegrees(shooter.getPivotAngle() - Units.rotationsToDegrees(shooterState.angle))) < 2;
   }
 }
