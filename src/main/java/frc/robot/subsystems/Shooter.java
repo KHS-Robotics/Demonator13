@@ -24,13 +24,9 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,8 +37,6 @@ public class Shooter extends SubsystemBase {
 
   private CANSparkMax shootMotor;
   private RelativeEncoder shooterEncoder;
-
-  private PIDController shooterVelocityPID;
 
   private CANSparkMax pivotMotor;
   private AbsoluteEncoder pivotEncoder;
@@ -55,9 +49,6 @@ public class Shooter extends SubsystemBase {
 
   private CANSparkMax indexMotor;
 
-  private final double SHOOTER_GEAR_RATIO = 0;
-  private final double SHOOTER_WHEEL_RADIUS = 0.0508; // 4in to meters
-  private final double PIVOT_GEAR_RATIO = 0;
   Function<double[], double[]> projectileEquation3d;
 
   private double indexSpeed = 0.5;
@@ -107,7 +98,6 @@ public class Shooter extends SubsystemBase {
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.1159);
 
-    shooterVelocityPID = new PIDController(kShooterP, kShooterI, kShooterD);
     shooterPID = shootMotor.getPIDController();
     shooterPID.setP(kShooterP);
     shooterPID.setI(kShooterI);

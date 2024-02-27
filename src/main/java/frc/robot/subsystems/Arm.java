@@ -2,17 +2,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 
@@ -20,10 +15,8 @@ public class Arm extends SubsystemBase {
   private CANSparkMax pivotMotor;
   private CANSparkMax pivotFollower;
   private CANcoder pivotEncoder;
-  private final double gearRatio = 0.0;
   private PIDController armPid;
   private ArmFeedforward armFf;
-  private final TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(1.5, 5);
 
   private double kP = 40;
   private double kI = 2;

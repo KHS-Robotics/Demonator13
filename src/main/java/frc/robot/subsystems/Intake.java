@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import org.apache.commons.math3.filter.MeasurementModel;
-
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -13,17 +11,9 @@ import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
+
 import frc.robot.RobotMap;
 
 public class Intake extends SubsystemBase {
@@ -48,8 +38,6 @@ public class Intake extends SubsystemBase {
   public ArmFeedforward pivotFeedforward;
 
   public SparkLimitSwitch intakeSensor;
-
-  private final double PIVOT_GEAR_RATIO = 0.0;
 
   // sane? values from last year we can tune later
   private final double kS = 0.15463;
