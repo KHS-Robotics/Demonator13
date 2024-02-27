@@ -12,9 +12,9 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm.ArmPosition;
-import frc.robot.subsystems.Intake.IntakeSetpoint;
-import frc.robot.subsystems.Shooter.ShooterAngle;
+import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.Note;
 import frc.robot.subsystems.drive.SwerveDrive;
 
@@ -40,9 +40,9 @@ public class AutoIntake extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    intake.angleSetpoint = IntakeSetpoint.kDown.angle;
-    arm.goToSetpoint(ArmPosition.kIntake);
-    shooter.goToSetpoint(ShooterAngle.kIntake);
+    intake.angleSetpoint = IntakeState.kDown.angle;
+    arm.goToSetpoint(ArmState.kIntake);
+    shooter.goToSetpoint(ShooterState.kIntake);
     intake.intake();
     shooter.feed();
   }

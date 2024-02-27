@@ -142,7 +142,7 @@ public class Shooter extends SubsystemBase {
     return getPivotAngle() + (RobotContainer.arm.getPivotAngle() - 0.5);
   }
 
-  public void goToSetpoint(ShooterAngle setpoint) {
+  public void goToSetpoint(ShooterState setpoint) {
     goToAngle(setpoint.angle);
   }
 
@@ -165,6 +165,11 @@ public class Shooter extends SubsystemBase {
   // m/s
   public double getVelocity() {
     return shooterEncoder.getVelocity();
+  }
+
+  public void setAngleSetpoint(ShooterState setpoint) {
+    this.shooterAngle = setpoint.angle;
+    pivotPID.reset();
   }
 
   public void stopShooting() {
@@ -343,14 +348,14 @@ public class Shooter extends SubsystemBase {
     this.hasNote = hasNote;
   }
 
-  public enum ShooterAngle {
+  public enum ShooterState {
     kIntake(0.3),
     kShoot(0.2),
     kAmp(0.1);
 
     public final double angle;
 
-    ShooterAngle(double rotations) {
+    ShooterState(double rotations) {
       this.angle = rotations;
     }
   }

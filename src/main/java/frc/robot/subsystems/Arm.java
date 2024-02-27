@@ -64,7 +64,7 @@ public class Arm extends SubsystemBase {
     pivotMotor.setVoltage(voltage);
   }
 
-  public void goToSetpoint(ArmPosition setpoint) {
+  public void goToSetpoint(ArmState setpoint) {
     setSetpoint(setpoint.angle);
   }
 
@@ -72,7 +72,7 @@ public class Arm extends SubsystemBase {
     return pivotEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
-  public enum ArmPosition {
+  public enum ArmState {
     kStow(0.618),
     kIntake(0.8),
     kShoot(0.75),
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase {
 
     public final double angle;
 
-    ArmPosition(double rotations) {
+    ArmState(double rotations) {
       this.angle = rotations;
     }
   }

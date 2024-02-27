@@ -35,9 +35,9 @@ import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm.ArmPosition;
-import frc.robot.subsystems.Intake.IntakeSetpoint;
-import frc.robot.subsystems.Shooter.ShooterAngle;
+import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -165,12 +165,12 @@ public class RobotContainer {
 
     Trigger armIntake = new Trigger(operatorStick::intakeSetpoint);
     armIntake.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmPosition.kIntake);
+      RobotContainer.arm.goToSetpoint(ArmState.kIntake);
     }));
 
     Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
     armAmp.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmPosition.kAmp);
+      RobotContainer.arm.goToSetpoint(ArmState.kAmp);
     }));
 
     // Trigger fastUp = new Trigger(operatorStick::fastUp);
@@ -184,22 +184,22 @@ public class RobotContainer {
 
     Trigger armShoot = new Trigger(operatorStick::shootSetpoint);
     armShoot.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmPosition.kShoot);
+      RobotContainer.arm.goToSetpoint(ArmState.kShoot);
     }));
 
     Trigger armStow = new Trigger(operatorStick::stowSetpoint);
     armStow.onTrue(new InstantCommand(() -> {
-      RobotContainer.arm.goToSetpoint(ArmPosition.kStow);
+      RobotContainer.arm.goToSetpoint(ArmState.kStow);
     }));
 
     Trigger wristIntake = new Trigger(operatorStick::wristIntake);
     wristIntake.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.goToSetpoint(ShooterAngle.kIntake);
+      RobotContainer.shooter.goToSetpoint(ShooterState.kIntake);
     }));
 
     Trigger wristShoot = new Trigger(operatorStick::wristShoot);
     wristShoot.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.goToSetpoint(ShooterAngle.kShoot);
+      RobotContainer.shooter.goToSetpoint(ShooterState.kShoot);
     }));
 
 

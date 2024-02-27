@@ -6,16 +6,16 @@ package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Shooter.ShooterAngle;
+import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.Shooter;
 
 public class AngleShooter extends Command {
   private Shooter shooter;
-  private ShooterAngle setpoint;
+  private ShooterState setpoint;
   private double angleRadians;
 
   /** Creates a new ArmToAngle. */
-  public AngleShooter(ShooterAngle setpoint) {
+  public AngleShooter(ShooterState setpoint) {
     shooter = RobotContainer.shooter;
     this.setpoint = setpoint;
     switch (setpoint) {

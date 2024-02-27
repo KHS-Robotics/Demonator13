@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.IntakeSetpoint;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class AngleIntake extends Command {
@@ -15,7 +15,7 @@ public class AngleIntake extends Command {
   private double rotations;
 
   /** Creates a new ArmToAngle. */
-  public AngleIntake(IntakeSetpoint setpoint) {
+  public AngleIntake(IntakeState setpoint) {
     this.intake = RobotContainer.intake;
     rotations = setpoint.angle;
     addRequirements(intake);

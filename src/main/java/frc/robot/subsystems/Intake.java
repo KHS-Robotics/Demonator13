@@ -121,14 +121,14 @@ public class Intake extends SubsystemBase {
     return intakeSensor.isPressed();
   }
 
-  public enum IntakeSetpoint {
+  public enum IntakeState {
     kUp(0.44),
     kMid(0.22),
     kDown(0);
 
     public final double angle;
 
-    IntakeSetpoint(double rotations) {
+    IntakeState(double rotations) {
       this.angle = rotations;
     }
   }
@@ -136,7 +136,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("IntakeAngle", getPivotAngle());
-    SmartDashboard.putNumber("IntakeSetpoint", angleSetpoint);
+    SmartDashboard.putNumber("IntakeState", angleSetpoint);
     SmartDashboard.putNumber("IntakeVelocityRPM", intakeEncoder.getVelocity());
 
     // kP = SmartDashboard.getNumber("kp", kP);
