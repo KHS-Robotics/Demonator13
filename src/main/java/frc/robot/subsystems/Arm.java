@@ -58,7 +58,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void goToSetpoint(ArmState setpoint) {
-    setSetpoint(setpoint.angle);
+    setSetpoint(setpoint);
   }
 
   public double getPivotAngle() {
@@ -82,8 +82,8 @@ public class Arm extends SubsystemBase {
     this.armPid.reset();
   }
 
-  public void setSetpoint(double setpoint) {
-    armPosition = setpoint;
+  public void setSetpoint(ArmState setpoint) {
+    armPosition = setpoint.angle;
     resetPID();
   }
 

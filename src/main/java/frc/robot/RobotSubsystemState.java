@@ -5,7 +5,7 @@ import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
 
 public enum RobotSubsystemState {
-  kHandoff(IntakeState.kDown, ArmState.kIntake, ShooterState.kIntake),
+  kIntake(IntakeState.kDown, ArmState.kIntake, ShooterState.kIntake),
   kAmp(IntakeState.kDown, ArmState.kAmp, ShooterState.kAmp),
   kShoot(IntakeState.kDown, ArmState.kShoot, ShooterState.kShoot),
   kTravel(IntakeState.kMid, ArmState.kStow, ShooterState.kShoot);

@@ -56,9 +56,11 @@ public class ShootSpeaker extends Command {
     shooter.setVelocity(v0);
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
 
+    // theta phi time
     double[] optimalParams = shooter.optimizeShooterOrientation(1,
         Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX()), 0.1, targetX, targetY, targetZ);
 
+    // center of the exit of the shooter (middle of shooter)
     Translation3d shooterPoseRobotRelative = shooter.shooterExitRobotRelative(optimalParams[0]);
     Translation3d shooterPose = shooter.shooterExitFieldRelative(robotPose, shooterPoseRobotRelative);
 
@@ -67,6 +69,7 @@ public class ShootSpeaker extends Command {
         RobotContainer.swerveDrive.vY + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.sin(optimalParams[1])),
         v0 * Math.cos(Math.PI / 2 - optimalParams[0]) };
 
+    // we may not want to actually do any of this if it can't run in real time
     double[][] trajectory = shooter.propagateWholeTrajectory3d(in, optimalParams[2], 10);
     double[] finalPoint = trajectory[trajectory.length - 1];
 
@@ -76,9 +79,9 @@ public class ShootSpeaker extends Command {
       goodTrajectory = true;
     }
 
-    if (goodTrajectory) {
-      shooter.goToAngle(optimalParams[0] / (2 * Math.PI));
-    }
+
+    shooter.goToAngle(optimalParams[0] / (2 * Math.PI));
+
 
     Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
 
@@ -112,7 +115,7 @@ public class ShootSpeaker extends Command {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    if (!hasAlliance || timer.hasElapsed(1) || shooter.hasNote()) {
+    if (!hasAlliance || timer.hasElapsed(1) || !shooter.hasNote()) {
       return true;
     }
     return false;
