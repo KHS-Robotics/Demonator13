@@ -46,7 +46,6 @@ public class Shooter extends SubsystemBase {
 
   private boolean hasNote = true;
 
-
   private CANSparkMax indexMotor;
 
   Function<double[], double[]> projectileEquation3d;
@@ -146,10 +145,7 @@ public class Shooter extends SubsystemBase {
 
   // m/s
   public void setVelocity(double velocity) {
-    // double pidOutput = shooterVelocityPID.calculate(getVelocity(), velocity);
-    // double ffOutput = (kShooterFF * velocity) * 12;
     shooterPID.setReference(velocity, ControlType.kVelocity);
-    //System.out.println(velocity);
   }
 
   // m/s
@@ -338,6 +334,10 @@ public class Shooter extends SubsystemBase {
     this.hasNote = hasNote;
   }
 
+  public boolean hasNote() {
+    return false; // beam break
+  }
+
   public enum ShooterState {
     kIntake(0.3),
     kShoot(0.2),
@@ -356,7 +356,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
-    //setVelocity(veloctiySetpoint);
+
     goToAngle(shooterAngle);
   }
 }
