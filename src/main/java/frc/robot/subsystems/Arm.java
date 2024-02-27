@@ -47,10 +47,10 @@ public class Arm extends SubsystemBase {
 
   public void goToAngle(double angle) {
     double pidOutput = armPid.calculate(getPivotAngle(), angle);
-    double ffOutput = armFf.calculate(angle, 0);
+    double gravityOutput = kG * Math.sin(Units.rotationsToRadians(angle));
     
-    pivotMotor.setVoltage(pidOutput + ffOutput);
-    System.out.println(pidOutput + ffOutput);
+    pivotMotor.setVoltage(pidOutput + gravityOutput);
+    // System.out.println(pidOutput + gravityOutput);
   }
 
   public void setVoltage(double voltage) {
