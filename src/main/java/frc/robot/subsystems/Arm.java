@@ -4,7 +4,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,16 +15,12 @@ public class Arm extends SubsystemBase {
   private CANSparkMax pivotFollower;
   private CANcoder pivotEncoder;
   private PIDController armPid;
-  private ArmFeedforward armFf;
 
   private double kP = 40;
   private double kI = 2;
   private double kD = 1;
 
-  private double kS = 0.26602;
   private double kG = 0.4;
-  private double kV = 4.5387;
-  private double kA = 0.27838;
 
   public double armPosition = 0;
 
@@ -42,7 +37,6 @@ public class Arm extends SubsystemBase {
     //pivotMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
     
     armPid = new PIDController(kP, kI, kD);
-    armFf = new ArmFeedforward(kS, kG, kV, kA);
   }
 
   public void goToAngle(double angle) {

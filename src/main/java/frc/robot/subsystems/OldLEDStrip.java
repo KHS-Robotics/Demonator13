@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import org.apache.commons.math3.analysis.function.Constant;
-
 import java.awt.Color;
 
 import edu.wpi.first.wpilibj.AddressableLED;
