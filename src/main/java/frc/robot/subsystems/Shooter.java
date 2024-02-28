@@ -69,12 +69,12 @@ public class Shooter extends SubsystemBase {
   private final double kShooterD = 0.5;
 
   private final double pivotkS = 0.15463;
-  private final double pivotkG = 0.59328;
+  private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 40;
-  private final double pivotkI = 1;
-  private final double pivotkD = 0;
+  private final double pivotkP = 35;
+  private final double pivotkI = 0;
+  private final double pivotkD = 2;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
@@ -89,13 +89,14 @@ public class Shooter extends SubsystemBase {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
+    // indexMotor.getForwardLimitSwitch();
     shootMotor.setInverted(true);
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
     shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * kWheelRadius));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0.1159);
+    pivotEncoder.setZeroOffset(0);
 
     shooterPID = shootMotor.getPIDController();
     shooterPID.setP(kShooterP);
@@ -103,7 +104,7 @@ public class Shooter extends SubsystemBase {
     shooterPID.setD(kShooterD);
     shooterPID.setFF(kShooterFF);
     shooterPID.setIZone(3);
-    shooterPID.setOutputRange(0, 1);
+    shooterPID.setOutputRange(-1, 0);
 
     pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
     pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
@@ -124,7 +125,8 @@ public class Shooter extends SubsystemBase {
   public void goToAngle(double angle) {
     double pidOutput = pivotPID.calculate(getPivotAngle(), shooterAngle);
     double ffOutput = pivotFF.calculate(getPivotAngle() + RobotContainer.arm.getPivotAngle(), 0);
-    pivotMotor.setVoltage(pidOutput + ffOutput);
+    var output = pidOutput + ffOutput;
+    pivotMotor.setVoltage(-output);
   }
 
   public double getAbsoluteAngle() {
@@ -145,7 +147,7 @@ public class Shooter extends SubsystemBase {
 
   // m/s
   public void setVelocity(double velocity) {
-    shooterPID.setReference(velocity, ControlType.kVelocity);
+    shooterPID.setReference(-velocity, ControlType.kVelocity);
   }
 
   // m/s
@@ -168,11 +170,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(12 * indexSpeed);
+    this.indexMotor.setVoltage(9);
   }
 
   public void outdex() {
-    this.indexMotor.setVoltage(-12 * indexSpeed);
+    this.indexMotor.setVoltage(-6);
   }
 
   public void stopIndexer() {
@@ -353,6 +355,8 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("shooterAngle", getPivotAngle());
+    SmartDashboard.putNumber("shooterAngleSetpoint", shooterAngle);
+    SmartDashboard.putNumber("shooterAngleError", Math.abs(shooterAngle - getPivotAngle()));
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());

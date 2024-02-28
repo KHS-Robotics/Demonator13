@@ -149,48 +149,56 @@ public class RobotContainer {
     }));
 
 
-
-    
-
-
-
-    Trigger intake = driverController.povLeft();
-    intake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
-    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
-
-    Trigger outtake = driverController.povRight();
-    outtake.whileTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
+    Trigger outtake = driverController.povLeft();
+    outtake.onTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
     outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
 
+    Trigger intake = driverController.povRight();
+    intake.onTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
+    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
+
     Trigger index = new Trigger(operatorStick::index);
-    index.whileTrue(new InstantCommand(() -> {
+    index.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
+      RobotContainer.intake.intake();
     }));
     index.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
+      RobotContainer.intake.stop();
     }));
-
 
     Trigger outdex = new Trigger(operatorStick::outdex);
-    outdex.whileTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.index();
+    outdex.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.outdex();
     }));
-    outdex.onFalse(new InstantCommand(() -> {
+    outdex.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
     }));
 
 
 
     Trigger shooterDown = driverController.povDown();
-    shooterDown.whileTrue(new InstantCommand(() -> {
+    shooterDown.onTrue(new InstantCommand(() -> {
       //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.shooter.shooterAngle = 0.1;
+      RobotContainer.shooter.shooterAngle = 0.57;
+    }));
+// that puts the position of where we want the shooter wrist to go to (up)
+    Trigger shooterUp = driverController.povUp();
+    shooterUp.onTrue(new InstantCommand(() -> {
+      //RobotContainer.arm.armPosition -= 0.05;
+      RobotContainer.shooter.shooterAngle = 0.33;
     }));
 
-    Trigger shooterUp = driverController.povUp();
-    shooterUp.whileTrue(new InstantCommand(() -> {
+    Trigger armDown = driverController.povLeft();
+    armDown.onTrue(new InstantCommand(() -> {
       //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.shooter.shooterAngle = 0.3;
+      RobotContainer.arm.armPosition = ArmState.kStow.angle;
+    }));
+// that puts the position of where we want the shooter wrist to go to (up)
+    Trigger armUp = driverController.povRight();
+    armUp.onTrue(new InstantCommand(() -> {
+      //RobotContainer.arm.armPosition -= 0.05;
+      RobotContainer.arm.armPosition = ArmState.kIntake.angle;
     }));
 
 
@@ -198,6 +206,14 @@ public class RobotContainer {
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
+    Trigger shoot = new Trigger(operatorStick::shoot);
+    shoot.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.setVelocity(20);
+    }));
+    shoot.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopShooting();
+    }));
+
     Trigger intakeDown = new Trigger(operatorStick::intakeDown);
     intakeDown.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0;
@@ -208,10 +224,10 @@ public class RobotContainer {
       RobotContainer.intake.angleSetpoint = 0.44;
     }));
 
-    // Trigger intakeMid = driverController.x();
+    Trigger intakeMid = driverController.x();
     // intakeMid.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.intake.angleSetpoint = 0.22;
-    // }));
+    // RobotContainer.intake.angleSetpoint = 0.22;
+    //  }));
 
 
 

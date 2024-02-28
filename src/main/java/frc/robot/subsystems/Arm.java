@@ -61,7 +61,7 @@ public class Arm extends SubsystemBase {
 
   public enum ArmState {
     kStow(0.618),
-    kIntake(0.8),
+    kIntake(0.83),
     kShoot(0.75),
     kAmp(0.5);
 
@@ -83,9 +83,9 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("armAngle", Units.rotationsToDegrees(getPivotAngle()));
-    SmartDashboard.putNumber("armSetpoint", Units.rotationsToDegrees(armPosition));
-    SmartDashboard.putNumber("armError", Units.rotationsToDegrees((Math.abs(armPosition - getPivotAngle()))));
+    SmartDashboard.putNumber("armAngle", getPivotAngle());
+    SmartDashboard.putNumber("armSetpoint", armPosition);
+    SmartDashboard.putNumber("armError", Math.abs(armPosition - getPivotAngle()));
     //kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);
     // kI = SmartDashboard.getNumber("kI", kI);

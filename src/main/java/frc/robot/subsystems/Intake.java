@@ -90,14 +90,16 @@ public class Intake extends SubsystemBase {
   }
 
   public void intake() {
-    intakeMotor.setVoltage(12 * motorSpeed);
-  }
-
-  public void outtake() {
+    System.out.println("i am intaking");
     intakeMotor.setVoltage(-12 * motorSpeed);
   }
 
+  public void outtake() {
+    intakeMotor.setVoltage(12 * motorSpeed);
+  }
+
   public void stop() {
+    System.out.println("intake stop now");
     intakeMotor.stopMotor();
   }
 
