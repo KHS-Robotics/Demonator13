@@ -23,7 +23,7 @@ public class Arm extends SubsystemBase {
   private double kD = 1;
 
   private double kS = 0.26602;
-  private double kG = 0.7;
+  private double kG = 0.4;
   private double kV = 4.5387;
   private double kA = 0.27838;
 

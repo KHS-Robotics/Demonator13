@@ -45,7 +45,7 @@ public class Constants {
 
   public static final double INTAKE_RADIUS = 0.5;
 
-  public static final int LED_LENGTH = 10;
+  public static final int LED_LENGTH = 40;
 
   public static final double INTAKE_PIVOT_P = 0;
   public static final double INTAKE_PIVOT_I = 0;

@@ -34,6 +34,7 @@ import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.OldLEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Shooter.ShooterState;
@@ -99,6 +100,7 @@ public class RobotContainer {
   // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   // public static final AprilTagCamera rearAprilTagCamera = new
   //public static final NewLEDStrip ledStrip = new NewLEDStrip();
+  public static final OldLEDStrip leds = new OldLEDStrip();
 
   public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera",
       Constants.FRONT_APRILTAG_CAMERA_OFFSET);
