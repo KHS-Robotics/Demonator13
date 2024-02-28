@@ -125,6 +125,6 @@ public class ShootSpeaker extends Command {
   @Override
   public void end(boolean interrupted) {
     shooter.setVelocity(0);
-    shooter.stopFeeding();
+    shooter.stopIndexer();
   }
 }

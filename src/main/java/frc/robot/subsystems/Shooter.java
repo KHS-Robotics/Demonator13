@@ -18,9 +18,13 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.SparkMaxLimitSwitch;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -47,6 +51,7 @@ public class Shooter extends SubsystemBase {
   private boolean hasNote = true;
 
   private CANSparkMax indexMotor;
+  private SparkLimitSwitch indexSensor;
 
   Function<double[], double[]> projectileEquation3d;
 
@@ -89,7 +94,8 @@ public class Shooter extends SubsystemBase {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
-    // indexMotor.getForwardLimitSwitch();
+    indexMotor.setIdleMode(IdleMode.kCoast);
+    indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     shootMotor.setInverted(true);
 
     shooterEncoder = shootMotor.getEncoder();
@@ -160,6 +166,10 @@ public class Shooter extends SubsystemBase {
     pivotPID.reset();
   }
 
+  public boolean isShooterAtSetpoint() {
+    return Math.abs(getVelocity() - veloctiySetpoint) < 5;
+  }
+
   public void stopShooting() {
     shootMotor.stopMotor();
   }
@@ -170,7 +180,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(9);
+    this.indexMotor.setVoltage(4.5);
   }
 
   public void outdex() {
@@ -184,10 +194,6 @@ public class Shooter extends SubsystemBase {
 
   public void feed() {
     indexMotor.setVoltage(12);
-  }
-
-  public void stopFeeding() {
-    indexMotor.setVoltage(0);
   }
 
   public double[] rkFour(double[] x, Function<double[], double[]> f) {
@@ -328,16 +334,8 @@ public class Shooter extends SubsystemBase {
     return optimum.getPoint();
   }
 
-  public boolean noteReady() {
-    return hasNote;
-  }
-
-  public void setNoteReady(boolean hasNote) {
-    this.hasNote = hasNote;
-  }
-
   public boolean hasNote() {
-    return false; // beam break
+    return indexSensor.isPressed();
   }
 
   public enum ShooterState {
@@ -360,6 +358,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
+    SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
+
 
     goToAngle(shooterAngle);
   }

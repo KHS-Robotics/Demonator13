@@ -99,6 +99,6 @@ public class AutoIntake extends Command {
   public void end(boolean interrupted) {
     swerveDrive.stop();
     intake.stop();
-    shooter.stopFeeding();
+    shooter.stopIndexer();
   }
 }

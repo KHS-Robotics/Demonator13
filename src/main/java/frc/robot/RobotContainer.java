@@ -157,24 +157,6 @@ public class RobotContainer {
     intake.onTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
     intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
 
-    Trigger index = new Trigger(operatorStick::index);
-    index.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.index();
-      RobotContainer.intake.intake();
-    }));
-    index.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopIndexer();
-      RobotContainer.intake.stop();
-    }));
-
-    Trigger outdex = new Trigger(operatorStick::outdex);
-    outdex.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.outdex();
-    }));
-    outdex.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.stopIndexer();
-    }));
-
 
 
     Trigger shooterDown = driverController.povDown();
@@ -212,6 +194,33 @@ public class RobotContainer {
     }));
     shoot.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
+    }));
+
+    // TODO: only allow shooting when at setpoint
+    // Trigger feedShot = new Trigger(() -> shoot.getAsBoolean() && RobotContainer.shooter.isShooterAtSetpoint());
+    // feedShot.onTrue(new InstantCommand(() -> {
+    //   RobotContainer.shooter.index();
+    // }));
+    // feedShot.onFalse(new InstantCommand(() -> {
+    //   RobotContainer.shooter.stopIndexer();
+    // }));
+
+    Trigger index = new Trigger(() -> operatorStick.index() && (!RobotContainer.shooter.hasNote() || operatorStick.shoot()));
+    index.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.index();
+      RobotContainer.intake.intake();
+    }));
+    index.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
+      RobotContainer.intake.stop();
+    }));
+
+    Trigger outdex = new Trigger(operatorStick::outdex);
+    outdex.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.outdex();
+    }));
+    outdex.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
     }));
 
     Trigger intakeDown = new Trigger(operatorStick::intakeDown);
