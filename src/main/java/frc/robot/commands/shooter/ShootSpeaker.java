@@ -79,8 +79,8 @@ public class ShootSpeaker extends Command {
       goodTrajectory = true;
     }
 
-
-    shooter.goToAngle(optimalParams[0] / (2 * Math.PI));
+    // shooter needs to go to this angle relative to the ground, not the arm
+    shooter.shooterAngle = shooter.armRelativeToGroundRelative((optimalParams[0] / (2 * Math.PI)) + shooter.shooterFlatAngle);
 
 
     Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));

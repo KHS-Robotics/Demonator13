@@ -85,6 +85,8 @@ public class Shooter extends SubsystemBase {
   public double veloctiySetpoint;
   public double shooterAngle = 0;
 
+  public double shooterFlatAngle;
+
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kCoast);
@@ -149,6 +151,39 @@ public class Shooter extends SubsystemBase {
 
   public double getPivotAngle() {
     return pivotEncoder.getPosition();
+  }
+
+  public double getPivotAngleGroundRelative() {
+    return normalizeRotations(getPivotAngle() + (0.75 - RobotContainer.arm.getPivotAngle()));
+  }
+
+  public double groundRelativeToArmRelative(double groundAngle) {
+    return normalizeRotations(groundAngle - RobotContainer.arm.getPivotAngle() + 0.75);
+  }
+
+  public double armRelativeToGroundRelative(double armAngle) {
+    return normalizeRotations((RobotContainer.arm.getPivotAngle() - 0.25) - 0.5 + armAngle);
+  }
+
+  public boolean groundRelativeAnglePossible(double angle) {
+    double armRel = groundRelativeToArmRelative(angle);
+    return armRel < 0.5;
+  }
+
+  public double normalizeRotations(double angle) {
+    angle *= 360.0;
+    if (angle > 0) {
+      angle %= 360;
+      if (angle > 180) {
+        angle -= 360;
+      }
+    } else if (angle < 0) {
+      angle %= -360;
+      if (angle < -180) {
+        angle += 360;
+      }
+    }
+    return angle / 360.0;
   }
 
   // m/s
