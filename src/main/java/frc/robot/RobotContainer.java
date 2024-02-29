@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.shooter.RampShooterThenIndex;
 import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
@@ -159,23 +160,13 @@ public class RobotContainer {
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
     Trigger shoot = new Trigger(operatorStick::shoot);
-    shoot.onTrue(new InstantCommand(() -> {
-      RobotContainer.shooter.setVelocity(20);
-    }));
+    shoot.onTrue(new RampShooterThenIndex(() -> 20));
     shoot.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
+      RobotContainer.shooter.stopIndexer();
     }));
 
-    // TODO: only allow shooting when at setpoint
-    // Trigger feedShot = new Trigger(() -> shoot.getAsBoolean() && RobotContainer.shooter.isShooterAtSetpoint());
-    // feedShot.onTrue(new InstantCommand(() -> {
-    //   RobotContainer.shooter.index();
-    // }));
-    // feedShot.onFalse(new InstantCommand(() -> {
-    //   RobotContainer.shooter.stopIndexer();
-    // }));
-
-    Trigger index = new Trigger(() -> operatorStick.index() && (!RobotContainer.shooter.hasNote() || operatorStick.shoot()));
+    Trigger index = new Trigger(() -> operatorStick.index() && !RobotContainer.shooter.hasNote());
     index.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();

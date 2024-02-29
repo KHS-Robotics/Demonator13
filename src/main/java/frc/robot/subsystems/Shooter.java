@@ -160,8 +160,8 @@ public class Shooter extends SubsystemBase {
     pivotPID.reset();
   }
 
-  public boolean isShooterAtSetpoint() {
-    return Math.abs(getVelocity() - veloctiySetpoint) < 5;
+  public boolean isShooterRampedUp(double tolerance) {
+    return Math.abs(getVelocity() - veloctiySetpoint) < tolerance;
   }
 
   public void stopShooting() {
