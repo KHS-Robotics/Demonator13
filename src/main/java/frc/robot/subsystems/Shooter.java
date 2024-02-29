@@ -21,6 +21,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkLimitSwitch;
 
@@ -86,11 +87,14 @@ public class Shooter extends SubsystemBase {
 
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
+    shootMotor.setInverted(true);
+
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 100);
+
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
     indexMotor.setIdleMode(IdleMode.kCoast);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
-    shootMotor.setInverted(true);
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s

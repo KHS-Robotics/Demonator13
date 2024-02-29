@@ -7,6 +7,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -56,13 +57,16 @@ public class Intake extends SubsystemBase {
   public Intake() {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
     intakeEncoder = intakeMotor.getEncoder();
-    pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
-    pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0.206289);
-    pivotMotor.setIdleMode(IdleMode.kBrake);
-    pivotMotor.setInverted(true);
 
     intakeSensor = intakeMotor.getForwardLimitSwitch(Type.kNormallyClosed);
+
+    pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
+    pivotMotor.setIdleMode(IdleMode.kBrake);
+    pivotMotor.setInverted(true);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 100);
+
+    pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    pivotEncoder.setZeroOffset(0.206289);
 
     pivotPositionController = new PIDController(kP, kI, kD);
     pivotPositionController.setTolerance(1);
