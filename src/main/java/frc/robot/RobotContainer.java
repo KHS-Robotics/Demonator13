@@ -184,7 +184,7 @@ public class RobotContainer {
       RobotContainer.shooter.stopIndexer();
     }));
 
-    Trigger intakeDown = new Trigger(operatorStick::intakeDown);
+    Trigger intakeDown = new Trigger(() -> operatorStick.intakeDown() && RobotContainer.arm.isArmClearingIntake());
     intakeDown.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0;
     }));
