@@ -204,7 +204,7 @@ public class RobotContainer {
     armShoot.onTrue(new SetArmState(ArmState.kShoot, false).alongWith(new SetShooterState(ShooterState.kShoot, false)));
 
     Trigger armStow = new Trigger(operatorStick::stowSetpoint);
-    armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
+    armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kIntake, false)));
   }
 
   /**
