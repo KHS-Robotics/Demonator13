@@ -15,7 +15,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -38,7 +37,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.OldLEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
-import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -136,7 +134,6 @@ public class RobotContainer {
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-
     Trigger resetOdometry = driverController.start();
     resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx()));
 
@@ -150,7 +147,6 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-
     Trigger outtake = driverController.povLeft();
     outtake.onTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
     outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
@@ -158,34 +154,6 @@ public class RobotContainer {
     Trigger intake = driverController.povRight();
     intake.onTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
     intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
-
-
-
-    Trigger shooterDown = driverController.povDown();
-    shooterDown.onTrue(new InstantCommand(() -> {
-      //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.shooter.shooterAngle = 0.57;
-    }));
-// that puts the position of where we want the shooter wrist to go to (up)
-    Trigger shooterUp = driverController.povUp();
-    shooterUp.onTrue(new InstantCommand(() -> {
-      //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.shooter.shooterAngle = 0.33;
-    }));
-
-    Trigger armDown = driverController.povLeft();
-    armDown.onTrue(new InstantCommand(() -> {
-      //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.arm.armPosition = ArmState.kStow.angle;
-    }));
-// that puts the position of where we want the shooter wrist to go to (up)
-    Trigger armUp = driverController.povRight();
-    armUp.onTrue(new InstantCommand(() -> {
-      //RobotContainer.arm.armPosition -= 0.05;
-      RobotContainer.arm.armPosition = ArmState.kIntake.angle;
-    }));
-
-
   }
 
   /** Binds commands to the operator stick. */
@@ -246,12 +214,6 @@ public class RobotContainer {
 
     Trigger armStow = new Trigger(operatorStick::stowSetpoint);
     armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
-
-    Trigger wristIntake = new Trigger(operatorStick::wristIntake);
-    wristIntake.onTrue(new SetShooterState(ShooterState.kIntake, false));
-
-    Trigger wristShoot = new Trigger(operatorStick::wristShoot);
-    wristShoot.onTrue(new SetShooterState(ShooterState.kShoot, false));
   }
 
   /**
@@ -264,7 +226,7 @@ public class RobotContainer {
       new PIDConstants(4.0, 0.0, 0.3),
       new PIDConstants(1.8, 0.0, 0.8),
       3.5,
-      0.31592,
+      0.2921,
       new ReplanningConfig(true, true));
 
     AutoBuilder.configureHolonomic(
