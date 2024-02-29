@@ -18,13 +18,11 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkLimitSwitch;
-import com.revrobotics.SparkMaxLimitSwitch;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -48,14 +46,10 @@ public class Shooter extends SubsystemBase {
   private ArmFeedforward pivotFF;
   private PIDController pivotPID;
 
-  private boolean hasNote = true;
-
   private CANSparkMax indexMotor;
   private SparkLimitSwitch indexSensor;
 
   Function<double[], double[]> projectileEquation3d;
-
-  private double indexSpeed = 0.5;
 
   private final double DRAG_COEFFICIENT = 0.5;
   private final double AIR_DENSITY = 1.225;
@@ -339,9 +333,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.3),
-    kShoot(0.2),
-    kAmp(0.1);
+    kIntake(0.33),
+    kShoot(0.4),
+    kAmp(0.425);
 
     public final double angle;
 

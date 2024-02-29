@@ -17,7 +17,7 @@ public class Arm extends SubsystemBase {
   private PIDController armPid;
 
   private double kP = 40;
-  private double kI = 2;
+  private double kI = 3;
   private double kD = 1;
 
   private double kG = 0.4;
@@ -43,8 +43,8 @@ public class Arm extends SubsystemBase {
     double pidOutput = armPid.calculate(getPivotAngle(), angle);
     double gravityOutput = kG * Math.sin(Units.rotationsToRadians(angle));
     
-    pivotMotor.setVoltage(pidOutput + gravityOutput);
-    // System.out.println(pidOutput + gravityOutput);
+    var output = pidOutput + gravityOutput;
+    pivotMotor.setVoltage(output);
   }
 
   public void setVoltage(double voltage) {
@@ -59,11 +59,15 @@ public class Arm extends SubsystemBase {
     return pivotEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
+  public boolean isArmClearingIntake() {
+    return armPosition < 0.75;
+  }
+
   public enum ArmState {
     kStow(0.618),
-    kIntake(0.83),
+    kIntake(0.84),
     kShoot(0.75),
-    kAmp(0.5);
+    kAmp(0.52);
 
     public final double angle;
 

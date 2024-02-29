@@ -112,6 +112,10 @@ public class Intake extends SubsystemBase {
     return pivotEncoder.getPosition();
   }
 
+  public boolean isIntakeDown() {
+    return angleSetpoint < 0.04;
+  }
+
   public boolean hasNoteInside() {
     return intakeSensor.isPressed();
   }

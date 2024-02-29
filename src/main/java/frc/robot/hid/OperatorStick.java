@@ -12,27 +12,11 @@ public class OperatorStick extends Joystick {
   }
 
   public boolean intakeDown() {
-    return this.getRawButton(10);
+    return this.getRawButton(11);
   }
 
   public boolean intakeUp() {
     return this.getRawButton(5);
-  }
-
-  public boolean armIntakeSetpoint() {
-    return this.getRawButton(9);
-  }
-
-  public boolean armShootSetpoint() {
-    return this.getRawButton(7);
-  }
-
-  public boolean armAmpSetpoint() {
-    return this.getRawButton(6);
-  }
-
-  public boolean armStowSetpoint() {
-    return this.getRawButton(8);
   }
 
   public boolean wristIntake() {
@@ -68,18 +52,18 @@ public class OperatorStick extends Joystick {
   }
 
   public boolean intakeSetpoint() {
-    return false;
+    return this.getRawButton(10);
   }
 
   public boolean shootSetpoint() {
-    return false;
+    return this.getRawButton(9);
   }
 
   public boolean stowSetpoint() {
-    return false;
+    return this.getRawButton(7);
   }
 
   public boolean ampSetpoint() {
-    return false;
+    return this.getRawButton(8);
   }
 }

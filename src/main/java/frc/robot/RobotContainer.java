@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.OldLEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -228,31 +230,22 @@ public class RobotContainer {
       RobotContainer.intake.angleSetpoint = 0;
     }));
 
-    Trigger intakeUp = new Trigger(operatorStick::intakeUp);
+    Trigger intakeUp = new Trigger(() -> operatorStick.intakeUp() && RobotContainer.arm.isArmClearingIntake());
     intakeUp.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0.44;
     }));
-
-    Trigger intakeMid = driverController.x();
-    // intakeMid.onTrue(new InstantCommand(() -> {
-    // RobotContainer.intake.angleSetpoint = 0.22;
-    //  }));
-
-
-
-    Trigger armIntake = new Trigger(operatorStick::intakeSetpoint);
-    armIntake.onTrue(new SetArmState(ArmState.kIntake, false));
+    
+    Trigger armIntake = new Trigger(() -> operatorStick.intakeSetpoint() && RobotContainer.intake.isIntakeDown());
+    armIntake.onTrue(new SetShooterState(ShooterState.kIntake, false).andThen(new SetArmState(ArmState.kIntake, false)));
 
     Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
-    armAmp.onTrue(new SetArmState(ArmState.kAmp, false));
+    armAmp.onTrue(new SetArmState(ArmState.kAmp, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
 
-    Trigger armShoot = new Trigger(operatorStick::shootSetpoint);
-    armShoot.onTrue(new SetArmState(ArmState.kShoot, false));
+    Trigger armShoot = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
+    armShoot.onTrue(new SetArmState(ArmState.kShoot, false).alongWith(new SetShooterState(ShooterState.kShoot, false)));
 
     Trigger armStow = new Trigger(operatorStick::stowSetpoint);
-    armStow.onTrue(new SetArmState(ArmState.kStow, false));
-
-
+    armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
 
     Trigger wristIntake = new Trigger(operatorStick::wristIntake);
     wristIntake.onTrue(new SetShooterState(ShooterState.kIntake, false));

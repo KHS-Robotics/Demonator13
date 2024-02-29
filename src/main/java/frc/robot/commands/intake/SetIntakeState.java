@@ -7,26 +7,23 @@ package frc.robot.commands.intake;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 
 public class SetIntakeState extends Command {
-  private Intake intake;
   private IntakeState intakeState;
   private boolean wait;
 
   /** Creates a new SetIntakeState. */
   public SetIntakeState(IntakeState intakeState, boolean wait) {
-    this.intake = RobotContainer.intake;
     this.intakeState = intakeState;
     this.wait = wait;
-    addRequirements(intake);
+    addRequirements(RobotContainer.intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.setSetpoint(intakeState);
+    RobotContainer.intake.angleSetpoint = intakeState.angle;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -40,6 +37,6 @@ public class SetIntakeState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(Units.rotationsToDegrees(intake.getPivotAngle() - Units.rotationsToDegrees(intakeState.angle))) < 2;
+    return !wait || Math.abs(Units.rotationsToDegrees(RobotContainer.intake.getPivotAngle() - Units.rotationsToDegrees(intakeState.angle))) < 3;
   }
 }
