@@ -94,7 +94,7 @@ public class Shooter extends SubsystemBase {
 
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kBrake);
-    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 100);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
     indexMotor.setIdleMode(IdleMode.kBrake);
