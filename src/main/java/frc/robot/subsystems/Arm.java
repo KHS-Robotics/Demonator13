@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -26,10 +27,12 @@ public class Arm extends SubsystemBase {
 
   public Arm() {
     pivotMotor = new CANSparkMax(RobotMap.ARM_PIVOT, MotorType.kBrushless);
+    pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setInverted(false);
-    pivotFollower = new CANSparkMax(RobotMap.ARM_FOLLOWER, MotorType.kBrushless);
-    pivotFollower.follow(pivotMotor, true);
     
+    pivotFollower = new CANSparkMax(RobotMap.ARM_FOLLOWER, MotorType.kBrushless);
+    pivotFollower.setIdleMode(IdleMode.kBrake);
+    pivotFollower.follow(pivotMotor, true);
     
     pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
     

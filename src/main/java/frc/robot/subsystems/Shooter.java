@@ -87,13 +87,15 @@ public class Shooter extends SubsystemBase {
 
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
+    pivotMotor.setIdleMode(IdleMode.kCoast);
     shootMotor.setInverted(true);
 
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
+    pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 100);
 
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
-    indexMotor.setIdleMode(IdleMode.kCoast);
+    indexMotor.setIdleMode(IdleMode.kBrake);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
     shooterEncoder = shootMotor.getEncoder();

@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.commands.shooter.RampShooterThenIndex;
+import frc.robot.commands.shooter.RampShooterThenFeed;
 import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
@@ -160,7 +160,7 @@ public class RobotContainer {
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
     Trigger shoot = new Trigger(operatorStick::shoot);
-    shoot.onTrue(new RampShooterThenIndex(() -> 20));
+    shoot.onTrue(new RampShooterThenFeed(() -> 20));
     shoot.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();

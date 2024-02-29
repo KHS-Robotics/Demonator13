@@ -56,6 +56,7 @@ public class Intake extends SubsystemBase {
 
   public Intake() {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
+    intakeMotor.setIdleMode(IdleMode.kBrake);
     intakeEncoder = intakeMotor.getEncoder();
 
     intakeSensor = intakeMotor.getForwardLimitSwitch(Type.kNormallyClosed);

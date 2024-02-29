@@ -4,7 +4,6 @@
 
 package frc.robot.commands.arm;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm.ArmState;
@@ -37,6 +36,6 @@ public class SetArmState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(Units.rotationsToDegrees(RobotContainer.arm.getPivotAngle() - Units.rotationsToDegrees(armState.angle))) < 3;
+    return !wait || Math.abs(RobotContainer.arm.getPivotAngle() - armState.angle) <= 0.015;
   }
 }

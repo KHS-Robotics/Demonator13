@@ -4,7 +4,6 @@
 
 package frc.robot.commands.intake;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -37,6 +36,6 @@ public class SetIntakeState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(Units.rotationsToDegrees(RobotContainer.intake.getPivotAngle() - Units.rotationsToDegrees(intakeState.angle))) < 3;
+    return !wait || Math.abs(RobotContainer.intake.getPivotAngle() - intakeState.angle) <= 0.025;
   }
 }
