@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase {
     pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setInverted(true);
-    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 100);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
     pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.206289);
