@@ -18,7 +18,7 @@ public class ShootSpeaker extends Command {
   Alliance color;
   boolean hasAlliance;
   double targetX, targetY, targetZ;
-  final double v0 = 25;
+  final double v0 = 20;
   boolean goodTrajectory = true;
   Timer timer;
 

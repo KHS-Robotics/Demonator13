@@ -193,7 +193,7 @@ public class SwerveDrive extends SubsystemBase {
     } else {
       var swerveModuleStates = kinematics
           .toSwerveModuleStates(
-              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getPose().getRotation())
+              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getAngle()) // TODO use odometry for angle
                   : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
       frontLeft.setDesiredState(swerveModuleStates[0]);
