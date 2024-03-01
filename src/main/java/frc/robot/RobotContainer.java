@@ -170,7 +170,6 @@ public class RobotContainer {
     shootSpeaker.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
-      RobotContainer.shooter.veloctiySetpoint = 0;
     }, RobotContainer.shooter));
 
     Trigger intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());

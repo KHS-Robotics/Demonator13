@@ -20,7 +20,6 @@ public class RampShooter extends Command {
 
   @Override
   public void initialize() {
-    RobotContainer.shooter.veloctiySetpoint = velocity.getAsDouble();
     RobotContainer.shooter.setVelocity(velocity.getAsDouble());
     timer.start();
   }

@@ -189,6 +189,7 @@ public class Shooter extends SubsystemBase {
 
   // m/s
   public void setVelocity(double velocity) {
+    this.veloctiySetpoint = velocity;
     shooterPID.setReference(-velocity, ControlType.kVelocity);
   }
 
@@ -208,6 +209,7 @@ public class Shooter extends SubsystemBase {
 
   public void stopShooting() {
     shootMotor.stopMotor();
+    this.veloctiySetpoint = 0;
   }
 
   public boolean atAngleSetpoint(double tolerance) {
