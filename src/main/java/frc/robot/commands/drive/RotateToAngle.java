@@ -7,26 +7,21 @@
 
 package frc.robot.commands.drive;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
 public class RotateToAngle extends Command {
+  private static final double kErrorInDegrees = 3;
   private Timer timer = new Timer();
 
-  private double angle, error;
+  private final DoubleSupplier angle;
 
-  /**
-   * Creates a new RotateToAngle.
-   */
-  public RotateToAngle(double angle) {
-    this(angle, 5);
-  }
-
-  public RotateToAngle(double angle, double error) {
-    this.angle = angle;
-    this.error = error;
+  public RotateToAngle(DoubleSupplier angle) {
     addRequirements(RobotContainer.swerveDrive);
+    this.angle = angle;
   }
 
   // Called when the command is initially scheduled.
@@ -38,7 +33,7 @@ public class RotateToAngle extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotContainer.swerveDrive.rotateToAngleInPlace(angle);
+    RobotContainer.swerveDrive.rotateToAngleInPlace(angle.getAsDouble());
   }
 
   // Called once the command ends or is interrupted.
@@ -51,14 +46,13 @@ public class RotateToAngle extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    var atSetpoint = RobotContainer.swerveDrive.atSetpoint(error);
+    var atSetpoint = RobotContainer.swerveDrive.atSetpoint(kErrorInDegrees);
     if (atSetpoint) {
       timer.start();
     } else {
-      timer.stop();
       timer.reset();
     }
 
-    return atSetpoint;
+    return atSetpoint && timer.hasElapsed(0.20);
   }
 }

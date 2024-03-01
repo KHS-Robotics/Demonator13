@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
@@ -312,7 +313,11 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot, true));
     NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake, true).alongWith(new SetArmState(ArmState.kIntake, true)));
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
-    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("Not Implemented!"));
-    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("Not Implemented!"));
+
+    // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
+    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
+
+    // TODO: get heading adjustment using vision, or make a separate command AlignToSpeaker
+    NamedCommands.registerCommand("AlignToSpeaker", new RotateToAngle(() -> RobotContainer.swerveDrive.getHeading()));
   }
 }

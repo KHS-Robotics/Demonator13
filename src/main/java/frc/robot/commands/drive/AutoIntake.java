@@ -55,7 +55,7 @@ public class AutoIntake extends Command {
     this.robotTarget = new Pose2d(vec.plus(robotPose.getTranslation()), angleToNote);
 
     // drive to robotTarget
-    // TODO: we hardcode fieldRelative here - does it matter true vs false and take no input from joystick (only to start this command)
+    // TODO: we hardcode fieldRelative here - does it matter true vs false? set it to one of them that makes sense and take no input from the joystick here
     fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
     RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
   }
