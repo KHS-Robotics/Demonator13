@@ -187,29 +187,29 @@ public class RobotContainer {
     outtakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.outtake();
       RobotContainer.shooter.outdex();
-    }, RobotContainer.shooter));
+    }, RobotContainer.intake, RobotContainer.shooter));
     outtakeNote.onFalse(new InstantCommand(() -> {
       RobotContainer.intake.stop();
       RobotContainer.shooter.stopIndexer();
     }, RobotContainer.intake, RobotContainer.shooter));
 
     Trigger deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
-    deployIntake.onTrue(new SetIntakeState(IntakeState.kDown, false));
+    deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
 
     Trigger retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
-    retractIntake.onTrue(new SetIntakeState(IntakeState.kUp, false));
+    retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
     
     Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint() && RobotContainer.intake.isIntakeDown());
-    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake, false).andThen(new SetArmState(ArmState.kIntake, false)));
+    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake).andThen(new SetArmState(ArmState.kIntake)));
 
     Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
-    ampSetpoint.onTrue(new SetArmState(ArmState.kAmp, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
+    ampSetpoint.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
     Trigger shootSetpoint = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
-    shootSetpoint.onTrue(new SetArmState(ArmState.kShoot, false).alongWith(new SetShooterState(ShooterState.kShoot, false)));
+    shootSetpoint.onTrue(new SetArmState(ArmState.kShoot).alongWith(new SetShooterState(ShooterState.kShoot)));
 
     Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
-    stowSetpoint.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kIntake, false)));
+    stowSetpoint.onTrue(new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)));
 
     Trigger ampOut = new Trigger(operatorStick::scoreAmp);
     ampOut.onTrue(
@@ -301,10 +301,10 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown, true));
-    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp, true));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot, true));
-    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake, true).alongWith(new SetArmState(ArmState.kIntake, true)));
+    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
+    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
 
     // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them

@@ -10,13 +10,11 @@ import frc.robot.subsystems.Intake.IntakeState;
 
 public class SetIntakeState extends Command {
   private IntakeState intakeState;
-  private boolean wait;
-
+  
   /** Creates a new SetIntakeState. */
-  public SetIntakeState(IntakeState intakeState, boolean wait) {
-    this.intakeState = intakeState;
-    this.wait = wait;
+  public SetIntakeState(IntakeState intakeState) {
     addRequirements(RobotContainer.intake);
+    this.intakeState = intakeState;
   }
 
   // Called when the command is initially scheduled.
@@ -36,6 +34,6 @@ public class SetIntakeState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(RobotContainer.intake.getPivotAngle() - intakeState.angle) <= 0.025;
+    return Math.abs(RobotContainer.intake.getPivotAngle() - intakeState.angle) <= 0.025;
   }
 }

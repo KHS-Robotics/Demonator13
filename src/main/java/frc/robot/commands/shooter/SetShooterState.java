@@ -10,13 +10,11 @@ import frc.robot.subsystems.Shooter.ShooterState;
 
 public class SetShooterState extends Command {
   private ShooterState shooterState;
-  private boolean wait;
 
   /** Creates a new SetShooterState. */
-  public SetShooterState(ShooterState shooterState, boolean wait) {
-    this.shooterState = shooterState;
-    this.wait = wait;
+  public SetShooterState(ShooterState shooterState) {
     addRequirements(RobotContainer.shooter);
+    this.shooterState = shooterState;
   }
 
   // Called when the command is initially scheduled.
@@ -36,6 +34,6 @@ public class SetShooterState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(RobotContainer.shooter.getPivotAngle() - shooterState.angle) <= 0.015;
+    return Math.abs(RobotContainer.shooter.getPivotAngle() - shooterState.angle) <= 0.015;
   }
 }

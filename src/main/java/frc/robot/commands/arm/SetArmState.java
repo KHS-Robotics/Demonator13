@@ -10,13 +10,11 @@ import frc.robot.subsystems.Arm.ArmState;
 
 public class SetArmState extends Command {
   private ArmState armState;
-  private boolean wait;
 
   /** Creates a new SetArmState. */
-  public SetArmState(ArmState armState, boolean wait) {
-    this.armState = armState;
-    this.wait = wait;
+  public SetArmState(ArmState armState) {
     addRequirements(RobotContainer.arm);
+    this.armState = armState;
   }
 
   // Called when the command is initially scheduled.
@@ -36,6 +34,6 @@ public class SetArmState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(RobotContainer.arm.getPivotAngle() - armState.angle) <= 0.015;
+    return Math.abs(RobotContainer.arm.getPivotAngle() - armState.angle) <= 0.015;
   }
 }
