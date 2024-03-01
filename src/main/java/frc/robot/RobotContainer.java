@@ -143,23 +143,25 @@ public class RobotContainer {
     Trigger resetOdometry = driverController.start();
     resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx(), RobotContainer.swerveDrive));
 
+    // go slow is an exception - doesn't really need to "require" the swerve drive
     Trigger slowDrive = driverController.leftTrigger(0.3);
     slowDrive.onTrue(new InstantCommand(() -> {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 0.75;
       SwerveDrive.kMaxSpeedMetersPerSecond = Math.PI / 2.0;
     }));
+    // go slow is an exception - doesn't really need to "require" the swerve drive
     slowDrive.onFalse(new InstantCommand(() -> {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
     Trigger outtake = driverController.povLeft();
-    outtake.onTrue(new InstantCommand(() -> {RobotContainer.intake.outtake();}));
-    outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
+    outtake.onTrue(new InstantCommand(() -> RobotContainer.intake.outtake(), RobotContainer.intake));
+    outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop(), RobotContainer.intake));
 
     Trigger intake = driverController.povRight();
-    intake.onTrue(new InstantCommand(() -> {RobotContainer.intake.intake();}));
-    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop()));
+    intake.onTrue(new InstantCommand(() -> RobotContainer.intake.intake(), RobotContainer.intake));
+    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop(), RobotContainer.intake));
   }
 
   /** Binds commands to the operator stick. */
@@ -217,10 +219,12 @@ public class RobotContainer {
     Trigger ampOut = new Trigger(operatorStick::shootAmp);
     ampOut.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
+      .andThen(
+        new WaitCommand(0.5)
         .andThen(
-          new WaitCommand(0.5)
-          .andThen(new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter))
+          new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter)
         )
+      )
     );
     ampOut.onFalse(new InstantCommand(() ->{
       RobotContainer.shooter.stopIndexer();
