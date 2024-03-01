@@ -36,7 +36,6 @@ import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
-import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
@@ -307,7 +306,6 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown, true));
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp, true));
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot, true));
@@ -317,7 +315,10 @@ public class RobotContainer {
     // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
 
-    // TODO: get heading adjustment using vision, or make a separate command AlignToSpeaker
-    NamedCommands.registerCommand("AlignToSpeaker", new RotateToAngle(() -> RobotContainer.swerveDrive.getHeading()));
+    // TODO: create a LaunchSpeaker for auto that does not use the joystick controls on the drive train
+    NamedCommands.registerCommand("LaunchSpeaker", new PrintCommand("!!! LaunchSpeaker not yet implemented !!!"));
+
+    // TODO: get heading adjustment using vision as pass along to DoubleSupplier, or make a separate command AlignToSpeaker
+    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!").alongWith(new RotateToAngle(() -> RobotContainer.swerveDrive.getHeading())));
   }
 }

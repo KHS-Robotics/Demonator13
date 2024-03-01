@@ -170,7 +170,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public double sensControl(double var) {
-    return Constants.SENS * Math.pow(var, 3) + (1 - Constants.SENS) * var;
+    return Constants.JOYSTICK_SENSITIVITY * Math.pow(var, 3) + (1 - Constants.JOYSTICK_SENSITIVITY) * var;
   }
 
   /**

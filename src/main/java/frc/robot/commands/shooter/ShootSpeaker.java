@@ -23,7 +23,7 @@ public class ShootSpeaker extends Command {
   Timer timer;
 
   public ShootSpeaker() {
-    this.addRequirements(RobotContainer.shooter);
+    this.addRequirements(RobotContainer.shooter, RobotContainer.swerveDrive);
     shooter = RobotContainer.shooter;
     timer = new Timer();
   }
@@ -126,6 +126,7 @@ public class ShootSpeaker extends Command {
   public void end(boolean interrupted) {
     shooter.setVelocity(0);
     shooter.stopIndexer();
+    RobotContainer.swerveDrive.stop();
     timer.stop();
     timer.reset();
   }

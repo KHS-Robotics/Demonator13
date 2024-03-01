@@ -5,7 +5,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class Constants {
-  public static final double SENS = 0.5;
+  /** Ranges from [0, 1] where 0 is full linear and 1 is full cubic. */ 
+  public static final double JOYSTICK_SENSITIVITY = 0.5;
 
   public static final double DRIVE_BASE_RADIUS_METERS = 0.2921;
   public static final double WHEEL_RADIUS_METERS = 0.0508;
@@ -41,6 +42,7 @@ public class Constants {
   public static final double DRIVE_Y_I = 0;
   public static final double DRIVE_Y_D = 0;
 
+  // TODO: cammera offsets
   public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0.7112, new Rotation3d(0, Math.toRadians(-20), 0));
   public static final Transform3d REAR_APRILTAG_CAMERA_OFFSET = new Transform3d(0, 0, 0, new Rotation3d());
   public static final Transform3d FRONT_NOTE_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(7.8971), Units.inchesToMeters(-12.99815), Units.inchesToMeters(18.3493), new Rotation3d(0, Math.toRadians(-20), Math.toRadians(20)));
@@ -49,10 +51,6 @@ public class Constants {
   public static final double INTAKE_RADIUS = 0.5;
 
   public static final int LED_LENGTH = 40;
-
-  public static final double INTAKE_PIVOT_P = 0;
-  public static final double INTAKE_PIVOT_I = 0;
-  public static final double INTAKE_PIVOT_D = 0;
 
   public static final double INTAKE_TOP = 0.582;
   public static final double INTAKE_BOTTOM = 0.223;
