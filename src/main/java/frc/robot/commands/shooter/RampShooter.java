@@ -8,7 +8,7 @@ import frc.robot.RobotContainer;
 
 public class RampShooter extends Command {
   private final Timer timer = new Timer();
-  private final double kTimeAtSetpointForCompletionInSeconds = 0.33;
+  private final double kTimeAtSetpointForCompletionInSeconds = 0.15;
   private final double kVelocityTolerance = 1.0;
 
   private final DoubleSupplier velocity;
@@ -20,6 +20,7 @@ public class RampShooter extends Command {
 
   @Override
   public void initialize() {
+    RobotContainer.shooter.veloctiySetpoint = velocity.getAsDouble();
     RobotContainer.shooter.setVelocity(velocity.getAsDouble());
     timer.start();
   }

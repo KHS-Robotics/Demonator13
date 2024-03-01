@@ -35,20 +35,24 @@ public class OperatorStick extends Joystick {
     return this.getRawButton(16);
   }
 
+  public boolean shootAmp() {
+    return this.getRawButton(2);
+  }
+
   public boolean index() {
-    return getPOV() == 270;
+    return getPOV() == 0;
   }
 
   public boolean outdex() {
-    return getPOV() == 90;
-  }
-
-  public boolean intake() {
     return getPOV() == 180;
   }
 
+  public boolean intake() {
+    return getPOV() == 270;
+  }
+
   public boolean outtake() {
-    return getPOV() == 0;
+    return getPOV() == 90;
   }
 
   public boolean intakeSetpoint() {

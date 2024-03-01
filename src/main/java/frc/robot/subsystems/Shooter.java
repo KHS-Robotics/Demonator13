@@ -89,10 +89,11 @@ public class Shooter extends SubsystemBase {
 
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
+    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kCoast);
     shootMotor.setInverted(true);
 
-    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
+    
     pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
@@ -146,7 +147,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void driveShooter(double volts) {
-    pivotMotor.setVoltage(volts);
+    shootMotor.setVoltage(volts);
   }
 
   public double getPivotAngle() {
@@ -202,7 +203,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean isShooterRampedUp(double tolerance) {
-    return Math.abs(getVelocity() - veloctiySetpoint) < tolerance;
+    return Math.abs(getVelocity() - (-veloctiySetpoint)) < tolerance;
   }
 
   public void stopShooting() {
@@ -215,11 +216,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(4.5);
+    this.indexMotor.setVoltage(3.5);
   }
 
   public void outdex() {
-    this.indexMotor.setVoltage(-6);
+    this.indexMotor.setVoltage(-10);
   }
 
   public void stopIndexer() {
@@ -374,7 +375,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.33),
+    kIntake(0.37),
     kShoot(0.4),
     kAmp(0.425);
 
@@ -394,6 +395,9 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
+    SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
+    SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
+    SmartDashboard.putNumber("shooterSetpoint", veloctiySetpoint);
 
 
     goToAngle(shooterAngle);
