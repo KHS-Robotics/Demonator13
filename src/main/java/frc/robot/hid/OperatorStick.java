@@ -2,65 +2,30 @@ package frc.robot.hid;
 
 import edu.wpi.first.wpilibj.Joystick;
 
+/** Thrustmaster T.16000M FCS */
 public class OperatorStick extends Joystick {
   public OperatorStick(int port) {
     super(port);
   }
 
-  public boolean shoot() {
-    return this.getRawButton(1);
-  }
-
-  public boolean intakeDown() {
-    return this.getRawButton(11);
-  }
-
-  public boolean intakeUp() {
-    return this.getRawButton(5);
-  }
-
-  public boolean wristIntake() {
-    return this.getRawButton(13);
-  }
-
-  public boolean wristShoot() {
-    return this.getRawButton(14);
-  }
-
-  public double climberSpeed() {
-    return this.getRawAxis(1);
-  }
-
-  public boolean fastUp() {
-    return this.getRawButton(16);
-  }
-
-  public boolean shootAmp() {
-    return this.getRawButton(2);
-  }
-
-  public boolean index() {
+  public boolean outtakeNote() {
     return getPOV() == 0;
   }
 
-  public boolean outdex() {
+  public boolean intakeNote() {
     return getPOV() == 180;
   }
 
-  public boolean intake() {
-    return getPOV() == 270;
+  public boolean scoreSpeaker() {
+    return this.getRawButton(1);
   }
 
-  public boolean outtake() {
-    return getPOV() == 90;
+  public boolean scoreAmp() {
+    return this.getRawButton(2);
   }
-
-  public boolean intakeSetpoint() {
-    return this.getRawButton(10);
-  }
-
-  public boolean shootSetpoint() {
-    return this.getRawButton(9);
+  
+  public boolean deployIntake() {
+    return this.getRawButton(5);
   }
 
   public boolean stowSetpoint() {
@@ -69,5 +34,17 @@ public class OperatorStick extends Joystick {
 
   public boolean ampSetpoint() {
     return this.getRawButton(8);
+  }
+
+  public boolean shootSetpoint() {
+    return this.getRawButton(9);
+  }
+
+  public boolean intakeNoteSetpoint() {
+    return this.getRawButton(10);
+  }
+
+  public boolean retractIntake() {
+    return this.getRawButton(11);
   }
 }

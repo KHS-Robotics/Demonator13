@@ -25,22 +25,12 @@ public class Intake extends SubsystemBase {
   private CANSparkMax pivotMotor;
   private AbsoluteEncoder pivotEncoder;
 
-  // public SysIdRoutineLog log = new SysIdRoutineLog("intake log");
-  // public SysIdRoutine routine = new SysIdRoutine(
-  //   new SysIdRoutine.Config(),
-  //   new SysIdRoutine.Mechanism(this::drivePivot, this::logMotors, null)
-  // );
-  
-
-  double motorSpeed = 1;
-
   // 0 degrees up, 177 degrees down
   public PIDController pivotPositionController;
   public ArmFeedforward pivotFeedforward;
 
   public SparkLimitSwitch intakeSensor;
 
-  // sane? values from last year we can tune later
   private final double kS = 0.15463;
   private final double kG = 0.59328;
   private final double kV = 0.9972;
@@ -51,8 +41,6 @@ public class Intake extends SubsystemBase {
   private  double kD = 0;
 
   public double angleSetpoint = 0.44;
-
-  //private final TrapezoidProfile.Constraints pivotConstraints = new TrapezoidProfile.Constraints(1.5, 5);
 
   public Intake() {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
@@ -76,7 +64,6 @@ public class Intake extends SubsystemBase {
   }
 
   public void goToAngle(double rotations) {
-    //pivotPositionController.setGoal(goalRadians);
     double pidOutput = pivotPositionController.calculate(getPivotAngle(), rotations);
     double ffOutput = pivotFeedforward.calculate(rotations, 0);
     pivotMotor.setVoltage(pidOutput + ffOutput);
@@ -95,16 +82,14 @@ public class Intake extends SubsystemBase {
   }
 
   public void intake() {
-    System.out.println("i am intaking");
-    intakeMotor.setVoltage(-12 * motorSpeed);
+    intakeMotor.setVoltage(-12);
   }
 
   public void outtake() {
-    intakeMotor.setVoltage(12 * motorSpeed);
+    intakeMotor.setVoltage(12);
   }
 
   public void stop() {
-    System.out.println("intake stop now");
     intakeMotor.stopMotor();
   }
 

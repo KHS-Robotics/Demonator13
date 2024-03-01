@@ -140,8 +140,8 @@ public class RobotContainer {
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-    Trigger resetOdometry = driverController.start();
-    resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx(), RobotContainer.swerveDrive));
+    Trigger resetNavx = driverController.start();
+    resetNavx.onTrue(new InstantCommand(() -> swerveDrive.resetNavx(), RobotContainer.swerveDrive));
 
     // go slow is an exception - doesn't really need to "require" the swerve drive
     Trigger slowDrive = driverController.leftTrigger(0.3);
@@ -154,69 +154,64 @@ public class RobotContainer {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
-
-    Trigger outtake = driverController.povLeft();
-    outtake.onTrue(new InstantCommand(() -> RobotContainer.intake.outtake(), RobotContainer.intake));
-    outtake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop(), RobotContainer.intake));
-
-    Trigger intake = driverController.povRight();
-    intake.onTrue(new InstantCommand(() -> RobotContainer.intake.intake(), RobotContainer.intake));
-    intake.onFalse(new InstantCommand(() -> RobotContainer.intake.stop(), RobotContainer.intake));
   }
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
-    Trigger shoot = new Trigger(operatorStick::shoot);
+    // TODO: bind shootSpeaker to use shooting math
+    Trigger shootSpeaker = new Trigger(operatorStick::scoreSpeaker);
     // shoot.onTrue(new ShootSpeaker());
-    shoot.onTrue(new RampShooter(() -> 20).andThen(new InstantCommand(() -> RobotContainer.shooter.feed())));
-    shoot.onFalse(new InstantCommand(() -> {
+    shootSpeaker.onTrue(
+      new RampShooter(() -> 20)
+      .andThen(
+        new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
+      )
+    );
+    shootSpeaker.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.veloctiySetpoint = 0;
     }, RobotContainer.shooter));
-    
 
-    Trigger index = new Trigger(() -> operatorStick.index() && !RobotContainer.shooter.hasNote());
-    index.onTrue(new InstantCommand(() -> {
+    Trigger intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
+    intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
     }, RobotContainer.shooter, RobotContainer.intake));
-    index.onFalse(new InstantCommand(() -> {
+    intakeNote.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
       RobotContainer.intake.stop();
     }, RobotContainer.shooter, RobotContainer.intake));
 
-    Trigger outdex = new Trigger(operatorStick::outdex);
-    outdex.onTrue(new InstantCommand(() -> {
+    Trigger outtakeNote = new Trigger(operatorStick::outtakeNote);
+    outtakeNote.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.outtake();
       RobotContainer.shooter.outdex();
     }, RobotContainer.shooter));
-    outdex.onTrue(new InstantCommand(() -> {
+    outtakeNote.onFalse(new InstantCommand(() -> {
+      RobotContainer.intake.stop();
       RobotContainer.shooter.stopIndexer();
-    }, RobotContainer.shooter));
+    }, RobotContainer.intake, RobotContainer.shooter));
 
-    Trigger intakeDown = new Trigger(() -> operatorStick.intakeDown() && RobotContainer.arm.isArmClearingIntake());
-    intakeDown.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.angleSetpoint = 0;
-    }, RobotContainer.intake));
+    Trigger deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
+    deployIntake.onTrue(new SetIntakeState(IntakeState.kDown, false));
 
-    Trigger intakeUp = new Trigger(() -> operatorStick.intakeUp() && RobotContainer.arm.isArmClearingIntake());
-    intakeUp.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.angleSetpoint = 0.44;
-    }, RobotContainer.intake));
+    Trigger retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
+    retractIntake.onTrue(new SetIntakeState(IntakeState.kUp, false));
     
-    Trigger armIntake = new Trigger(() -> operatorStick.intakeSetpoint() && RobotContainer.intake.isIntakeDown());
-    armIntake.onTrue(new SetShooterState(ShooterState.kIntake, false).andThen(new SetArmState(ArmState.kIntake, false)));
+    Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint() && RobotContainer.intake.isIntakeDown());
+    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake, false).andThen(new SetArmState(ArmState.kIntake, false)));
 
-    Trigger armAmp = new Trigger(operatorStick::ampSetpoint);
-    armAmp.onTrue(new SetArmState(ArmState.kAmp, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
+    Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
+    ampSetpoint.onTrue(new SetArmState(ArmState.kAmp, false).alongWith(new SetShooterState(ShooterState.kAmp, false)));
 
-    Trigger armShoot = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
-    armShoot.onTrue(new SetArmState(ArmState.kShoot, false).alongWith(new SetShooterState(ShooterState.kShoot, false)));
+    Trigger shootSetpoint = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
+    shootSetpoint.onTrue(new SetArmState(ArmState.kShoot, false).alongWith(new SetShooterState(ShooterState.kShoot, false)));
 
-    Trigger armStow = new Trigger(operatorStick::stowSetpoint);
-    armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kIntake, false)));
+    Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
+    stowSetpoint.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kIntake, false)));
 
-    Trigger ampOut = new Trigger(operatorStick::shootAmp);
+    Trigger ampOut = new Trigger(operatorStick::scoreAmp);
     ampOut.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
       .andThen(
