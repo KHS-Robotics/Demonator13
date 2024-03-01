@@ -12,8 +12,8 @@ import frc.robot.subsystems.Shooter.ShooterState;
 public class AutoPickupNote extends SequentialCommandGroup {
   public AutoPickupNote() {
     addCommands(
-      new SetIntakeState(IntakeState.kDown, true),
-      new SetArmState(ArmState.kIntake, true).alongWith(new SetShooterState(ShooterState.kIntake, true)),
+      new SetIntakeState(IntakeState.kDown),
+      new SetArmState(ArmState.kIntake).alongWith(new SetShooterState(ShooterState.kIntake)),
       new AutoIntake()
     );
   }
