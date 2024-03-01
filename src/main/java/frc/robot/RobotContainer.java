@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
-import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
@@ -313,6 +312,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("LaunchSpeaker", new PrintCommand("!!! LaunchSpeaker not yet implemented !!!"));
 
     // TODO: get heading adjustment using vision as pass along to DoubleSupplier, or make a separate command AlignToSpeaker
-    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!").alongWith(new RotateToAngle(() -> RobotContainer.swerveDrive.getHeading())));
+    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!"));
   }
 }
