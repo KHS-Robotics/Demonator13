@@ -310,7 +310,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp, true));
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot, true));
     NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake, true).alongWith(new SetArmState(ArmState.kIntake, true)));
-    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
+    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
 
     // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
