@@ -200,7 +200,7 @@ public class RobotContainer {
     retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
     
     Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint() && RobotContainer.intake.isIntakeDown());
-    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake).andThen(new SetArmState(ArmState.kIntake)));
+    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
 
     Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
     ampSetpoint.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
