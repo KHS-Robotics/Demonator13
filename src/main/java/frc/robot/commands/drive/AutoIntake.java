@@ -9,48 +9,30 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Arm.ArmState;
-import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.Note;
-import frc.robot.subsystems.drive.SwerveDrive;
 
 public class AutoIntake extends Command {
   private boolean fieldRelative = false;
   private Optional<Note> target;
   private Pose2d robotTarget;
   private Pose2d robotPose;
-  private SwerveDrive swerveDrive;
-  private Intake intake;
-  private Arm arm;
-  private Shooter shooter;
-  private Timer t = new Timer();
+  private Timer timer = new Timer();
 
   public AutoIntake() {
     this.addRequirements(RobotContainer.swerveDrive, RobotContainer.intake, RobotContainer.arm, RobotContainer.shooter);
-    swerveDrive = RobotContainer.swerveDrive;
-    intake = RobotContainer.intake;
-    arm = RobotContainer.arm;
-    shooter = RobotContainer.shooter;
   }
 
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    intake.angleSetpoint = IntakeState.kDown.angle;
-    arm.goToSetpoint(ArmState.kIntake);
-    shooter.goToSetpoint(ShooterState.kIntake);
-    intake.intake();
-    shooter.feed();
+    RobotContainer.intake.intake();
+    RobotContainer.shooter.index();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    this.robotPose = swerveDrive.getPose();
+    this.robotPose = RobotContainer.swerveDrive.getPose();
 
     // update target based on camera
     this.target = RobotContainer.frontNoteCamera.getNearestNote();
@@ -74,31 +56,30 @@ public class AutoIntake extends Command {
 
     // drive to robotTarget
     fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
-    swerveDrive.goToPose(robotTarget, fieldRelative);
+    RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    if (intake.hasNoteInside()) {
-      t.start();
-
-      // test this and find a better number
-      if (t.hasElapsed(0.5)) {
-        return true;
-      } else {
-        return false;
-      }
-
+    var hasNote = RobotContainer.intake.hasNoteInside();
+    if (hasNote) {
+      timer.start();
+    } else {
+      timer.reset();
     }
-    return false;
+
+    // test this and find a better number
+    return hasNote && timer.hasElapsed(0.20);
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    swerveDrive.stop();
-    intake.stop();
-    shooter.stopIndexer();
+    RobotContainer.shooter.stopIndexer();
+    RobotContainer.intake.stop();
+    RobotContainer.swerveDrive.stop();
+    timer.stop();
+    timer.reset();
   }
 }

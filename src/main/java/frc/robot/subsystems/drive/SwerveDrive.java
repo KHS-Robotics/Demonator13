@@ -46,10 +46,10 @@ public class SwerveDrive extends SubsystemBase {
   private PIDController yPid;
   public double vX;
   public double vY;
-  private final Translation2d frontLeftLocation = new Translation2d(0.2921, 0.2921);
-  private final Translation2d frontRightLocation = new Translation2d(0.2921, -0.2921);
-  private final Translation2d rearLeftLocation = new Translation2d(-0.2921, 0.2921);
-  private final Translation2d rearRightLocation = new Translation2d(-0.2921, -0.2921);
+  private final Translation2d frontLeftLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d frontRightLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
 
   private static final DoubleLogEntry LogLinearSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/speed");
   private static final DoubleLogEntry LogAngularSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/omega");

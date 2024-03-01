@@ -126,5 +126,7 @@ public class ShootSpeaker extends Command {
   public void end(boolean interrupted) {
     shooter.setVelocity(0);
     shooter.stopIndexer();
+    timer.stop();
+    timer.reset();
   }
 }

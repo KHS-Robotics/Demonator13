@@ -25,13 +25,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
+import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
-import frc.robot.commands.shooter.RampShooterThenFeed;
 import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
@@ -40,6 +42,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.OldLEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
@@ -138,7 +141,7 @@ public class RobotContainer {
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
     Trigger resetOdometry = driverController.start();
-    resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx()));
+    resetOdometry.onTrue(new InstantCommand(() -> swerveDrive.resetNavx(), RobotContainer.swerveDrive));
 
     Trigger slowDrive = driverController.leftTrigger(0.3);
     slowDrive.onTrue(new InstantCommand(() -> {
@@ -168,36 +171,36 @@ public class RobotContainer {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.veloctiySetpoint = 0;
-    }));
+    }, RobotContainer.shooter));
     
 
     Trigger index = new Trigger(() -> operatorStick.index() && !RobotContainer.shooter.hasNote());
     index.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
-    }));
+    }, RobotContainer.shooter, RobotContainer.intake));
     index.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
       RobotContainer.intake.stop();
-    }));
+    }, RobotContainer.shooter, RobotContainer.intake));
 
     Trigger outdex = new Trigger(operatorStick::outdex);
     outdex.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.outdex();
-    }));
+    }, RobotContainer.shooter));
     outdex.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
-    }));
+    }, RobotContainer.shooter));
 
     Trigger intakeDown = new Trigger(() -> operatorStick.intakeDown() && RobotContainer.arm.isArmClearingIntake());
     intakeDown.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0;
-    }));
+    }, RobotContainer.intake));
 
     Trigger intakeUp = new Trigger(() -> operatorStick.intakeUp() && RobotContainer.arm.isArmClearingIntake());
     intakeUp.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.angleSetpoint = 0.44;
-    }));
+    }, RobotContainer.intake));
     
     Trigger armIntake = new Trigger(() -> operatorStick.intakeSetpoint() && RobotContainer.intake.isIntakeDown());
     armIntake.onTrue(new SetShooterState(ShooterState.kIntake, false).andThen(new SetArmState(ArmState.kIntake, false)));
@@ -212,11 +215,17 @@ public class RobotContainer {
     armStow.onTrue(new SetArmState(ArmState.kStow, false).alongWith(new SetShooterState(ShooterState.kIntake, false)));
 
     Trigger ampOut = new Trigger(operatorStick::shootAmp);
-    ampOut.onTrue(new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14)).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> RobotContainer.shooter.index()))));
+    ampOut.onTrue(
+      new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
+        .andThen(
+          new WaitCommand(0.5)
+          .andThen(new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter))
+        )
+    );
     ampOut.onFalse(new InstantCommand(() ->{
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.stopShooting();
-    }));
+    }, RobotContainer.shooter));
   }
 
   /**
@@ -229,7 +238,7 @@ public class RobotContainer {
       new PIDConstants(4.0, 0.0, 0.3),
       new PIDConstants(1.8, 0.0, 0.8),
       3.5,
-      0.2921,
+      Constants.DRIVE_BASE_RADIUS_METERS,
       new ReplanningConfig(true, true));
 
     AutoBuilder.configureHolonomic(
@@ -294,5 +303,12 @@ public class RobotContainer {
 
   private void registerNamedCommands() {
     NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
+    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown, true));
+    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp, true));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot, true));
+    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake, true).alongWith(new SetArmState(ArmState.kIntake, true)));
+    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
+    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("Not Implemented!"));
+    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("Not Implemented!"));
   }
 }

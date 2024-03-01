@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
   public static final double SENS = 0.5;
 
+  public static final double DRIVE_BASE_RADIUS_METERS = 0.2921;
   public static final double WHEEL_RADIUS_METERS = 0.0508;
   public static final double SDS_L2_DRIVE_GEARING = 6.75;
   public static final double DRIVE_POS_ENCODER = (2 * Math.PI * WHEEL_RADIUS_METERS) / SDS_L2_DRIVE_GEARING;

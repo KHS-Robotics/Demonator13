@@ -44,6 +44,8 @@ public class RotateToAngle extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    timer.stop();
+    timer.reset();
   }
 
   // Returns true when the command should end.
