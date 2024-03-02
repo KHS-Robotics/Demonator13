@@ -12,11 +12,13 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.cameras.Note;
 
 public class AutoIntake extends Command {
-  private boolean fieldRelative = false;
-  private Optional<Note> target;
+  private final Timer timer = new Timer();
+  // TODO: test this and find a better number
+  private final double kTimeForBreamBreakTrippedToCompleteInSeconds = 0.10;
+
+  private Optional<Note> target = Optional.empty();
   private Pose2d robotTarget;
   private Pose2d robotPose;
-  private Timer timer = new Timer();
 
   public AutoIntake() {
     this.addRequirements(RobotContainer.swerveDrive, RobotContainer.intake, RobotContainer.arm, RobotContainer.shooter);
@@ -56,7 +58,7 @@ public class AutoIntake extends Command {
 
     // drive to robotTarget
     // TODO: we hardcode fieldRelative here - does it matter true vs false? set it to one of them that makes sense and take no input from the joystick here
-    fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
+    var fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
     RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
   }
 
@@ -70,8 +72,7 @@ public class AutoIntake extends Command {
       timer.reset();
     }
 
-    // test this and find a better number
-    return hasNote && timer.hasElapsed(0.20);
+    return hasNote && timer.hasElapsed(kTimeForBreamBreakTrippedToCompleteInSeconds);
   }
 
   // Called once after isFinished returns true

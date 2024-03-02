@@ -80,7 +80,7 @@ public class ShootSpeaker extends Command {
     }
 
     // shooter needs to go to this angle relative to the ground, not the arm
-    shooter.shooterAngle = shooter.armRelativeToGroundRelative((optimalParams[0] / (2 * Math.PI)) + shooter.shooterFlatAngle);
+    shooter.rotationSetpoint = shooter.armRelativeToGroundRelative((optimalParams[0] / (2 * Math.PI)) + shooter.shooterFlatAngle);
 
 
     Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
@@ -104,7 +104,7 @@ public class ShootSpeaker extends Command {
 
     RobotContainer.swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
 
-    if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPivotAngle() - optimalParams[0]) < 0.3) {
+    if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPosition() - optimalParams[0]) < 0.3) {
       shooter.feed();
       timer.start();
     }

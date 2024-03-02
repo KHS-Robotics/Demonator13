@@ -40,7 +40,7 @@ public class Intake extends SubsystemBase {
   private  double kI = 0;
   private  double kD = 0;
 
-  public double angleSetpoint = 0.44;
+  public double rotationSetpoint = IntakeState.kUp.rotations;
 
   public Intake() {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
@@ -64,13 +64,13 @@ public class Intake extends SubsystemBase {
   }
 
   public void goToAngle(double rotations) {
-    double pidOutput = pivotPositionController.calculate(getPivotAngle(), rotations);
+    double pidOutput = pivotPositionController.calculate(getPosition(), rotations);
     double ffOutput = pivotFeedforward.calculate(rotations, 0);
     pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
   public void setSetpoint(IntakeState setpoint) {
-    angleSetpoint = setpoint.angle;
+    rotationSetpoint = setpoint.rotations;
     pivotPositionController.reset();
   }
 
@@ -97,13 +97,13 @@ public class Intake extends SubsystemBase {
     pivotMotor.stopMotor();
   }
 
-  public double getPivotAngle() {
+  public double getPosition() {
     // rotations 0 down 0.44 up
     return pivotEncoder.getPosition();
   }
 
   public boolean isIntakeDown() {
-    return angleSetpoint < 0.04;
+    return rotationSetpoint < 0.04;
   }
 
   public boolean hasNoteInside() {
@@ -115,17 +115,17 @@ public class Intake extends SubsystemBase {
     kMid(0.22),
     kDown(0);
 
-    public final double angle;
+    public final double rotations;
 
     IntakeState(double rotations) {
-      this.angle = rotations;
+      this.rotations = rotations;
     }
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("IntakeAngle", getPivotAngle());
-    SmartDashboard.putNumber("IntakeState", angleSetpoint);
+    SmartDashboard.putNumber("IntakeAngle", getPosition());
+    SmartDashboard.putNumber("IntakeState", rotationSetpoint);
     SmartDashboard.putNumber("IntakeVelocityRPM", intakeEncoder.getVelocity());
 
     // kP = SmartDashboard.getNumber("kp", kP);
@@ -136,7 +136,7 @@ public class Intake extends SubsystemBase {
     // SmartDashboard.putNumber("kd", kD);
     // pivotPositionController.setPID(kP, kI, kD);
 
-    goToAngle(angleSetpoint);
+    goToAngle(rotationSetpoint);
   }
 
 }

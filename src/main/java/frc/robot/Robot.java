@@ -27,8 +27,7 @@ public class Robot extends TimedRobot {
 
   /**
    * This method is run when the robot is first started up and should be used for
-   * any
-   * initialization code.
+   * any initialization code.
    */
   @Override
   public void robotInit() {
@@ -88,14 +87,13 @@ public class Robot extends TimedRobot {
 
   /** This method is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {
-  }
+  public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {
-    RobotContainer.intake.angleSetpoint = RobotContainer.intake.getPivotAngle();
-    RobotContainer.arm.armPosition = RobotContainer.arm.getPivotAngle();
-    RobotContainer.shooter.shooterAngle = RobotContainer.shooter.getPivotAngle();
+    RobotContainer.intake.rotationSetpoint = RobotContainer.intake.getPosition();
+    RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
+    RobotContainer.shooter.rotationSetpoint = RobotContainer.shooter.getPosition();
   }
 
   /**
@@ -108,14 +106,11 @@ public class Robot extends TimedRobot {
     if (autonomousRoutine != null) {
       autonomousRoutine.schedule();
     }
-
-    
   }
 
   /** This method is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void autonomousExit() {
@@ -125,14 +120,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {
-
-  }
+  public void teleopInit() {}
 
   /** This method is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-  }
+  public void teleopPeriodic() {}
+
+  @Override
+  public void teleopExit() {}
 
   @Override
   public void testInit() {
@@ -142,16 +137,16 @@ public class Robot extends TimedRobot {
 
   /** This method is called periodically during test mode. */
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() {}
+
+  @Override
+  public void testExit() {}
 
   /** This method is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {
-  }
+  public void simulationInit() {}
 
   /** This method is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {
-  }
+  public void simulationPeriodic() {}
 }

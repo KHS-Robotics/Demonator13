@@ -83,17 +83,15 @@ public class Shooter extends SubsystemBase {
   private final double kShooterFF = 1 / kMaxSpeedMetersPerSecond;
 
   public double veloctiySetpoint;
-  public double shooterAngle = 0;
+  public double rotationSetpoint = ShooterState.kIntake.rotations;
 
   public double shooterFlatAngle;
 
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
-    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
-    pivotMotor.setIdleMode(IdleMode.kCoast);
     shootMotor.setInverted(true);
 
-    
+    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
@@ -132,38 +130,39 @@ public class Shooter extends SubsystemBase {
   }
 
   public void goToAngle(double angle) {
-    double pidOutput = pivotPID.calculate(getPivotAngle(), shooterAngle);
-    double ffOutput = pivotFF.calculate(getPivotAngle() + RobotContainer.arm.getPivotAngle(), 0);
+    double pidOutput = pivotPID.calculate(getPosition(), rotationSetpoint);
+    double ffOutput = pivotFF.calculate(getPosition() + RobotContainer.arm.getPosition(), 0);
     var output = pidOutput + ffOutput;
     pivotMotor.setVoltage(-output);
   }
 
   public double getAbsoluteAngle() {
-    return getPivotAngle() + (RobotContainer.arm.getPivotAngle() - 0.5);
+    return getPosition() + (RobotContainer.arm.getPosition() - 0.5);
   }
 
   public void goToSetpoint(ShooterState setpoint) {
-    goToAngle(setpoint.angle);
+    goToAngle(setpoint.rotations);
   }
 
   public void driveShooter(double volts) {
     shootMotor.setVoltage(volts);
+    this.veloctiySetpoint = 0;
   }
 
-  public double getPivotAngle() {
+  public double getPosition() {
     return pivotEncoder.getPosition();
   }
 
   public double getPivotAngleGroundRelative() {
-    return normalizeRotations(getPivotAngle() + (0.75 - RobotContainer.arm.getPivotAngle()));
+    return normalizeRotations(getPosition() + (0.75 - RobotContainer.arm.getPosition()));
   }
 
   public double groundRelativeToArmRelative(double groundAngle) {
-    return normalizeRotations(groundAngle - RobotContainer.arm.getPivotAngle() + 0.75);
+    return normalizeRotations(groundAngle - RobotContainer.arm.getPosition() + 0.75);
   }
 
   public double armRelativeToGroundRelative(double armAngle) {
-    return normalizeRotations((RobotContainer.arm.getPivotAngle() - 0.25) - 0.5 + armAngle);
+    return normalizeRotations((RobotContainer.arm.getPosition() - 0.25) - 0.5 + armAngle);
   }
 
   public boolean groundRelativeAnglePossible(double angle) {
@@ -199,7 +198,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setSetpoint(ShooterState setpoint) {
-    this.shooterAngle = setpoint.angle;
+    this.rotationSetpoint = setpoint.rotations;
     pivotPID.reset();
   }
 
@@ -381,18 +380,18 @@ public class Shooter extends SubsystemBase {
     kShoot(0.4),
     kAmp(0.425);
 
-    public final double angle;
+    public final double rotations;
 
     ShooterState(double rotations) {
-      this.angle = rotations;
+      this.rotations = rotations;
     }
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("shooterAngle", getPivotAngle());
-    SmartDashboard.putNumber("shooterAngleSetpoint", shooterAngle);
-    SmartDashboard.putNumber("shooterAngleError", Math.abs(shooterAngle - getPivotAngle()));
+    SmartDashboard.putNumber("shooterAngle", getPosition());
+    SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
+    SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
@@ -402,6 +401,6 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterSetpoint", veloctiySetpoint);
 
 
-    goToAngle(shooterAngle);
+    goToAngle(rotationSetpoint);
   }
 }

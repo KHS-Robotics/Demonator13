@@ -20,7 +20,7 @@ public class SetShooterState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.shooter.shooterAngle = shooterState.angle;
+    RobotContainer.shooter.rotationSetpoint = shooterState.rotations;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,6 +34,6 @@ public class SetShooterState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(RobotContainer.shooter.getPivotAngle() - shooterState.angle) <= 0.015;
+    return Math.abs(RobotContainer.shooter.getPosition() - shooterState.rotations) <= 0.01;
   }
 }

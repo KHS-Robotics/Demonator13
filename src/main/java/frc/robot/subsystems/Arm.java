@@ -23,7 +23,7 @@ public class Arm extends SubsystemBase {
 
   private double kG = 0.4;
 
-  public double armPosition = 0;
+  public double rotationSetpoint = ArmState.kStow.rotations;
 
   public Arm() {
     pivotMotor = new CANSparkMax(RobotMap.ARM_PIVOT, MotorType.kBrushless);
@@ -43,7 +43,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void goToAngle(double angle) {
-    double pidOutput = armPid.calculate(getPivotAngle(), angle);
+    double pidOutput = armPid.calculate(getPosition(), angle);
     double gravityOutput = kG * Math.sin(Units.rotationsToRadians(angle));
     
     var output = pidOutput + gravityOutput;
@@ -54,16 +54,16 @@ public class Arm extends SubsystemBase {
     pivotMotor.setVoltage(voltage);
   }
 
-  public void goToSetpoint(ArmState setpoint) {
-    setSetpoint(setpoint);
+  public void goToSetpoint(ArmState state) {
+    setSetpoint(state.rotations);
   }
 
-  public double getPivotAngle() {
+  public double getPosition() {
     return pivotEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
   public boolean isArmClearingIntake() {
-    return armPosition < 0.75;
+    return rotationSetpoint < 0.75;
   }
 
   public enum ArmState {
@@ -72,28 +72,25 @@ public class Arm extends SubsystemBase {
     kShoot(0.75),
     kAmp(0.52);
 
-    public final double angle;
+    public final double rotations;
 
     ArmState(double rotations) {
-      this.angle = rotations;
+      this.rotations = rotations;
     }
   }
 
-  public void resetPID() {
+  public void setSetpoint(double setpoint) {
+    rotationSetpoint = setpoint;
     this.armPid.reset();
-  }
-
-  public void setSetpoint(ArmState setpoint) {
-    armPosition = setpoint.angle;
-    resetPID();
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("armAngle", getPivotAngle());
-    SmartDashboard.putNumber("armSetpoint", armPosition);
-    SmartDashboard.putNumber("armError", Math.abs(armPosition - getPivotAngle()));
-    //kG = SmartDashboard.getNumber("kG", kG);
+    SmartDashboard.putNumber("armAngle", getPosition());
+    SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
+    SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+
+    // kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);
     // kI = SmartDashboard.getNumber("kI", kI);
     // kD = SmartDashboard.getNumber("kD", kD);
@@ -102,10 +99,8 @@ public class Arm extends SubsystemBase {
     // SmartDashboard.putNumber("kI", kI);
     // SmartDashboard.putNumber("kD", kD);
 
-    //armPid.setPID(kP, kI, kD);
-    
+    // armPid.setPID(kP, kI, kD);
 
-
-    goToAngle(armPosition);
+    goToAngle(rotationSetpoint);
   }
 }

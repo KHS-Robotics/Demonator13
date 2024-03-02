@@ -20,7 +20,7 @@ public class SetIntakeState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.intake.angleSetpoint = intakeState.angle;
+    RobotContainer.intake.rotationSetpoint = intakeState.rotations;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -34,6 +34,6 @@ public class SetIntakeState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(RobotContainer.intake.getPivotAngle() - intakeState.angle) <= 0.025;
+    return Math.abs(RobotContainer.intake.getPosition() - intakeState.rotations) <= 0.025;
   }
 }
