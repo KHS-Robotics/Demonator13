@@ -13,6 +13,8 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
@@ -105,7 +108,7 @@ public class RobotContainer {
   public static final OldLEDStrip leds = new OldLEDStrip();
 
   // Cameras
-  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera", Constants.FRONT_NOTE_CAMERA_OFFSET);
+  public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera", Constants.INTAKE_NOTE_CAMERA_OFFSET);
   public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
@@ -136,8 +139,12 @@ public class RobotContainer {
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-    Trigger resetNavx = driverController.start();
-    resetNavx.onTrue(new InstantCommand(() -> swerveDrive.resetNavx(), RobotContainer.swerveDrive));
+    Trigger resetHeading = driverController.start().debounce(1);
+    resetHeading.onTrue(new InstantCommand(() -> {
+      RobotContainer.swerveDrive.resetNavx();
+      var pose = RobotContainer.swerveDrive.getPose();
+      RobotContainer.swerveDrive.setPose(new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)));
+    }, RobotContainer.swerveDrive));
 
     // go slow is an exception - doesn't really need to "require" the swerve drive
     Trigger slowDrive = driverController.leftTrigger(0.3);
@@ -150,6 +157,9 @@ public class RobotContainer {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
+
+    Trigger autoIntakeNote = driverController.leftBumper();
+    autoIntakeNote.whileTrue(new AutoIntake());
   }
 
   /** Binds commands to the operator stick. */

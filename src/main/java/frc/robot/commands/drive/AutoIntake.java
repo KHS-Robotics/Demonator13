@@ -13,9 +13,9 @@ import frc.robot.subsystems.cameras.Note;
 
 public class AutoIntake extends Command {
   private final Timer timer = new Timer();
-  // TODO: test this and find a better number
-  private final double kTimeForBreamBreakTrippedToCompleteInSeconds = 0.10;
+  private final double kTimeForBreamBreakTrippedToCompleteInSeconds = 0.05;
 
+  private boolean hasNoteInitially;
   private Optional<Note> target = Optional.empty();
   private Pose2d robotTarget;
   private Pose2d robotPose;
@@ -27,8 +27,11 @@ public class AutoIntake extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    RobotContainer.intake.intake();
-    RobotContainer.shooter.index();
+    hasNoteInitially = RobotContainer.shooter.hasNote();
+    if(hasNoteInitially) {
+      RobotContainer.intake.intake();
+      RobotContainer.shooter.index();
+    }
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -37,8 +40,7 @@ public class AutoIntake extends Command {
     this.robotPose = RobotContainer.swerveDrive.getPose();
 
     // update target based on camera
-    this.target = RobotContainer.frontNoteCamera.getNearestNote();
-
+    this.target = RobotContainer.intakeCamera.getNearestNote();
     if (this.target.isEmpty()) {
       return;
     }
@@ -57,22 +59,20 @@ public class AutoIntake extends Command {
     this.robotTarget = new Pose2d(vec.plus(robotPose.getTranslation()), angleToNote);
 
     // drive to robotTarget
-    // TODO: we hardcode fieldRelative here - does it matter true vs false? set it to one of them that makes sense and take no input from the joystick here
-    var fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
-    RobotContainer.swerveDrive.goToPose(robotTarget, fieldRelative);
+    RobotContainer.swerveDrive.goToPose(robotTarget, true);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    var hasNote = RobotContainer.intake.hasNoteInside();
+    var hasNote = RobotContainer.shooter.hasNote();
     if (hasNote) {
       timer.start();
     } else {
       timer.reset();
     }
 
-    return hasNote && timer.hasElapsed(kTimeForBreamBreakTrippedToCompleteInSeconds);
+    return hasNoteInitially || (hasNote && timer.hasElapsed(kTimeForBreamBreakTrippedToCompleteInSeconds));
   }
 
   // Called once after isFinished returns true

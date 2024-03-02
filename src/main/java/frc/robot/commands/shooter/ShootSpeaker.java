@@ -14,9 +14,10 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class ShootSpeaker extends Command {
+  SwerveDrive swerveDrive;
   Shooter shooter;
   Alliance color;
-  boolean hasAlliance;
+  boolean hasAlliance, hasNoteInitially;
   double targetX, targetY, targetZ;
   final double v0 = 20;
   boolean goodTrajectory = true;
@@ -24,6 +25,7 @@ public class ShootSpeaker extends Command {
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter, RobotContainer.swerveDrive);
+    swerveDrive = RobotContainer.swerveDrive;
     shooter = RobotContainer.shooter;
     timer = new Timer();
   }
@@ -31,12 +33,19 @@ public class ShootSpeaker extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
+    if (!shooter.hasNote()) {
+      hasNoteInitially = false;
+      return;
+    }
+    hasNoteInitially = true;
+
     Optional<Alliance> alliance = DriverStation.getAlliance();
     hasAlliance = alliance.isPresent();
-    if (hasAlliance) {
-      color = alliance.get();
+    if (!hasAlliance) {
+      return;
     }
 
+    color = alliance.get();
     if (color == Alliance.Blue) {
       targetX = 0.4572 / 2;
       targetY = 8.001 - 2.063394 - (1.05 / 2);
@@ -46,15 +55,13 @@ public class ShootSpeaker extends Command {
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
     }
-
-    //new LEDShoot().schedule();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
     shooter.setVelocity(v0);
-    Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    Pose2d robotPose = swerveDrive.getPose();
 
     // theta phi time
     double[] optimalParams = shooter.optimizeShooterOrientation(1,
@@ -65,8 +72,8 @@ public class ShootSpeaker extends Command {
     Translation3d shooterPose = shooter.shooterExitFieldRelative(robotPose, shooterPoseRobotRelative);
 
     double[] in = { shooterPose.getX(), shooterPose.getY(), shooterPose.getZ(),
-        RobotContainer.swerveDrive.vX + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.cos(optimalParams[1])),
-        RobotContainer.swerveDrive.vY + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.sin(optimalParams[1])),
+        swerveDrive.vX + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.cos(optimalParams[1])),
+        swerveDrive.vY + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.sin(optimalParams[1])),
         v0 * Math.cos(Math.PI / 2 - optimalParams[0]) };
 
     // we may not want to actually do any of this if it can't run in real time
@@ -89,7 +96,7 @@ public class ShootSpeaker extends Command {
     // negative values when we push forward.
     var xSpeed = 0.0;
     if (Math.abs(RobotContainer.driverController.getLeftY()) > 0.05) {
-      xSpeed = RobotContainer.swerveDrive.sensControl(-RobotContainer.driverController.getLeftY()) * SwerveDrive.kMaxSpeedMetersPerSecond;
+      xSpeed = swerveDrive.sensControl(-RobotContainer.driverController.getLeftY()) * SwerveDrive.kMaxSpeedMetersPerSecond;
     }
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
@@ -97,36 +104,32 @@ public class ShootSpeaker extends Command {
     // return positive values when you pull to the right by default.
     var ySpeed = 0.0;
     if (Math.abs(RobotContainer.driverController.getLeftX()) > 0.05) {
-      ySpeed = RobotContainer.swerveDrive.sensControl(-RobotContainer.driverController.getLeftX()) * SwerveDrive.kMaxSpeedMetersPerSecond;
+      ySpeed = swerveDrive.sensControl(-RobotContainer.driverController.getLeftX()) * SwerveDrive.kMaxSpeedMetersPerSecond;
     }
     boolean fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
 
 
-    RobotContainer.swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
+    swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
+    shooter.goodTrajectory = goodTrajectory;
 
     if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPosition() - optimalParams[0]) < 0.3) {
       shooter.feed();
       timer.start();
     }
-
-
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    if (!hasAlliance || timer.hasElapsed(1) || !shooter.hasNote()) {
-      return true;
-    }
-    return false;
+    return !hasNoteInitially || !hasAlliance || timer.hasElapsed(0.33);
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    shooter.setVelocity(0);
+    shooter.stopShooting();
     shooter.stopIndexer();
-    RobotContainer.swerveDrive.stop();
+    swerveDrive.stop();
     timer.stop();
     timer.reset();
   }

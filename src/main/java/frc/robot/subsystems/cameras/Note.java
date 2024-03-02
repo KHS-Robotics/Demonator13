@@ -42,7 +42,7 @@ public class Note {
     Rotation2d robotToNote = new Rotation2d(vec.getX(), vec.getY());
     Rotation2d yawToNote = robotPose.getRotation().rotateBy(robotToNote);
 
-    return Math.abs(MathUtil.inputModulus(yawToNote.getDegrees(), -180, 180)) < (Constants.FRONT_NOTE_CAMERA_HFOV / 2);
+    return Math.abs(MathUtil.inputModulus(yawToNote.getDegrees(), -180, 180)) < (Constants.INTAKE_NOTE_CAMERA_HFOV / 2);
   }
 
   // at some point this should be changed to be a weighted average 

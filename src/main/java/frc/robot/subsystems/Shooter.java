@@ -84,6 +84,7 @@ public class Shooter extends SubsystemBase {
 
   public double veloctiySetpoint;
   public double rotationSetpoint = ShooterState.kIntake.rotations;
+  public boolean goodTrajectory;
 
   public double shooterFlatAngle;
 
@@ -209,6 +210,7 @@ public class Shooter extends SubsystemBase {
   public void stopShooting() {
     shootMotor.stopMotor();
     this.veloctiySetpoint = 0;
+    goodTrajectory = false;
   }
 
   public boolean atAngleSetpoint(double tolerance) {
@@ -398,6 +400,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     SmartDashboard.putNumber("shooterSetpoint", veloctiySetpoint);
+    SmartDashboard.putBoolean("shooterGoodTrajectory", goodTrajectory);
 
     goToSetpoint(rotationSetpoint);
   }

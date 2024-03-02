@@ -1,15 +1,18 @@
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
 import java.awt.Color;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
+import frc.robot.subsystems.Arm.ArmState;
 
 public class OldLEDStrip {
   Thread t;
@@ -19,8 +22,9 @@ public class OldLEDStrip {
   int numberSections;
   int counter;
   int ticksPerSecond = 50;
-  LEDState state = LEDState.kDisabled;
-  Optional<Alliance> alliance;
+
+  private LEDState state = LEDState.kDisabled;
+  private final Notifier updateLedState = new Notifier(this::updateState);
 
   float speedFactor = 1f;
   float sections = 5f;
@@ -64,6 +68,7 @@ public class OldLEDStrip {
 
     this.numberSections = Constants.LED_LENGTH;
     t.start();
+    updateLedState.startPeriodic(0.02);
   }
 
   public void setRGB(int index, int r, int g, int b) {
@@ -193,6 +198,7 @@ public class OldLEDStrip {
   // run square wave of alliance color
   public void runDisabled() {
     ticksPerSecond = 50;
+    var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == Alliance.Blue) {
         runSquareWave(Color.BLUE, -0.1f, 5f);
@@ -209,6 +215,7 @@ public class OldLEDStrip {
   // if there is a note flash on and off really fast, if there's not a note run disabled pattern
   public void runIntake() {
     ticksPerSecond = 50;
+    var alliance = DriverStation.getAlliance();
     if (RobotContainer.shooter.hasNote()) {
       if (counter % 25 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
@@ -232,6 +239,9 @@ public class OldLEDStrip {
 
   // if there's a note, run square wave really fast, when the note leaves flash on and off really fast
   public void runShoot() {
+    var atSetpoint = RobotContainer.shooter.isShooterRampedUp(1);
+    var goodTrajectory = RobotContainer.shooter.goodTrajectory;
+
     if (RobotContainer.shooter.hasNote()) {
       runSquareWave(new Color(255, 100, 0), 1f, 8f);
     } else {
@@ -312,11 +322,29 @@ public class OldLEDStrip {
         break;
     }
 
-    runBlue();
-
     strip.setData(buffer);
     // strip2.setData(buffer);
     counter++;
+  }
+
+  private void updateState() {
+    var isDisabled = RobotState.isDisabled();
+    var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint != 0;
+    var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
+    var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
+
+    if (isDisabled)
+      state = LEDState.kDisabled;
+    else if(isScoringSpeaker)
+      state = LEDState.kShoot;
+    else if(isScoringAmp)
+      state = LEDState.kAmp;
+    else if(hasIntakeDeployed)
+      state = LEDState.kIntake;
+    else
+      state = LEDState.kStowed;
+
+    SmartDashboard.putString("LED State", state.toString());
   }
 
   public enum LEDState {
