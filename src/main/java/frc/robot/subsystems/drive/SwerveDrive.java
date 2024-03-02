@@ -199,7 +199,7 @@ public class SwerveDrive extends SubsystemBase {
     } else {
       var swerveModuleStates = kinematics
           .toSwerveModuleStates(
-              // TODO: change getAngle() to getPose().getRotation() as soon as we start using AprilTags (this change is also required for Auto Note pickup since that uses odometry)
+              // TODO: change getAngle() to getPose().getRotation() as soon as we start using AprilTags + shooting math (this change is also required for Auto Note pickup since that uses odometry)
               fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getAngle())
                   : new ChassisSpeeds(xSpeed, ySpeed, rot));
 

@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,6 +31,7 @@ import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
+import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
@@ -154,9 +154,9 @@ public class RobotContainer {
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
-    // TODO: bind shootSpeaker to use shooting math
+    // TODO: bind scoreSpeaker to use shooting math
     Trigger scoreSpeaker = new Trigger(operatorStick::scoreSpeaker);
-    // shoot.onTrue(new ShootSpeaker());
+    // scoreSpeaker.onTrue(new ShootSpeaker());
     scoreSpeaker.onTrue(
       new RampShooter(() -> 16)
       .andThen(
@@ -252,20 +252,13 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
+    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
     NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
-
-    // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
-    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
-
-    // TODO: create a LaunchSpeaker for auto that does not use the joystick controls on the drive train
-    NamedCommands.registerCommand("LaunchSpeaker", new PrintCommand("!!! LaunchSpeaker not yet implemented !!!"));
-
-    // TODO: get heading adjustment using vision as pass along to DoubleSupplier, or make a separate command AlignToSpeaker
-    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!"));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+    NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
   }
 
   private void configurePathPlannerLogging() {
