@@ -43,25 +43,25 @@ public class Robot extends TimedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = RobotContainer.getInstance();
 
-    var LogCmdStarted = new StringLogEntry(DataLogManager.getLog(), "/commands/started");
-    var LogCmdInterrupted = new StringLogEntry(DataLogManager.getLog(), "/commands/interrupted");
-    var LogCmdEnded = new StringLogEntry(DataLogManager.getLog(), "/commands/ended");
+    var logCmdStarted = new StringLogEntry(DataLogManager.getLog(), "/commands/started");
+    var logCmdInterrupted = new StringLogEntry(DataLogManager.getLog(), "/commands/interrupted");
+    var logCmdEnded = new StringLogEntry(DataLogManager.getLog(), "/commands/ended");
     
     // for debugging
     CommandScheduler.getInstance().onCommandInitialize((command) -> {
       var cmdName = command.getName();
       System.out.println(cmdName + " started.");
-      LogCmdStarted.append(cmdName);
+      logCmdStarted.append(cmdName);
     });
     CommandScheduler.getInstance().onCommandInterrupt((command) -> {
       var cmdName = command.getName();
       System.out.println(cmdName + " interrupted.");
-      LogCmdInterrupted.append(cmdName);
+      logCmdInterrupted.append(cmdName);
     });
     CommandScheduler.getInstance().onCommandFinish((command) -> {
       var cmdName = command.getName();
       System.out.println(cmdName + " ended.");
-      LogCmdEnded.append(cmdName);
+      logCmdEnded.append(cmdName);
     });
   }
 

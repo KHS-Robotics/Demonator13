@@ -271,7 +271,7 @@ public class SwerveDrive extends SubsystemBase {
     var modulePositions = getSwerveModulePositions();
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
-    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontCamera.getEstimatedGlobalPose();
+    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedFrontPose.isPresent()) {
       List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
 

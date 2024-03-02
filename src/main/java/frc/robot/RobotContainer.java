@@ -5,8 +5,6 @@
 
 package frc.robot;
 
-import java.util.Optional;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -18,7 +16,6 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -100,17 +97,12 @@ public class RobotContainer {
   public static final Intake intake = new Intake();
   public static final Shooter shooter = new Shooter();
   public static final Arm arm = new Arm();
-  // public static final AprilTagCamera frontAprilTagCamera = new
-  // AprilTagCamera("FrontCamera",
-  // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  // public static final AprilTagCamera rearAprilTagCamera = new
   //public static final NewLEDStrip ledStrip = new NewLEDStrip();
   public static final OldLEDStrip leds = new OldLEDStrip();
 
-  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera",
-      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  // AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
-  public static final AprilTagCamera frontCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera", Constants.FRONT_NOTE_CAMERA_OFFSET);
+  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -158,15 +150,15 @@ public class RobotContainer {
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
     // TODO: bind shootSpeaker to use shooting math
-    Trigger shootSpeaker = new Trigger(operatorStick::scoreSpeaker);
+    Trigger scoreSpeaker = new Trigger(operatorStick::scoreSpeaker);
     // shoot.onTrue(new ShootSpeaker());
-    shootSpeaker.onTrue(
-      new RampShooter(() -> 20)
+    scoreSpeaker.onTrue(
+      new RampShooter(() -> 16)
       .andThen(
         new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
       )
     );
-    shootSpeaker.onFalse(new InstantCommand(() -> {
+    scoreSpeaker.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
     }, RobotContainer.shooter));
@@ -209,8 +201,8 @@ public class RobotContainer {
     Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
     stowSetpoint.onTrue(new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)));
 
-    Trigger ampOut = new Trigger(operatorStick::scoreAmp);
-    ampOut.onTrue(
+    Trigger scoreAmp = new Trigger(operatorStick::scoreAmp);
+    scoreAmp.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
       .andThen(
         new WaitCommand(0.5)
@@ -219,7 +211,7 @@ public class RobotContainer {
         )
       )
     );
-    ampOut.onFalse(new InstantCommand(() ->{
+    scoreAmp.onFalse(new InstantCommand(() ->{
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.stopShooting();
     }, RobotContainer.shooter));
@@ -244,13 +236,7 @@ public class RobotContainer {
         swerveDrive::getChassisSpeeds,
         swerveDrive::setModuleStates,
         pathFollowerConfig,
-        () -> {
-          Optional<Alliance> alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
+        () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red,
         swerveDrive);
 
     autoBuilder = new AutoBuilder();
