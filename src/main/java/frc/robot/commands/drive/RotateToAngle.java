@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
 public class RotateToAngle extends Command {
-  private static final double kErrorInDegrees = 3;
-  private Timer timer = new Timer();
+  private static final double kErrorToleranceInDegrees = 3;
+  private static final double kTimeAtSetpointForCompletionInSeconds = 0.20;
+  private final Timer timer = new Timer();
 
   private final DoubleSupplier angle;
 
@@ -46,13 +47,13 @@ public class RotateToAngle extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    var atSetpoint = RobotContainer.swerveDrive.atSetpoint(kErrorInDegrees);
+    var atSetpoint = RobotContainer.swerveDrive.atSetpoint(kErrorToleranceInDegrees);
     if (atSetpoint) {
       timer.start();
     } else {
       timer.reset();
     }
 
-    return atSetpoint && timer.hasElapsed(0.20);
+    return atSetpoint && timer.hasElapsed(kTimeAtSetpointForCompletionInSeconds);
   }
 }

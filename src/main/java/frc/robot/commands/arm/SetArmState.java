@@ -20,7 +20,7 @@ public class SetArmState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.arm.setState(armState);;
+    RobotContainer.arm.setState(armState);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

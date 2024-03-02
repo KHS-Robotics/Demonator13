@@ -46,7 +46,6 @@ import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
   private static RobotContainer instance;
-  public static AutoBuilder autoBuilder;
 
   public static RobotContainer getInstance() {
     if (instance == null) {
@@ -55,9 +54,14 @@ public class RobotContainer {
     return instance;
   }
 
-  private static SendableChooser<Command> autoChooser;
+  private SendableChooser<Command> autoChooser;
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+  
+  private AutoBuilder autoBuilder;
+  public AutoBuilder getAutoBuilder() {
+    return autoBuilder;
   }
 
   public static final AHRS navx = new AHRS(Port.kUSB);
@@ -100,6 +104,7 @@ public class RobotContainer {
   //public static final NewLEDStrip ledStrip = new NewLEDStrip();
   public static final OldLEDStrip leds = new OldLEDStrip();
 
+  // Cameras
   public static final NoteDetectorCamera frontNoteCamera = new NoteDetectorCamera("NoteCamera", Constants.FRONT_NOTE_CAMERA_OFFSET);
   public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
@@ -110,7 +115,7 @@ public class RobotContainer {
   private RobotContainer() {
     this.configureSubsystemDefaultCommands();
     this.configureBindings();
-    this.configureAutonmousChooser();
+    this.configureAutonmous();
   }
 
   /** Configures the subsystem's default commands. */
@@ -220,13 +225,13 @@ public class RobotContainer {
   /**
    * Configures the autonomous chooser over Network Tables (e.g. Smart Dashboard).
    */
-  private void configureAutonmousChooser() {
+  private void configureAutonmous() {
     registerNamedCommands();
 
-    HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+    var pathFollowerConfig = new HolonomicPathFollowerConfig(
       new PIDConstants(4.0, 0.0, 0.3),
       new PIDConstants(1.8, 0.0, 0.8),
-      3.5,
+      SwerveDrive.kMaxSpeedMetersPerSecond,
       Constants.DRIVE_BASE_RADIUS_METERS,
       new ReplanningConfig(true, true));
 
@@ -241,14 +246,31 @@ public class RobotContainer {
 
     autoBuilder = new AutoBuilder();
     autoChooser = AutoBuilder.buildAutoChooser();
-
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    SmartDashboard.putData("field", field);
 
-    configureFieldLogging();
+    configurePathPlannerLogging();
   }
 
-  private void configureFieldLogging() {
+  private void registerNamedCommands() {
+    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
+    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
+    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
+
+    // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
+    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
+
+    // TODO: create a LaunchSpeaker for auto that does not use the joystick controls on the drive train
+    NamedCommands.registerCommand("LaunchSpeaker", new PrintCommand("!!! LaunchSpeaker not yet implemented !!!"));
+
+    // TODO: get heading adjustment using vision as pass along to DoubleSupplier, or make a separate command AlignToSpeaker
+    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!"));
+  }
+
+  private void configurePathPlannerLogging() {
+    SmartDashboard.putData("field", field);
+    
     var logPPCurrentPoseX = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/x");
     var logPPCurrentPoseY = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/y");
     var logPPCurrentPoseTheta = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/theta");
@@ -282,22 +304,5 @@ public class RobotContainer {
       // Do whatever you want with the poses here
       field.getObject("path").setPoses(poses);
     });
-  }
-
-  private void registerNamedCommands() {
-    NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
-    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
-    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
-    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
-
-    // TODO: this command is needed since we cannot lower the arm until the stops pop out by lifting the arm weight off them
-    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new PrintCommand("!!! LiftArmToDeployDemonHorns not yet implemented !!!"));
-
-    // TODO: create a LaunchSpeaker for auto that does not use the joystick controls on the drive train
-    NamedCommands.registerCommand("LaunchSpeaker", new PrintCommand("!!! LaunchSpeaker not yet implemented !!!"));
-
-    // TODO: get heading adjustment using vision as pass along to DoubleSupplier, or make a separate command AlignToSpeaker
-    NamedCommands.registerCommand("AlignToSpeaker", new PrintCommand("!!! AlignToSpeaker not yet implemented !!!"));
   }
 }

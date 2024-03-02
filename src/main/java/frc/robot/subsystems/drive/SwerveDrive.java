@@ -14,6 +14,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -24,6 +25,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotState;
@@ -161,10 +164,6 @@ public class SwerveDrive extends SubsystemBase {
     return Rotation2d.fromDegrees((-RobotContainer.navx.getAngle() + offset) % 360);
   }
 
-  public double getYaw() {
-    return normalizeAngle(-RobotContainer.navx.getYaw() + offset);
-  }
-
   public void setOffset(double offset) {
     SwerveDrive.offset = offset;
   }
@@ -271,11 +270,13 @@ public class SwerveDrive extends SubsystemBase {
 
   /**
    * Updates the field relative position of the robot.
-   * 
    */
   public void updateOdometry() {
+    // traction
     var modulePositions = getSwerveModulePositions();
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
+
+    // vision
     updateOdometryUsingFrontCamera();
     updateOdometryUsingRearCamera();
   }
@@ -283,45 +284,37 @@ public class SwerveDrive extends SubsystemBase {
   private void updateOdometryUsingFrontCamera() {
     Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedFrontPose.isPresent()) {
-      List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
-
-      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5, 0.5, 0.3));
-
-      boolean goodMeasurements = true;
-      for (PhotonTrackedTarget t : targetsUsed) {
-        if (t.getPoseAmbiguity() < 0.2) {
-          goodMeasurements = false;
-          break;
-        }
-      }
-
-      if (goodMeasurements) {
-        poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
-      }
+      var stdDevs = VecBuilder.fill(0.9, 0.9, 0.3);
+      var ambiguity = 0.2;
+      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, ambiguity);
     }
   }
 
   private void updateOdometryUsingRearCamera() {
     Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedRearPose.isPresent()) {
-      List<PhotonTrackedTarget> targetsUsed = estimatedRearPose.get().targetsUsed;
-
-      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
-
-      boolean goodMeasurements = true;
-      for (PhotonTrackedTarget t : targetsUsed) {
-        if (t.getPoseAmbiguity() < 0.2) {
-          goodMeasurements = false;
-          break;
-        }
-      }
-
-      if (goodMeasurements) {
-        poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
-      }
+      var stdDevs = VecBuilder.fill(0.9, 0.9, 0.3);
+      var ambiguity = 0.2;
+      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
     }
   }
-  
+
+  private void updateOdometryUsingVisionMeasurement(EstimatedRobotPose ePose, Matrix<N3, N1> visionMeasurementStdDevs, double ambiguity) {
+    List<PhotonTrackedTarget> targetsUsed = ePose.targetsUsed;
+    poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+
+    boolean goodMeasurements = true;
+    for (PhotonTrackedTarget t : targetsUsed) {
+      if (t.getPoseAmbiguity() < ambiguity) {
+        goodMeasurements = false;
+        break;
+      }
+    }
+
+    if (goodMeasurements) {
+      poseEstimator.addVisionMeasurement(ePose.estimatedPose.toPose2d(), ePose.timestampSeconds);
+    }
+  }
 
   public ChassisSpeeds getChassisSpeeds() {
     return this.kinematics.toChassisSpeeds(getSwerveModuleStates());
@@ -352,6 +345,9 @@ public class SwerveDrive extends SubsystemBase {
     rearLeft.stop();
   }
 
+  /**
+   * Sets swerve modules to be all angled - useful when trying to stay still on an incline.
+   */
   public void lock() {
     frontRight.setDesiredState(0, 45);
     frontLeft.setDesiredState(0, -45);
@@ -359,17 +355,12 @@ public class SwerveDrive extends SubsystemBase {
     rearLeft.setDesiredState(0, 45);
   }
 
-
   public void resetNavx() {
     RobotContainer.navx.reset();
   }
 
   public void resetPid() {
     anglePid.reset();
-  }
-
-  public boolean facingInfield() {
-    return (180 - Math.abs(getYaw())) < 10 || Math.abs(getYaw()) < 10;
   }
 
   private static double normalizeAngle(double angle) {
@@ -405,7 +396,6 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Navx-Roll", roll);
     SmartDashboard.putNumber("Navx-Pitch", pitch);
 
-
     if (RobotState.isEnabled()) {
       var chassis = getChassisSpeeds();
       var speed = Math.hypot(chassis.vxMetersPerSecond, chassis.vyMetersPerSecond);
@@ -420,6 +410,5 @@ public class SwerveDrive extends SubsystemBase {
       LogNavxRoll.append(roll);
       LogNavxPitch.append(pitch);
     }
-
   }
 }

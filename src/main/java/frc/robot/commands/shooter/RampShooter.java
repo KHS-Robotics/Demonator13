@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
 public class RampShooter extends Command {
+  private static final double kVelocityTolerance = 1.0;
+  private static final double kTimeAtSetpointForCompletionInSeconds = 0.15;
   private final Timer timer = new Timer();
-  private final double kTimeAtSetpointForCompletionInSeconds = 0.15;
-  private final double kVelocityTolerance = 1.0;
 
   private final DoubleSupplier velocity;
 
