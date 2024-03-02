@@ -28,7 +28,7 @@ public class AutoIntake extends Command {
   @Override
   public void initialize() {
     hasNoteInitially = RobotContainer.shooter.hasNote();
-    if(hasNoteInitially) {
+    if(!hasNoteInitially) {
       RobotContainer.intake.intake();
       RobotContainer.shooter.index();
     }
