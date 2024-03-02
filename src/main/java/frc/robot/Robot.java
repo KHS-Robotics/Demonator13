@@ -91,9 +91,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    RobotContainer.intake.rotationSetpoint = RobotContainer.intake.getPosition();
+    RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
-    RobotContainer.shooter.rotationSetpoint = RobotContainer.shooter.getPosition();
+    RobotContainer.shooter.setSetpoint(RobotContainer.shooter.getPosition());
   }
 
   /**

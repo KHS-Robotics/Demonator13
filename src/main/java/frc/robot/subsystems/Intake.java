@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -20,7 +19,6 @@ import frc.robot.RobotMap;
 public class Intake extends SubsystemBase {
 
   private CANSparkMax intakeMotor;
-  private RelativeEncoder intakeEncoder;
 
   private CANSparkMax pivotMotor;
   private AbsoluteEncoder pivotEncoder;
@@ -36,16 +34,15 @@ public class Intake extends SubsystemBase {
   private final double kV = 0.9972;
   private final double kA = 0.025145;
 
-  private  double kP = 6;
-  private  double kI = 0;
-  private  double kD = 0;
+  private double kP = 6;
+  private double kI = 0;
+  private double kD = 0;
 
   public double rotationSetpoint = IntakeState.kUp.rotations;
 
   public Intake() {
     intakeMotor = new CANSparkMax(RobotMap.INTAKE_MOTOR, MotorType.kBrushless);
     intakeMotor.setIdleMode(IdleMode.kBrake);
-    intakeEncoder = intakeMotor.getEncoder();
 
     intakeSensor = intakeMotor.getForwardLimitSwitch(Type.kNormallyClosed);
 
@@ -63,18 +60,19 @@ public class Intake extends SubsystemBase {
     pivotFeedforward = new ArmFeedforward(kS, kG, kV, kA);
   }
 
-  public void goToAngle(double rotations) {
+  public void goToSetpoint(double rotations) {
     double pidOutput = pivotPositionController.calculate(getPosition(), rotations);
     double ffOutput = pivotFeedforward.calculate(rotations, 0);
     pivotMotor.setVoltage(pidOutput + ffOutput);
   }
 
-  public void setSetpoint(IntakeState setpoint) {
-    rotationSetpoint = setpoint.rotations;
-    pivotPositionController.reset();
+  public void setState(IntakeState state) {
+    setSetpoint(state.rotations);
   }
 
-  public void logMotors() {
+  public void setSetpoint(double setpoint) {
+    rotationSetpoint = setpoint;
+    pivotPositionController.reset();
   }
 
   public void drivePivot(double voltage) {
@@ -125,8 +123,8 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("IntakeAngle", getPosition());
-    SmartDashboard.putNumber("IntakeState", rotationSetpoint);
-    SmartDashboard.putNumber("IntakeVelocityRPM", intakeEncoder.getVelocity());
+    SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
+    SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
 
     // kP = SmartDashboard.getNumber("kp", kP);
     // kI = SmartDashboard.getNumber("ki", kI);
@@ -136,7 +134,7 @@ public class Intake extends SubsystemBase {
     // SmartDashboard.putNumber("kd", kD);
     // pivotPositionController.setPID(kP, kI, kD);
 
-    goToAngle(rotationSetpoint);
+    goToSetpoint(rotationSetpoint);
   }
 
 }

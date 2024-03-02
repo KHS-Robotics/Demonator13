@@ -36,13 +36,13 @@ public class Arm extends SubsystemBase {
     
     pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
     
-    //pivotMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-    //pivotMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
+    // pivotMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    // pivotMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
     
     armPid = new PIDController(kP, kI, kD);
   }
 
-  public void goToAngle(double angle) {
+  public void goToSetpoint(double angle) {
     double pidOutput = armPid.calculate(getPosition(), angle);
     double gravityOutput = kG * Math.sin(Units.rotationsToRadians(angle));
     
@@ -54,8 +54,13 @@ public class Arm extends SubsystemBase {
     pivotMotor.setVoltage(voltage);
   }
 
-  public void goToSetpoint(ArmState state) {
+  public void setState(ArmState state) {
     setSetpoint(state.rotations);
+  }
+
+  public void setSetpoint(double setpoint) {
+    rotationSetpoint = setpoint;
+    this.armPid.reset();
   }
 
   public double getPosition() {
@@ -79,11 +84,6 @@ public class Arm extends SubsystemBase {
     }
   }
 
-  public void setSetpoint(double setpoint) {
-    rotationSetpoint = setpoint;
-    this.armPid.reset();
-  }
-
   @Override
   public void periodic() {
     SmartDashboard.putNumber("armAngle", getPosition());
@@ -101,6 +101,6 @@ public class Arm extends SubsystemBase {
 
     // armPid.setPID(kP, kI, kD);
 
-    goToAngle(rotationSetpoint);
+    goToSetpoint(rotationSetpoint);
   }
 }

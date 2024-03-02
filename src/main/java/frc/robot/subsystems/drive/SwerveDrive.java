@@ -169,8 +169,15 @@ public class SwerveDrive extends SubsystemBase {
     SwerveDrive.offset = offset;
   }
 
-  public double sensControl(double var) {
-    return Constants.JOYSTICK_SENSITIVITY * Math.pow(var, 3) + (1 - Constants.JOYSTICK_SENSITIVITY) * var;
+  /**
+   * Sensitivity control for the joystick that uses a cubic function to smooth out the inputs
+   * instead of linear control: <code> s*x^3 + (1-s)*x </code> where s is the sensitivity and x is the input.
+   * https://www.wolframalpha.com/input?i=0.5%3A+s*x%5E3+%2B+%281-s%29*x+where+s+%3D+0.5
+   * @param s the sensitivity from [0, 1] where 0 is full linear and 1 is full cubic
+   * @return 
+   */
+  public double sensControl(double s) {
+    return Constants.JOYSTICK_SENSITIVITY * Math.pow(s, 3) + (1 - Constants.JOYSTICK_SENSITIVITY) * s;
   }
 
   /**
@@ -224,7 +231,6 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.resetPosition(getAngle(), getSwerveModulePositions(), pose);
   }
 
-
   public void setPID(double p, double i, double d) {
     anglePid.setPID(p, i, d);
   }
@@ -270,7 +276,11 @@ public class SwerveDrive extends SubsystemBase {
   public void updateOdometry() {
     var modulePositions = getSwerveModulePositions();
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
+    updateOdometryUsingFrontCamera();
+    updateOdometryUsingRearCamera();
+  }
 
+  private void updateOdometryUsingFrontCamera() {
     Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedFrontPose.isPresent()) {
       List<PhotonTrackedTarget> targetsUsed = estimatedFrontPose.get().targetsUsed;
@@ -289,25 +299,27 @@ public class SwerveDrive extends SubsystemBase {
         poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
       }
     }
+  }
 
-    // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedRearPose.isPresent()) {
-    //   List<PhotonTrackedTarget> targetsUsed = estimatedRearPose.get().targetsUsed;
+  private void updateOdometryUsingRearCamera() {
+    Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedRearPose.isPresent()) {
+      List<PhotonTrackedTarget> targetsUsed = estimatedRearPose.get().targetsUsed;
 
-      // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
+      poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.9, 0.9, 0.3));
 
-      // boolean goodMeasurements = true;
-      // for (PhotonTrackedTarget t : targetsUsed) {
-      //   if (t.getPoseAmbiguity() < 0.2) {
-      //     goodMeasurements = false;
-      //     break;
-      //   }
-      // }
+      boolean goodMeasurements = true;
+      for (PhotonTrackedTarget t : targetsUsed) {
+        if (t.getPoseAmbiguity() < 0.2) {
+          goodMeasurements = false;
+          break;
+        }
+      }
 
-      // if (goodMeasurements) {
-      //   poseEstimator.addVisionMeasurement(estimatedFrontPose.get().estimatedPose.toPose2d(), estimatedFrontPose.get().timestampSeconds);
-      // }
-
+      if (goodMeasurements) {
+        poseEstimator.addVisionMeasurement(estimatedRearPose.get().estimatedPose.toPose2d(), estimatedRearPose.get().timestampSeconds);
+      }
+    }
   }
   
 

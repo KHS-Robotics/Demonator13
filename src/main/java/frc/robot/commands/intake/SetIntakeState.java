@@ -20,7 +20,7 @@ public class SetIntakeState extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.intake.rotationSetpoint = intakeState.rotations;
+    RobotContainer.intake.setState(intakeState);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

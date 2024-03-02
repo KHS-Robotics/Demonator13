@@ -129,7 +129,7 @@ public class Shooter extends SubsystemBase {
     };
   }
 
-  public void goToAngle(double angle) {
+  public void goToSetpoint(double angle) {
     double pidOutput = pivotPID.calculate(getPosition(), rotationSetpoint);
     double ffOutput = pivotFF.calculate(getPosition() + RobotContainer.arm.getPosition(), 0);
     var output = pidOutput + ffOutput;
@@ -138,10 +138,6 @@ public class Shooter extends SubsystemBase {
 
   public double getAbsoluteAngle() {
     return getPosition() + (RobotContainer.arm.getPosition() - 0.5);
-  }
-
-  public void goToSetpoint(ShooterState setpoint) {
-    goToAngle(setpoint.rotations);
   }
 
   public void driveShooter(double volts) {
@@ -197,8 +193,12 @@ public class Shooter extends SubsystemBase {
     return shooterEncoder.getVelocity();
   }
 
-  public void setSetpoint(ShooterState setpoint) {
-    this.rotationSetpoint = setpoint.rotations;
+  public void setState(ShooterState state) {
+    setSetpoint(state.rotations);
+  }
+
+  public void setSetpoint(double setpoint) {
+    this.rotationSetpoint = setpoint;
     pivotPID.reset();
   }
 
@@ -393,14 +393,12 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
     SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
-    SmartDashboard.putNumber("kG", pivotkG);
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     SmartDashboard.putNumber("shooterSetpoint", veloctiySetpoint);
 
-
-    goToAngle(rotationSetpoint);
+    goToSetpoint(rotationSetpoint);
   }
 }
