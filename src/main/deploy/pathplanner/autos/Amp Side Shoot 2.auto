@@ -86,9 +86,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Amp Side Shoot 2 Get Note"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Amp Side Shoot 2 Get Note"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HasNote"
+                }
+              }
+            ]
           }
         },
         {
@@ -98,13 +111,19 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "HasNote"
+                  "name": "Stop"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Stop"
+                  "name": "StopSwerves"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RampShooterForManualShot"
                 }
               },
               {
@@ -117,12 +136,6 @@
                 "type": "named",
                 "data": {
                   "name": "SetShootFromSubwoofer"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
                 }
               },
               {

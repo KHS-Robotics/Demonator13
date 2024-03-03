@@ -21,7 +21,7 @@ public class Arm extends SubsystemBase {
   private double kI = 3;
   private double kD = 1;
 
-  private double kG = 0.4;
+  private double kG = 0.6;
 
   public double rotationSetpoint = ArmState.kStow.rotations;
 
@@ -33,6 +33,9 @@ public class Arm extends SubsystemBase {
     pivotFollower = new CANSparkMax(RobotMap.ARM_FOLLOWER, MotorType.kBrushless);
     pivotFollower.setIdleMode(IdleMode.kBrake);
     pivotFollower.follow(pivotMotor, true);
+
+    pivotMotor.setSmartCurrentLimit(40);
+    pivotFollower.setSmartCurrentLimit(40);
     
     pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
     
@@ -44,7 +47,7 @@ public class Arm extends SubsystemBase {
 
   public void goToSetpoint(double angle) {
     double pidOutput = armPid.calculate(getPosition(), angle);
-    double gravityOutput = kG * Math.sin(Units.rotationsToRadians(angle));
+    double gravityOutput = kG * Math.cos(Units.rotationsToRadians(angle - 0.25));
     
     var output = pidOutput + gravityOutput;
     pivotMotor.setVoltage(output);
@@ -81,7 +84,7 @@ public class Arm extends SubsystemBase {
     kIntake(0.81),
     kShoot(0.75),
     kShootFromSubwoofer(0.81),
-    kShootFromPodium(0.81),
+    kShootFromPodium(0.74),
     kAmp(0.52);
 
     public final double rotations;
@@ -93,9 +96,9 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("armAngle", getPosition());
-    SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+    // SmartDashboard.putNumber("armAngle", getPosition());
+    // SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
+    // SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
 
     // kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);

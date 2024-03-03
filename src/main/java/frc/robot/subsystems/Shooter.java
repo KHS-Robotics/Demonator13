@@ -72,9 +72,9 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 35;
+  private final double pivotkP = 15;
   private final double pivotkI = 0;
-  private final double pivotkD = 2;
+  private final double pivotkD = 6;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
@@ -100,11 +100,14 @@ public class Shooter extends SubsystemBase {
     indexMotor.setIdleMode(IdleMode.kBrake);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
+    shootMotor.setSmartCurrentLimit(30);
+    indexMotor.setSmartCurrentLimit(15);
+
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
     shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * kWheelRadius));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0);
+    //pivotEncoder.setZeroOffset(0);
 
     shooterPID = shootMotor.getPIDController();
     shooterPID.setP(kShooterP);
@@ -219,7 +222,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(3.5);
+    this.indexMotor.setVoltage(3);
   }
 
   public void outdex() {
@@ -378,11 +381,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.395),
-    kShoot(0.4),
-    kShootFromSubwoofer(0.4075),
-    kShootFromPodium(0.4075),
-    kAmp(0.425);
+    kIntake(0.1),
+    kShoot(0.2),
+    kShootFromSubwoofer(0.075),
+    kShootFromPodium(0.08285),
+    kAmp(0.15);
 
     public final double rotations;
 
@@ -399,10 +402,10 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
-    SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
-    SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
-    SmartDashboard.putNumber("shooterSetpoint", veloctiySetpoint);
-    SmartDashboard.putBoolean("shooterGoodTrajectory", goodTrajectory);
+    // SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
+    // SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
+    // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);
+    // SmartDashboard.putBoolean((""shooterGoodTrajectory", goodTrajectory);
 
     goToSetpoint(rotationSetpoint);
   }

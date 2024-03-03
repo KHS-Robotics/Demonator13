@@ -30,10 +30,31 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": []
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": []
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 6.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 540.0
   },
@@ -48,5 +69,5 @@
     "rotation": 0,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

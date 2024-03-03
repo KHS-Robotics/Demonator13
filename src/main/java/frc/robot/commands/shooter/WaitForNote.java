@@ -14,6 +14,8 @@ public class WaitForNote extends Command {
   public void end(boolean inter) {
     timer.stop();
     timer.reset();
+    RobotContainer.shooter.stopIndexer();
+    RobotContainer.intake.stop();
   }
 
   @Override
@@ -25,6 +27,6 @@ public class WaitForNote extends Command {
       timer.reset();
     }
 
-    return hasNote && timer.hasElapsed(0.06);
+    return hasNote; //&& timer.hasElapsed(0.06);
   }
 }

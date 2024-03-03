@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   private final double kV = 0.9972;
   private final double kA = 0.025145;
 
-  private double kP = 6;
+  private double kP = 7;
   private double kI = 0;
   private double kD = 0;
 
@@ -51,6 +51,8 @@ public class Intake extends SubsystemBase {
     pivotMotor.setInverted(true);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
+    intakeMotor.setSmartCurrentLimit(20);
+
     pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     pivotEncoder.setZeroOffset(0.206289);
 
@@ -63,7 +65,13 @@ public class Intake extends SubsystemBase {
   public void goToSetpoint(double rotations) {
     double pidOutput = pivotPositionController.calculate(getPosition(), rotations);
     double ffOutput = pivotFeedforward.calculate(rotations, 0);
-    pivotMotor.setVoltage(pidOutput + ffOutput);
+    double output = pidOutput + ffOutput;
+
+    if (getPosition() < 0.01 && rotations < 0.01) {
+      output = 0;
+    }
+
+    pivotMotor.setVoltage(output);
   }
 
   public void setState(IntakeState state) {
@@ -110,7 +118,7 @@ public class Intake extends SubsystemBase {
 
   public enum IntakeState {
     kUp(0.44),
-    kMid(0.2),
+    kMid(0.16),
     kDown(0);
 
     public final double rotations;
@@ -122,10 +130,10 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("IntakeAngle", getPosition());
-    SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
-    SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
+    // SmartDashboard.putNumber("IntakeAngle", getPosition());
+    // SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
+    // SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
+    // SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
 
     // kP = SmartDashboard.getNumber("kp", kP);
     // kI = SmartDashboard.getNumber("ki", kI);

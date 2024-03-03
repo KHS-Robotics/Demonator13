@@ -396,12 +396,12 @@ public class SwerveDrive extends SubsystemBase {
     var yaw = RobotContainer.getRobotYaw();
     var roll = RobotContainer.getRobotRoll();
     var pitch = RobotContainer.getRobotPitch();
-    SmartDashboard.putNumber("Navx-Yaw", yaw);
-    SmartDashboard.putNumber("Navx-Roll", roll);
-    SmartDashboard.putNumber("Navx-Pitch", pitch);
+    // SmartDashboard.putNumber("Navx-Yaw", yaw);
+    // SmartDashboard.putNumber("Navx-Roll", roll);
+    // SmartDashboard.putNumber("Navx-Pitch", pitch);
 
-    SmartDashboard.putNumber("Pose-X", pose.getX());
-    SmartDashboard.putNumber("Pose-Y", pose.getY());
-    SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
+    // SmartDashboard.putNumber("Pose-X", pose.getX());
+    // SmartDashboard.putNumber("Pose-Y", pose.getY());
+    // SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
   }
 }

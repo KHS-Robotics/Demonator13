@@ -240,7 +240,7 @@ public class RobotContainer {
   private void configureOperatorStickBindings() {
     var shootManual = new Trigger(operatorStick::shootManual);
     shootManual.onTrue(
-      new RampShooter(() -> 15)
+      new RampShooter(() -> 20)
       .andThen(
         new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
       )
@@ -311,6 +311,9 @@ public class RobotContainer {
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.stopShooting();
     }, RobotContainer.shooter));
+
+    Trigger podiumAngle = new Trigger(operatorStick::levelArm);
+    podiumAngle.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)));
   }
 
   /**
@@ -352,18 +355,22 @@ public class RobotContainer {
     NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
 
     NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
-    NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 15));
+    NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 12));
     NamedCommands.registerCommand("Feed", new InstantCommand(() -> shooter.feed(), shooter));
     NamedCommands.registerCommand("Stop", new InstantCommand(() -> {
       shooter.stopShooting();
       shooter.stopIndexer();
       intake.stop();
+      swerveDrive.stop();
     }, shooter, intake));
     NamedCommands.registerCommand("HasNote", new WaitForNote());
     NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
       intake.intake();
       shooter.index();
     }, intake, shooter));
+    NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> {
+      swerveDrive.stop();
+    }, swerveDrive));
   }
 
   private void configurePathPlannerLogging() {
