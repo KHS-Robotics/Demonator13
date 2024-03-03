@@ -67,6 +67,10 @@ public class Arm extends SubsystemBase {
     return pivotEncoder.getAbsolutePosition().getValueAsDouble();
   }
 
+  public boolean isAtState(ArmState state) {
+    return Math.abs(getPosition() - state.rotations) <= 0.02;
+  }
+
   public boolean isArmClearingIntake() {
     return rotationSetpoint < 0.75;
   }
@@ -77,6 +81,7 @@ public class Arm extends SubsystemBase {
     kIntake(0.81),
     kShoot(0.75),
     kShootFromSubwoofer(0.81),
+    kShootFromPodium(0.81),
     kAmp(0.52);
 
     public final double rotations;

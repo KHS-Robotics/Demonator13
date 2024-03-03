@@ -139,15 +139,17 @@ public class RobotContainer {
 
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
-    Trigger resetHeading = driverController.start().debounce(1);
+    // NavX + Odometry
+    var resetHeading = driverController.start().debounce(1);
     resetHeading.onTrue(new InstantCommand(() -> {
       RobotContainer.swerveDrive.resetNavx();
       var isRedAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
       RobotContainer.swerveDrive.setPose(new Pose2d(8, 4, isRedAlliance ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0)));
     }, RobotContainer.swerveDrive));
 
+    // Slow down option
     // go slow is an exception - doesn't really need to "require" the swerve drive
-    Trigger slowDrive = driverController.leftTrigger(0.3);
+    var slowDrive = driverController.rightTrigger(0.3);
     slowDrive.onTrue(new InstantCommand(() -> {
       SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 0.75;
       SwerveDrive.kMaxSpeedMetersPerSecond = Math.PI / 2.0;
@@ -158,16 +160,23 @@ public class RobotContainer {
       SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
     }));
 
-    Trigger autoIntakeNote = driverController.leftBumper();
-    autoIntakeNote.whileTrue(new AutoIntake());
+    // Scoring
+    var scoreAmp = new Trigger(() -> driverController.getHID().getRightBumper() && RobotContainer.arm.isAtState(ArmState.kAmp));
+    scoreAmp.onTrue(
+      new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
+      .andThen(
+        new WaitCommand(0.5)
+        .andThen(
+          new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter)
+        )
+      )
+    );
+    scoreAmp.onFalse(new InstantCommand(() ->{
+      RobotContainer.shooter.stopIndexer();
+      RobotContainer.shooter.stopShooting();
+    }, RobotContainer.shooter));
 
-    Trigger autoShootNote = driverController.rightBumper();
-    autoShootNote.whileTrue(new ShootSpeaker());
-  }
-
-  /** Binds commands to the operator stick. */
-  private void configureOperatorStickBindings() {
-    Trigger shootManual = new Trigger(operatorStick::shootManual);
+    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper() && (arm.isAtState(ArmState.kShootFromPodium) || arm.isAtState(ArmState.kShootFromSubwoofer)));
     shootManual.onTrue(
       new RampShooter(() -> 15)
       .andThen(
@@ -179,7 +188,41 @@ public class RobotContainer {
       RobotContainer.shooter.stopIndexer();
     }, RobotContainer.shooter));
 
-    Trigger intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
+    // Arm
+    var handoffArm = driverController.a();
+    handoffArm.onTrue(
+      new SetIntakeState(IntakeState.kDown)
+      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
+    );
+
+    var stowArm = driverController.b();
+    stowArm.onTrue(
+      (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
+      .andThen(new SetIntakeState(IntakeState.kUp))
+    );
+
+    var ampArm = driverController.y();
+    ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
+
+    var subwooferArm = new Trigger(() -> driverController.getHID().getXButton() && RobotContainer.intake.isIntakeDown());
+    subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+
+    var armPodium = new Trigger(() -> driverController.getHID().getRightStickButton() && RobotContainer.intake.isIntakeDown());
+    armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)));
+
+    // Intake
+    var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0 && RobotContainer.arm.isArmClearingIntake());
+    retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
+
+    var deployIntake = new Trigger(() -> driverController.getHID().getPOV() == 180 && RobotContainer.arm.isArmClearingIntake());
+    deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
+
+    var midIntakePovLeft = driverController.povLeft();
+    midIntakePovLeft.onTrue(new SetIntakeState(IntakeState.kMid));
+    var midIntakePovRight = driverController.povRight();
+    midIntakePovRight.onTrue(new SetIntakeState(IntakeState.kMid));
+
+    var intakeNote = new Trigger(() -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.67 && !RobotContainer.shooter.hasNote());
     intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
@@ -189,7 +232,7 @@ public class RobotContainer {
       RobotContainer.intake.stop();
     }, RobotContainer.shooter, RobotContainer.intake));
 
-    Trigger outtakeNote = new Trigger(operatorStick::outtakeNote);
+    var outtakeNote = driverController.back();
     outtakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.outtake();
       RobotContainer.shooter.outdex();
@@ -199,34 +242,72 @@ public class RobotContainer {
       RobotContainer.shooter.stopIndexer();
     }, RobotContainer.intake, RobotContainer.shooter));
 
-    Trigger deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
+    var autoIntakeNote = driverController.leftBumper();
+    autoIntakeNote.whileTrue(new AutoIntake());
+  }
+
+  /** Binds commands to the operator stick. */
+  private void configureOperatorStickBindings() {
+    var shootManual = new Trigger(operatorStick::shootManual);
+    shootManual.onTrue(
+      new RampShooter(() -> 15)
+      .andThen(
+        new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
+      )
+    );
+    shootManual.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopShooting();
+      RobotContainer.shooter.stopIndexer();
+    }, RobotContainer.shooter));
+
+    var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
+    intakeNote.onTrue(new InstantCommand(() -> {
+      RobotContainer.shooter.index();
+      RobotContainer.intake.intake();
+    }, RobotContainer.shooter, RobotContainer.intake));
+    intakeNote.onFalse(new InstantCommand(() -> {
+      RobotContainer.shooter.stopIndexer();
+      RobotContainer.intake.stop();
+    }, RobotContainer.shooter, RobotContainer.intake));
+
+    var outtakeNote = new Trigger(operatorStick::outtakeNote);
+    outtakeNote.onTrue(new InstantCommand(() -> {
+      RobotContainer.intake.outtake();
+      RobotContainer.shooter.outdex();
+    }, RobotContainer.intake, RobotContainer.shooter));
+    outtakeNote.onFalse(new InstantCommand(() -> {
+      RobotContainer.intake.stop();
+      RobotContainer.shooter.stopIndexer();
+    }, RobotContainer.intake, RobotContainer.shooter));
+
+    var deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
     deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
 
-    Trigger retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
+    var retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
     retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
 
-    Trigger midIntake = new Trigger(operatorStick::midIntake);
+    var midIntake = new Trigger(operatorStick::midIntake);
     midIntake.onTrue(new SetIntakeState(IntakeState.kMid));
     
-    Trigger handoffArm = new Trigger(operatorStick::handoffArm);
+    var handoffArm = new Trigger(operatorStick::handoffArm);
     handoffArm.onTrue(
       new SetIntakeState(IntakeState.kDown)
       .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
     );
 
-    Trigger ampArm = new Trigger(operatorStick::ampArm);
+    var ampArm = new Trigger(operatorStick::ampArm);
     ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
-    Trigger subwooferArm = new Trigger(() -> operatorStick.subwooferArm() && RobotContainer.intake.isIntakeDown());
+    var subwooferArm = new Trigger(() -> operatorStick.subwooferArm() && RobotContainer.intake.isIntakeDown());
     subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
 
-    Trigger stowArm = new Trigger(operatorStick::stowArm);
+    var stowArm = new Trigger(operatorStick::stowArm);
     stowArm.onTrue(
       (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
       .andThen(new SetIntakeState(IntakeState.kUp))
     );
 
-    Trigger scoreAmp = new Trigger(operatorStick::scoreAmp);
+    var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
       .andThen(
@@ -288,7 +369,7 @@ public class RobotContainer {
       shooter.stopIndexer();
       intake.stop();
     }, shooter, intake));
-    NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(3));
+    NamedCommands.registerCommand("HasNote", new WaitForNote());
     NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
       intake.intake();
       shooter.index();
