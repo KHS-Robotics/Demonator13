@@ -72,8 +72,8 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 15;
-  private final double pivotkI = 0;
+  private final double pivotkP = 20;
+  private final double pivotkI = 1;
   private final double pivotkD = 6;
 
   private final double kMaxNeoRPM = 5676;
@@ -100,8 +100,8 @@ public class Shooter extends SubsystemBase {
     indexMotor.setIdleMode(IdleMode.kBrake);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
-    shootMotor.setSmartCurrentLimit(30);
-    indexMotor.setSmartCurrentLimit(15);
+    shootMotor.setSmartCurrentLimit(40);
+    indexMotor.setSmartCurrentLimit(40);
 
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
@@ -381,7 +381,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.1),
+    kIntake(0.125),
     kShoot(0.2),
     kShootFromSubwoofer(0.075),
     kShootFromPodium(0.08285),
