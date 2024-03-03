@@ -20,10 +20,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.datalog.BooleanLogEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -34,14 +30,7 @@ import frc.robot.Constants;
 public class SwerveModule extends SubsystemBase {
   public final String name;
 
-  private DoubleLogEntry LogCurrentSpeed;
-  private DoubleLogEntry LogCurrentAngle;
-  private DoubleLogEntry LogTargetSpeed;
-  private DoubleLogEntry LogTargetAngle;
-  private BooleanLogEntry LogIsFlipped;
-
   private boolean isFlipped;
-  private SwerveModuleState targetState = new SwerveModuleState();
 
   private final CANSparkMax driveMotor;
   private final RelativeEncoder driveEncoder;
@@ -77,12 +66,6 @@ public class SwerveModule extends SubsystemBase {
 
     this.name = name;
     setName("Module-" + name);
-
-    LogCurrentSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/module/" + name + "/current/speed");
-    LogCurrentAngle = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/module/" + name + "/current/angle");
-    LogTargetSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/module/" + name + "/target/speed");
-    LogTargetAngle = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/module/" + name + "/target/angle");
-    LogIsFlipped = new BooleanLogEntry(DataLogManager.getLog(), "/subsystems/module/" + name + "/flipped");
 
     driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
     driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
@@ -139,14 +122,6 @@ public class SwerveModule extends SubsystemBase {
     var state = getState();
     SmartDashboard.putNumber("Speed", state.speedMetersPerSecond);
     SmartDashboard.putNumber("Angle", state.angle.getDegrees());
-
-    if (RobotState.isEnabled()) {
-      LogCurrentSpeed.append(state.speedMetersPerSecond);
-      LogCurrentAngle.append(state.angle.getDegrees());
-      LogTargetSpeed.append(targetState.speedMetersPerSecond);
-      LogTargetAngle.append(targetState.angle.getDegrees());
-      LogIsFlipped.append(isFlipped);
-    }
   }
 
   /**
@@ -187,8 +162,6 @@ public class SwerveModule extends SubsystemBase {
     drivePID.setReference(sign * state.speedMetersPerSecond,
         CANSparkMax.ControlType.kVoltage, 1,
         driveFeedForward.calculate(sign * state.speedMetersPerSecond));
-    
-    this.targetState = new SwerveModuleState(sign*state.speedMetersPerSecond, Rotation2d.fromDegrees(targetAngle));
   }
 
   /**

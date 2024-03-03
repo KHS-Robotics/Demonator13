@@ -15,8 +15,6 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -218,9 +216,9 @@ public class RobotContainer {
     Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
     ampSetpoint.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
-    // TODO: test subwoofer shot for auto on this button
+    // TODO: test subwoofer shot for auto then put this back to kShoot setpoint
     Trigger shootSetpoint = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
-    shootSetpoint.onTrue(new SetArmState(ArmState.kShoot).alongWith(new SetShooterState(ShooterState.kShoot)));
+    shootSetpoint.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
 
     Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
     stowSetpoint.onTrue(
@@ -299,33 +297,17 @@ public class RobotContainer {
 
   private void configurePathPlannerLogging() {
     SmartDashboard.putData("field", field);
-    
-    var logPPCurrentPoseX = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/x");
-    var logPPCurrentPoseY = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/y");
-    var logPPCurrentPoseTheta = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/current/theta");
 
     // Logging callback for current robot pose
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
       // Do whatever you want with the pose here
       field.setRobotPose(pose);
-
-      logPPCurrentPoseX.append(pose.getX());
-      logPPCurrentPoseY.append(pose.getY());
-      logPPCurrentPoseTheta.append(pose.getRotation().getDegrees());
     });
-
-    var logPPTargetPoseX = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/x");
-    var logPPTargetPoseY = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/y");
-    var logPPTargetPoseTheta = new DoubleLogEntry(DataLogManager.getLog(), "/pathplanner/target/theta");
 
     // Logging callback for target robot pose
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
       // Do whatever you want with the pose here
       field.getObject("target pose").setPose(pose);
-
-      logPPTargetPoseX.append(pose.getX());
-      logPPTargetPoseY.append(pose.getY());
-      logPPTargetPoseTheta.append(pose.getRotation().getDegrees());
     });
 
     // Logging callback for the active path, this is sent as a list of poses

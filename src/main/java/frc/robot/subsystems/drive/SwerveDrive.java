@@ -27,9 +27,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,15 +50,6 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d frontRightLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
   private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
   private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
-
-  private static final DoubleLogEntry LogLinearSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/speed");
-  private static final DoubleLogEntry LogAngularSpeed = new DoubleLogEntry(DataLogManager.getLog(), "/subsystems/swerve/omega");
-  private static final DoubleLogEntry LogOdometryX = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/x");
-  private static final DoubleLogEntry LogOdometryY = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/y");
-  private static final DoubleLogEntry LogOdometryTheta = new DoubleLogEntry(DataLogManager.getLog(), "/odometry/pose/theta");
-  private static final DoubleLogEntry LogNavxYaw = new DoubleLogEntry(DataLogManager.getLog(), "/navx/yaw");
-  private static final DoubleLogEntry LogNavxRoll = new DoubleLogEntry(DataLogManager.getLog(), "/navx/roll");
-  private static final DoubleLogEntry LogNavxPitch = new DoubleLogEntry(DataLogManager.getLog(), "/navx/pitch");
 
   public static final SwerveModule frontLeft = new SwerveModule(
     "FL",
@@ -415,21 +403,5 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Pose-X", pose.getX());
     SmartDashboard.putNumber("Pose-Y", pose.getY());
     SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
-
-
-    if (RobotState.isEnabled()) {
-      var chassis = getChassisSpeeds();
-      var speed = Math.hypot(chassis.vxMetersPerSecond, chassis.vyMetersPerSecond);
-      LogLinearSpeed.append(speed);
-      var omega = chassis.omegaRadiansPerSecond;
-      LogAngularSpeed.append(omega);
-
-      LogOdometryX.append(pose.getX());
-      LogOdometryY.append(pose.getY());
-      LogOdometryTheta.append(pose.getRotation().getDegrees());
-      LogNavxYaw.append(yaw);
-      LogNavxRoll.append(roll);
-      LogNavxPitch.append(pitch);
-    }
   }
 }
