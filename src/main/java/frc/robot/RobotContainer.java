@@ -123,7 +123,7 @@ public class RobotContainer {
 
   /** Configures the subsystem's default commands. */
   private void configureSubsystemDefaultCommands() {
-    swerveDrive.setDefaultCommand(new DriveSwerveWithXbox());
+    swerveDrive.setDefaultCommand(new DriveSwerveWithXbox(true));
   }
 
   private void configureBindings() {
@@ -147,18 +147,8 @@ public class RobotContainer {
       RobotContainer.swerveDrive.setPose(new Pose2d(8, 4, isRedAlliance ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0)));
     }, RobotContainer.swerveDrive));
 
-    // Slow down option
-    // go slow is an exception - doesn't really need to "require" the swerve drive
-    var slowDrive = driverController.rightTrigger(0.3);
-    slowDrive.onTrue(new InstantCommand(() -> {
-      SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 0.75;
-      SwerveDrive.kMaxSpeedMetersPerSecond = Math.PI / 2.0;
-    }));
-    // go slow is an exception - doesn't really need to "require" the swerve drive
-    slowDrive.onFalse(new InstantCommand(() -> {
-      SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-      SwerveDrive.kMaxSpeedMetersPerSecond = 4.5;
-    }));
+    var robotRelativeDrive = driverController.rightTrigger(0.5);
+    robotRelativeDrive.whileTrue(new DriveSwerveWithXbox(false));
 
     // Scoring
     var scoreAmp = new Trigger(() -> driverController.getHID().getRightBumper() && RobotContainer.arm.isAtState(ArmState.kAmp));
@@ -189,40 +179,40 @@ public class RobotContainer {
     }, RobotContainer.shooter));
 
     // Arm
-    var handoffArm = driverController.a();
-    handoffArm.onTrue(
-      new SetIntakeState(IntakeState.kDown)
-      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
-    );
+    // var handoffArm = driverController.a();
+    // handoffArm.onTrue(
+    //   new SetIntakeState(IntakeState.kDown)
+    //   .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
+    // );
 
-    var stowArm = driverController.b();
-    stowArm.onTrue(
-      (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
-      .andThen(new SetIntakeState(IntakeState.kUp))
-    );
+    // var stowArm = driverController.b();
+    // stowArm.onTrue(
+    //   (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
+    //   .andThen(new SetIntakeState(IntakeState.kUp))
+    // );
 
-    var ampArm = driverController.y();
-    ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
+    // var ampArm = driverController.y();
+    // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
-    var subwooferArm = new Trigger(() -> driverController.getHID().getXButton() && RobotContainer.intake.isIntakeDown());
-    subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    // var subwooferArm = new Trigger(() -> driverController.getHID().getXButton() && RobotContainer.intake.isIntakeDown());
+    // subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
 
-    var armPodium = new Trigger(() -> driverController.getHID().getRightStickButton() && RobotContainer.intake.isIntakeDown());
-    armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)));
+    // var armPodium = new Trigger(() -> driverController.getHID().getRightStickButton() && RobotContainer.intake.isIntakeDown());
+    // armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)));
 
     // Intake
-    var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0 && RobotContainer.arm.isArmClearingIntake());
-    retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
+    // var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0 && RobotContainer.arm.isArmClearingIntake());
+    // retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
 
-    var deployIntake = new Trigger(() -> driverController.getHID().getPOV() == 180 && RobotContainer.arm.isArmClearingIntake());
-    deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
+    // var deployIntake = new Trigger(() -> driverController.getHID().getPOV() == 180 && RobotContainer.arm.isArmClearingIntake());
+    // deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
 
-    var midIntakePovLeft = driverController.povLeft();
-    midIntakePovLeft.onTrue(new SetIntakeState(IntakeState.kMid));
-    var midIntakePovRight = driverController.povRight();
-    midIntakePovRight.onTrue(new SetIntakeState(IntakeState.kMid));
+    // var midIntakePovLeft = driverController.povLeft();
+    // midIntakePovLeft.onTrue(new SetIntakeState(IntakeState.kMid));
+    // var midIntakePovRight = driverController.povRight();
+    // midIntakePovRight.onTrue(new SetIntakeState(IntakeState.kMid));
 
-    var intakeNote = new Trigger(() -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.67 && !RobotContainer.shooter.hasNote());
+    var intakeNote = new Trigger(() -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.9 && !RobotContainer.shooter.hasNote());
     intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();

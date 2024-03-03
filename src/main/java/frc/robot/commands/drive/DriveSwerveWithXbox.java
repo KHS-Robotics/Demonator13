@@ -14,8 +14,9 @@ import frc.robot.subsystems.drive.SwerveDrive;
 public class DriveSwerveWithXbox extends Command {
   private boolean fieldRelative = false;
 
-  public DriveSwerveWithXbox() {
+  public DriveSwerveWithXbox(boolean fod) {
     this.addRequirements(RobotContainer.swerveDrive);
+    this.fieldRelative = fod;
   }
 
   // Called just before this Command runs the first time
@@ -48,15 +49,12 @@ public class DriveSwerveWithXbox extends Command {
     // positive value when we pull to the left (remember, CCW is positive in
     // mathematics). Xbox controllers return positive values when you pull to
     // the right by default.
-
-    // Deadband on new controller
     double rot = 0;
     if (Math.abs(RobotContainer.driverController.getRightX()) > 0.05) {
       rot = RobotContainer.swerveDrive.sensControl(-RobotContainer.driverController.getRightX())
           * SwerveDrive.kMaxAngularSpeedRadiansPerSecond;
     }
 
-    fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
     RobotContainer.swerveDrive.drive(xSpeed, ySpeed, rot, fieldRelative);
   }
 
