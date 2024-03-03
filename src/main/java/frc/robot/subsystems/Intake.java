@@ -110,7 +110,7 @@ public class Intake extends SubsystemBase {
 
   public enum IntakeState {
     kUp(0.44),
-    kMid(0.22),
+    kMid(0.2),
     kDown(0);
 
     public final double rotations;

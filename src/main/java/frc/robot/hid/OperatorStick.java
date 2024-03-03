@@ -16,7 +16,7 @@ public class OperatorStick extends Joystick {
     return getPOV() == 180;
   }
 
-  public boolean scoreSpeaker() {
+  public boolean shootManual() {
     return this.getRawButton(1);
   }
 
@@ -25,26 +25,38 @@ public class OperatorStick extends Joystick {
   }
   
   public boolean deployIntake() {
-    return this.getRawButton(5);
-  }
-
-  public boolean stowSetpoint() {
-    return this.getRawButton(7);
-  }
-
-  public boolean ampSetpoint() {
-    return this.getRawButton(8);
-  }
-
-  public boolean shootSetpoint() {
-    return this.getRawButton(9);
-  }
-
-  public boolean intakeNoteSetpoint() {
-    return this.getRawButton(10);
+    return this.getRawButton(16);
   }
 
   public boolean retractIntake() {
-    return this.getRawButton(11);
+    return this.getRawButton(14);
+  }
+
+  public boolean midIntake() {
+    return this.getRawButton(15);
+  }
+
+  public boolean ampArm() {
+    return this.getRawButton(5);
+  }
+
+  public boolean stowArm() {
+    return this.getRawButton(6);
+  }
+
+  public boolean handoffArm() {
+    return this.getRawButton(7);
+  }
+
+  public boolean subwooferArm() {
+    return this.getRawButton(10);
+  }
+
+  public boolean podiumArm() {
+    return this.getRawButton(9);
+  }
+
+  public boolean levelArm() {
+    return this.getRawButton(8);
   }
 }

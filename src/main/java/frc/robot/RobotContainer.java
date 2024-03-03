@@ -167,16 +167,14 @@ public class RobotContainer {
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
-    // TODO: bind scoreSpeaker to use shooting math
-    Trigger scoreSpeaker = new Trigger(operatorStick::scoreSpeaker);
-    // scoreSpeaker.onTrue(new ShootSpeaker());
-    scoreSpeaker.onTrue(
+    Trigger shootManual = new Trigger(operatorStick::shootManual);
+    shootManual.onTrue(
       new RampShooter(() -> 15)
       .andThen(
         new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
       )
     );
-    scoreSpeaker.onFalse(new InstantCommand(() -> {
+    shootManual.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
     }, RobotContainer.shooter));
@@ -206,22 +204,24 @@ public class RobotContainer {
 
     Trigger retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
     retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
+
+    Trigger midIntake = new Trigger(operatorStick::midIntake);
+    midIntake.onTrue(new SetIntakeState(IntakeState.kMid));
     
-    Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint());
-    intakeNoteSetpoint.onTrue(
+    Trigger handoffArm = new Trigger(operatorStick::handoffArm);
+    handoffArm.onTrue(
       new SetIntakeState(IntakeState.kDown)
       .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
     );
 
-    Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
-    ampSetpoint.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
+    Trigger ampArm = new Trigger(operatorStick::ampArm);
+    ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
-    // TODO: test subwoofer shot for auto then put this back to kShoot setpoint
-    Trigger shootSetpoint = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
-    shootSetpoint.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    Trigger subwooferArm = new Trigger(() -> operatorStick.subwooferArm() && RobotContainer.intake.isIntakeDown());
+    subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
 
-    Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
-    stowSetpoint.onTrue(
+    Trigger stowArm = new Trigger(operatorStick::stowArm);
+    stowArm.onTrue(
       (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
       .andThen(new SetIntakeState(IntakeState.kUp))
     );

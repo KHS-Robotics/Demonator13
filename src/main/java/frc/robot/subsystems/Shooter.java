@@ -62,7 +62,7 @@ public class Shooter extends SubsystemBase {
   private final double SHOOTER_PIVOT_TO_END = 0.37516;
   private final Translation3d SHOOTER_PIVOT_ROBOT_REL = new Translation3d(-0.2757, 0, 0.5972);
 
-  private final double v0 = 20;
+  private final double v0 = 15;
 
   private final double kShooterP = 1;
   private final double kShooterI = 0.01;
