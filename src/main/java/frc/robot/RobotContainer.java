@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -35,6 +36,7 @@ import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
+import frc.robot.commands.shooter.WaitForNote;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
@@ -142,8 +144,8 @@ public class RobotContainer {
     Trigger resetHeading = driverController.start().debounce(1);
     resetHeading.onTrue(new InstantCommand(() -> {
       RobotContainer.swerveDrive.resetNavx();
-      var pose = RobotContainer.swerveDrive.getPose();
-      RobotContainer.swerveDrive.setPose(new Pose2d(pose.getX(), pose.getY(), Rotation2d.fromDegrees(0)));
+      var isRedAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
+      RobotContainer.swerveDrive.setPose(new Pose2d(8, 4, isRedAlliance ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0)));
     }, RobotContainer.swerveDrive));
 
     // go slow is an exception - doesn't really need to "require" the swerve drive
@@ -160,6 +162,9 @@ public class RobotContainer {
 
     Trigger autoIntakeNote = driverController.leftBumper();
     autoIntakeNote.whileTrue(new AutoIntake());
+
+    Trigger autoShootNote = driverController.rightBumper();
+    autoShootNote.whileTrue(new ShootSpeaker());
   }
 
   /** Binds commands to the operator stick. */
@@ -168,7 +173,7 @@ public class RobotContainer {
     Trigger scoreSpeaker = new Trigger(operatorStick::scoreSpeaker);
     // scoreSpeaker.onTrue(new ShootSpeaker());
     scoreSpeaker.onTrue(
-      new RampShooter(() -> 16)
+      new RampShooter(() -> 15)
       .andThen(
         new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
       )
@@ -204,17 +209,24 @@ public class RobotContainer {
     Trigger retractIntake = new Trigger(() -> operatorStick.retractIntake() && RobotContainer.arm.isArmClearingIntake());
     retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
     
-    Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint() && RobotContainer.intake.isIntakeDown());
-    intakeNoteSetpoint.onTrue(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
+    Trigger intakeNoteSetpoint = new Trigger(() -> operatorStick.intakeNoteSetpoint());
+    intakeNoteSetpoint.onTrue(
+      new SetIntakeState(IntakeState.kDown)
+      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
+    );
 
     Trigger ampSetpoint = new Trigger(operatorStick::ampSetpoint);
     ampSetpoint.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
 
+    // TODO: test subwoofer shot for auto on this button
     Trigger shootSetpoint = new Trigger(() -> operatorStick.shootSetpoint() && RobotContainer.intake.isIntakeDown());
     shootSetpoint.onTrue(new SetArmState(ArmState.kShoot).alongWith(new SetShooterState(ShooterState.kShoot)));
 
     Trigger stowSetpoint = new Trigger(operatorStick::stowSetpoint);
-    stowSetpoint.onTrue(new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)));
+    stowSetpoint.onTrue(
+      (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
+      .andThen(new SetIntakeState(IntakeState.kUp))
+    );
 
     Trigger scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(
@@ -269,6 +281,20 @@ public class RobotContainer {
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
     NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
+
+    NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 15));
+    NamedCommands.registerCommand("Feed", new InstantCommand(() -> shooter.feed(), shooter));
+    NamedCommands.registerCommand("Stop", new InstantCommand(() -> {
+      shooter.stopShooting();
+      shooter.stopIndexer();
+      intake.stop();
+    }, shooter, intake));
+    NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(3));
+    NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
+      intake.intake();
+      shooter.index();
+    }, intake, shooter));
   }
 
   private void configurePathPlannerLogging() {

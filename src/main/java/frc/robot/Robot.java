@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
     RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
     RobotContainer.shooter.setSetpoint(RobotContainer.shooter.getPosition());
+    RobotContainer.shooter.stopShooting();
   }
 
   /**

@@ -378,8 +378,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.37),
+    kIntake(0.395),
     kShoot(0.4),
+    kShootFromSubwoofer(0.41),
     kAmp(0.425);
 
     public final double rotations;

@@ -34,6 +34,6 @@ public class SetIntakeState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(RobotContainer.intake.getPosition() - intakeState.rotations) <= 0.025;
+    return Math.abs(RobotContainer.intake.getPosition() - intakeState.rotations) <= 0.04;
   }
 }

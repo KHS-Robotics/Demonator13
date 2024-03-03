@@ -73,9 +73,10 @@ public class Arm extends SubsystemBase {
 
   public enum ArmState {
     kStow(0.618),
-    kDeployDemonHorns(0.595),
-    kIntake(0.83),
+    kDeployDemonHorns(0.605),
+    kIntake(0.81),
     kShoot(0.75),
+    kShootFromSubwoofer(0.81),
     kAmp(0.52);
 
     public final double rotations;

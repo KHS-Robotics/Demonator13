@@ -139,7 +139,7 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
       }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)), 
       VecBuilder.fill(0.1, 0.1, 0.1),
-      VecBuilder.fill(0.9, 0.9, 0.3));
+      VecBuilder.fill(6, 6, 100000));
  
   /**
    * Constructs Swerve Drive
@@ -152,7 +152,7 @@ public class SwerveDrive extends SubsystemBase {
     anglePid.setTolerance(1);
     xPid.setTolerance(0.1);
     yPid.setTolerance(0.1);
-    }
+  }
 
   /**
    * Returns the angle of the robot as a Rotation2d as read by the navx.
@@ -199,7 +199,7 @@ public class SwerveDrive extends SubsystemBase {
     } else {
       var swerveModuleStates = kinematics
           .toSwerveModuleStates(
-              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getPose().getRotation())
+              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getAngle())
                   : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
       frontLeft.setDesiredState(swerveModuleStates[0]);
@@ -222,7 +222,7 @@ public class SwerveDrive extends SubsystemBase {
     vX = chassisSpeeds.vxMetersPerSecond;
     vY = chassisSpeeds.vyMetersPerSecond;
     setModuleStates(kinematics.toSwerveModuleStates(
-        ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, poseEstimator.getEstimatedPosition().getRotation())));
+        ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getAngle())));
   }
 
   public void setPose(Pose2d pose) {
@@ -238,7 +238,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void holdAngleWhileDriving(double x, double y, Rotation2d setAngle, boolean fieldOriented) {
-    var rotateOutput = MathUtil.clamp(anglePid.calculate(poseEstimator.getEstimatedPosition().getRotation().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    var rotateOutput = MathUtil.clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
     this.drive(x, y, rotateOutput, fieldOriented);
   }
 
@@ -250,7 +250,7 @@ public class SwerveDrive extends SubsystemBase {
     Pose2d pose = getPose();
     double xSpeed = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
     double ySpeed = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
-    double vTheta = MathUtil.clamp(anglePid.calculate(pose.getRotation().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    double vTheta = MathUtil.clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
     this.drive(xSpeed, ySpeed, vTheta, fieldOriented);
   }
 
@@ -276,25 +276,42 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // vision
-    updateOdometryUsingFrontCamera();
-    updateOdometryUsingRearCamera();
+    //updateOdometryUsingFrontCamera();
+    //updateOdometryUsingRearCamera();
   }
 
   private void updateOdometryUsingFrontCamera() {
     Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedFrontPose.isPresent()) {
-      var stdDevs = VecBuilder.fill(0.9, 0.9, 0.3);
-      var ambiguity = 0.2;
-      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, ambiguity);
+      double stdDevXY = 0, distance = 0;
+      for (var target : estimatedFrontPose.get().targetsUsed) {
+        distance = target.getBestCameraToTarget().getTranslation().getNorm();
+        stdDevXY = distance / 2.0;
+      }
+
+      var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
+      var ambiguity = 0.5;
+
+      if (distance < 3) {
+        updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, ambiguity);
+      }
     }
   }
 
   private void updateOdometryUsingRearCamera() {
     Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedRearPose.isPresent()) {
-      var stdDevs = VecBuilder.fill(0.9, 0.9, 0.3);
-      var ambiguity = 0.2;
-      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
+      double stdDevXY = 0, distance = 0;
+      for (var target : estimatedRearPose.get().targetsUsed) {
+        distance = target.getBestCameraToTarget().getTranslation().getNorm();
+        stdDevXY = distance / 4.0;
+      }
+
+      var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
+      var ambiguity = 1;
+      if (distance < 4) {
+        updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
+      }
     }
   }
 
@@ -304,7 +321,7 @@ public class SwerveDrive extends SubsystemBase {
 
     boolean goodMeasurements = true;
     for (PhotonTrackedTarget t : targetsUsed) {
-      if (t.getPoseAmbiguity() < ambiguity) {
+      if (t.getPoseAmbiguity() > ambiguity) {
         goodMeasurements = false;
         break;
       }
@@ -394,6 +411,11 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Navx-Yaw", yaw);
     SmartDashboard.putNumber("Navx-Roll", roll);
     SmartDashboard.putNumber("Navx-Pitch", pitch);
+
+    SmartDashboard.putNumber("Pose-X", pose.getX());
+    SmartDashboard.putNumber("Pose-Y", pose.getY());
+    SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
+
 
     if (RobotState.isEnabled()) {
       var chassis = getChassisSpeeds();
