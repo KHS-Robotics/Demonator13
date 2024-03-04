@@ -90,9 +90,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "Amp Side Shoot 2 Get Note"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Amp Side Shoot 2 Get Note"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
                 }
               },
               {
