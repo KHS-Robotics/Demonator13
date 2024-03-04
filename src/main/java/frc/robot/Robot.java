@@ -78,14 +78,18 @@ public class Robot extends TimedRobot {
 
   /** This method is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    RobotContainer.shooter.stopShooting();
+    RobotContainer.shooter.stopIndexer();
+    RobotContainer.intake.stop();
+    RobotContainer.swerveDrive.stop();
+  }
 
   @Override
   public void disabledPeriodic() {
     RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
     RobotContainer.shooter.setSetpoint(RobotContainer.shooter.getPosition());
-    RobotContainer.shooter.stopShooting();
   }
 
   /**
