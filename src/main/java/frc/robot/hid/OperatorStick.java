@@ -59,4 +59,8 @@ public class OperatorStick extends Joystick {
   public boolean levelArm() {
     return this.getRawButton(8);
   }
+
+  public boolean fullyTrustVision() {
+    return this.getRawButton(11);
+  }
 }

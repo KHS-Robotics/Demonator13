@@ -51,6 +51,8 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
   private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
 
+  public boolean fullyTrustVision = false;
+
   public static final SwerveModule frontLeft = new SwerveModule(
     "FL",
     RobotMap.FRONT_LEFT_DRIVE,
@@ -277,10 +279,14 @@ public class SwerveDrive extends SubsystemBase {
         stdDevXY = distance / 2.0;
       }
 
+      double distanceFromRobotPose = getPose().getTranslation().getDistance(estimatedFrontPose.get().estimatedPose.getTranslation().toTranslation2d());
+
+      if (fullyTrustVision) {
+        stdDevXY = 0.01;
+      }
       var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
       var ambiguity = 0.5;
-
-      if (distance < 3) {
+      if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
         updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, ambiguity);
       }
     }
@@ -289,15 +295,22 @@ public class SwerveDrive extends SubsystemBase {
   private void updateOdometryUsingRearCamera() {
     Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedRearPose.isPresent()) {
-      double stdDevXY = 0, distance = 0;
+      double stdDevXY = 0, distance = 0, stdDevX = 0, stdDevY = 0;
       for (var target : estimatedRearPose.get().targetsUsed) {
         distance = target.getBestCameraToTarget().getTranslation().getNorm();
+        // stdDevX = target.getBestCameraToTarget().getTranslation().getX() - getPose().getX();
+        // stdDevY = target.getBestCameraToTarget().getTranslation().getY() - getPose().getY();
         stdDevXY = distance / 4.0;
       }
 
+      double distanceFromRobotPose = getPose().getTranslation().getDistance(estimatedRearPose.get().estimatedPose.getTranslation().toTranslation2d());
+
+      if (fullyTrustVision) {
+        stdDevXY = 0.01;
+      }
       var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
       var ambiguity = 1;
-      if (distance < 4) {
+      if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
         updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
       }
     }
@@ -307,10 +320,11 @@ public class SwerveDrive extends SubsystemBase {
     List<PhotonTrackedTarget> targetsUsed = ePose.targetsUsed;
     poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
 
-    boolean goodMeasurements = true;
+    // if there are any good measurements we should use it
+    boolean goodMeasurements = false;
     for (PhotonTrackedTarget t : targetsUsed) {
-      if (t.getPoseAmbiguity() > ambiguity) {
-        goodMeasurements = false;
+      if (t.getPoseAmbiguity() < ambiguity) {
+        goodMeasurements = true;
         break;
       }
     }

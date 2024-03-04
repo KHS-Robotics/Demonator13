@@ -72,9 +72,9 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 20;
-  private final double pivotkI = 1;
-  private final double pivotkD = 6;
+  private final double pivotkP = 15;
+  private final double pivotkI = 0;
+  private final double pivotkD = 1;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
@@ -107,7 +107,7 @@ public class Shooter extends SubsystemBase {
     // rpm to rev/s to m/s
     shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * kWheelRadius));
     pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    //pivotEncoder.setZeroOffset(0);
+    pivotEncoder.setZeroOffset(0.145);
 
     shooterPID = shootMotor.getPIDController();
     shooterPID.setP(kShooterP);
@@ -383,8 +383,8 @@ public class Shooter extends SubsystemBase {
   public enum ShooterState {
     kIntake(0.125),
     kShoot(0.2),
-    kShootFromSubwoofer(0.075),
-    kShootFromPodium(0.08285),
+    kShootFromSubwoofer(0.085),
+    kShootFromPodium(0.09),
     kAmp(0.15);
 
     public final double rotations;

@@ -68,7 +68,7 @@ public class OldLEDStrip {
 
     this.numberSections = Constants.LED_LENGTH;
     t.start();
-    updateLedState.startPeriodic(0.02);
+    updateLedState.startPeriodic(0.2);
   }
 
   public void setRGB(int index, int r, int g, int b) {
@@ -86,7 +86,8 @@ public class OldLEDStrip {
   }
 
   public void setPixelColorHSB(int i, float h, float s, float b) {
-    pixelArray[i] = Color.getHSBColor(h, s, b);
+    Color c = Color.getHSBColor(h, s, b);
+    setRGB(i, c.getRed(), c.getGreen(), c.getBlue());
   }
 
   public float[] getHSB(Color c) {
@@ -201,11 +202,11 @@ public class OldLEDStrip {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == Alliance.Blue) {
-        runSquareWave(Color.BLUE, -0.1f, 5f);
+        runSquareWave(Color.BLUE, -0.4f, 8f);
       } else if (alliance.get() == Alliance.Red) {
-        runSquareWave(Color.RED, -0.1f, -5f);
+        runSquareWave(Color.RED, -0.4f, 8f);
       } else {
-        runSquareWave(Color.WHITE, -0.1f, -5f);
+        runSquareWave(Color.WHITE, -0.4f, 8f);
       }
     } else {
       runRainbow();
@@ -217,9 +218,9 @@ public class OldLEDStrip {
     ticksPerSecond = 50;
     var alliance = DriverStation.getAlliance();
     if (RobotContainer.shooter.hasNote()) {
-      if (counter % 25 == 0) {
+      if (counter % 5 <= 5) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
-          setRGB(i, 255, 100, 0);
+          setRGB(i, 255, 50, 0);
         }
       } else {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
@@ -229,9 +230,9 @@ public class OldLEDStrip {
     } else {
       if (alliance.isPresent()) {
         if (alliance.get() == Alliance.Blue) {
-          runSquareWave(Color.BLUE, -0.1f, 5f);
+          runSquareWave(Color.BLUE, -1f, 10f);
         } else {
-          runSquareWave(Color.RED, -0.1f, 5f);
+          runSquareWave(Color.RED, -1f, 10f);
         }
       }
     }
@@ -243,7 +244,7 @@ public class OldLEDStrip {
     var goodTrajectory = RobotContainer.shooter.goodTrajectory;
 
     if (RobotContainer.shooter.hasNote()) {
-      runSquareWave(new Color(255, 100, 0), 1f, 8f);
+      runSquareWave(new Color(255, 50, 0), 1f, 8f);
     } else {
       if ((counter / 5) % 2 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
@@ -268,6 +269,7 @@ public class OldLEDStrip {
   }
 
   public void runSquareWave(Color c, float speed, float sections) {
+    float[] hsb = getHSB(c);
     this.speedFactor = speed;
     this.sections = sections;
     currentPosition += speedFactor;
@@ -282,12 +284,12 @@ public class OldLEDStrip {
       float j = (float) Math.abs(Math.pow(Math.sin((((Math.PI / 2) * adjustedPosition) * (0.02 * sections))), 2));
 
       if (j > 0.5) {
-        j = 1;
+        j = hsb[2];
       } else {
         j = 0;
       }
 
-      float[] hsb = getHSB(c);
+      
       setPixelColorHSB(i, hsb[0], hsb[1], j);
     }
   }
