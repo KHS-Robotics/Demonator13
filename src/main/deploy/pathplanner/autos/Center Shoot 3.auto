@@ -47,15 +47,15 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
                 "type": "wait",
                 "data": {
                   "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RampShooterForManualShot"
                 }
               },
               {
@@ -134,15 +134,34 @@
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Return Center Shoot 2 Get Note"
+                  "name": "SetShootFromSubwoofer"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Return Center Shoot 2 Get Note"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "StopSwerves"
+                  "name": "RampShooterForManualShot"
                 }
               },
               {
@@ -152,9 +171,121 @@
                 }
               },
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Feed"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.2
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetArmAndShooterForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StartIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Center Shoot 3 Get Note"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HasNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetShootFromSubwoofer"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Return Center Shoot 3 Get Note"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "RampShooterForManualShot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetShootFromSubwoofer"
                 }
               },
               {
