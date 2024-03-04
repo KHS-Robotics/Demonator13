@@ -346,31 +346,45 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
+    // Arm
+    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
+    NamedCommands.registerCommand("SetArmAndShooterForIntake",
+      (new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
+      .andThen(
+        new InstantCommand(() -> {
+        intake.intake();
+        shooter.index();
+      }, intake, shooter))
+    );
+    NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+
+    // Intake + Indexing
+    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
+    NamedCommands.registerCommand("HasNote", new WaitForNote());
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
-    NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
-    NamedCommands.registerCommand("SetArmAndShooterForIntake", new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)));
-    NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote().withTimeout(5));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
-    NamedCommands.registerCommand("LaunchSpeaker", new ShootSpeaker());
-
-    NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
-    NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 12));
-    NamedCommands.registerCommand("Feed", new InstantCommand(() -> shooter.feed(), shooter));
-    NamedCommands.registerCommand("Stop", new InstantCommand(() -> {
-      shooter.stopShooting();
-      shooter.stopIndexer();
-      intake.stop();
-      swerveDrive.stop();
-    }, shooter, intake));
-    NamedCommands.registerCommand("HasNote", new WaitForNote());
     NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
       intake.intake();
       shooter.index();
     }, intake, shooter));
-    NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> {
-      swerveDrive.stop();
-    }, swerveDrive));
+    NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> {
+      intake.stop();
+      shooter.stopIndexer();
+    }, intake, shooter));
+
+    // Shooting
+    NamedCommands.registerCommand("ShootSpeaker", new ShootSpeaker());
+    NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 12));
+    NamedCommands.registerCommand("Feed", 
+      new InstantCommand(() -> shooter.feed(), shooter)
+      .andThen(new WaitCommand(0.2))
+      .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter))
+    );
+    NamedCommands.registerCommand("StopShooter", new InstantCommand(() -> shooter.stopShooting(), shooter));
+
+    // Swerves
+    NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> swerveDrive.stop(), swerveDrive));
   }
 
   private void configurePathPlannerLogging() {

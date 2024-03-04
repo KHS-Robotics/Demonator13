@@ -47,12 +47,6 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
                 "type": "wait",
                 "data": {
                   "waitTime": 2.0
@@ -65,27 +59,9 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "SetArmAndShooterForIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartIntake"
                 }
               }
             ]
@@ -128,12 +104,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Return Amp Side Shoot 2 Get Note"
@@ -152,12 +122,6 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
                 "type": "wait",
                 "data": {
                   "waitTime": 1.0
@@ -170,15 +134,9 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
                 "type": "named",
                 "data": {
-                  "name": "Stop"
+                  "name": "StopShooter"
                 }
               }
             ]

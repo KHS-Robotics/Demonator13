@@ -55,37 +55,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "Feed"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "SetArmAndShooterForIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartIntake"
                 }
               }
             ]
@@ -128,18 +104,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetShootFromSubwoofer"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -161,12 +125,6 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "SetShootFromSubwoofer"
                 }
               },
@@ -183,27 +141,9 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "SetArmAndShooterForIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartIntake"
                 }
               }
             ]
@@ -246,18 +186,6 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Stop"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetShootFromSubwoofer"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -279,12 +207,6 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "SetShootFromSubwoofer"
                 }
               },
@@ -301,15 +223,9 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.2
-                }
-              },
-              {
                 "type": "named",
                 "data": {
-                  "name": "Stop"
+                  "name": "StopShooter"
                 }
               }
             ]
