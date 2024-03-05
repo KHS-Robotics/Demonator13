@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
     double ffOutput = kG * Math.cos(Math.PI * 2 * getPosition());
     double output = pidOutput + ffOutput;
 
-    if (getPosition() <= 0.04 && rotations <= 0.01) {
+    if (getPosition() <= 0.04 && rotations <= IntakeState.kDown.rotations) {
       output = 0;
     }
 
