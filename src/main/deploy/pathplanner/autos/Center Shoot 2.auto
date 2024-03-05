@@ -32,6 +32,12 @@
                 "data": {
                   "name": "RampShooterForManualShot"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SwerveStraighten"
+                }
               }
             ]
           }
