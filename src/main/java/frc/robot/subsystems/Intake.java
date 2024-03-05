@@ -104,7 +104,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isIntakeDown() {
-    return getPosition() < 0.04;
+    return getPosition() < 0.07;
   }
 
   public boolean isIntakeUp() {

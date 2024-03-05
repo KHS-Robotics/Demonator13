@@ -4,8 +4,6 @@
 
 package frc.robot.commands.intake;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
