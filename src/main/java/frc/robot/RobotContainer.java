@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -223,15 +224,8 @@ public class RobotContainer {
       RobotContainer.intake.stop();
     }, RobotContainer.shooter, RobotContainer.intake));
 
-    var outtakeNote = driverController.back();
-    outtakeNote.onTrue(new InstantCommand(() -> {
-      RobotContainer.intake.outtake();
-      RobotContainer.shooter.outdex();
-    }, RobotContainer.intake, RobotContainer.shooter));
-    outtakeNote.onFalse(new InstantCommand(() -> {
-      RobotContainer.intake.stop();
-      RobotContainer.shooter.stopIndexer();
-    }, RobotContainer.intake, RobotContainer.shooter));
+    var cancelAll = driverController.back();
+    cancelAll.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
     var autoIntakeNote = driverController.leftBumper();
     autoIntakeNote.whileTrue(new AutoIntake());
@@ -280,10 +274,10 @@ public class RobotContainer {
     var midIntake = new Trigger(operatorStick::midIntake);
     midIntake.onTrue(new SetIntakeState(IntakeState.kMid));
     
-    var handoffArm = new Trigger(operatorStick::handoffArm);
+    var handoffArm = new Trigger(() -> operatorStick.handoffArm() && Math.abs(arm.getPosition() - 0.75) > 0.05);
     handoffArm.onTrue(
       new SetIntakeState(IntakeState.kDown)
-      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kShootFromPodium).andThen(new SetArmState(ArmState.kIntake))))
+      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
     );
 
     var ampArm = new Trigger(operatorStick::ampArm);

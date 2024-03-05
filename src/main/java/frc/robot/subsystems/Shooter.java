@@ -72,8 +72,8 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 15;
-  private final double pivotkI = 0;
+  private final double pivotkP = 18;
+  private final double pivotkI = 2;
   private final double pivotkD = 1;
 
   private final double kMaxNeoRPM = 5676;
@@ -396,12 +396,12 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("shooterAngle", getPosition());
-    SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
+    // SmartDashboard.putNumber("shooterAngle", getPosition());
+    // SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
     SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
-    SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
-    SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
-    SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
+    // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
+    // SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
+    // SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
     // SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     // SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);

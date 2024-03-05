@@ -17,11 +17,11 @@ public class Arm extends SubsystemBase {
   private CANcoder pivotEncoder;
   private PIDController armPid;
 
-  private double kP = 40;
-  private double kI = 3;
-  private double kD = 1;
+  private double kP = 25;
+  private double kI = 0;
+  private double kD = 0;
 
-  private double kG = 0.6;
+  private double kG = 0.7;
 
   public double rotationSetpoint = ArmState.kStow.rotations;
 
@@ -84,7 +84,7 @@ public class Arm extends SubsystemBase {
     kIntake(0.81),
     kShoot(0.75),
     kShootFromSubwoofer(0.81),
-    kShootFromPodium(0.74),
+    kShootFromPodium(0.75),
     kAmp(0.52);
 
     public final double rotations;
@@ -98,7 +98,7 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putNumber("armAngle", getPosition());
     // SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
-    // SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+    SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
 
     // kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);

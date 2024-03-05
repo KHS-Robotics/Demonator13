@@ -25,18 +25,14 @@ public class Intake extends SubsystemBase {
 
   // 0 degrees up, 177 degrees down
   public PIDController pivotPositionController;
-  public ArmFeedforward pivotFeedforward;
 
   public SparkLimitSwitch intakeSensor;
 
-  private final double kS = 0.15463;
   private final double kG = 0.59328;
-  private final double kV = 0.9972;
-  private final double kA = 0.025145;
 
-  private double kP = 7;
-  private double kI = 0;
-  private double kD = 0;
+  private double kP = 7.5;
+  private double kI = 0.5;
+  private double kD = 0.5;
 
   public double rotationSetpoint = IntakeState.kUp.rotations;
 
@@ -45,6 +41,7 @@ public class Intake extends SubsystemBase {
     intakeMotor.setIdleMode(IdleMode.kBrake);
 
     intakeSensor = intakeMotor.getForwardLimitSwitch(Type.kNormallyClosed);
+
 
     pivotMotor = new CANSparkMax(RobotMap.INTAKE_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kBrake);
@@ -58,13 +55,11 @@ public class Intake extends SubsystemBase {
 
     pivotPositionController = new PIDController(kP, kI, kD);
     pivotPositionController.setTolerance(1);
-
-    pivotFeedforward = new ArmFeedforward(kS, kG, kV, kA);
   }
 
   public void goToSetpoint(double rotations) {
     double pidOutput = pivotPositionController.calculate(getPosition(), rotations);
-    double ffOutput = pivotFeedforward.calculate(rotations, 0);
+    double ffOutput = kG * Math.cos(Math.PI * 2 * getPosition());
     double output = pidOutput + ffOutput;
 
     if (getPosition() <= 0.04 && rotations <= 0.01) {
@@ -119,7 +114,7 @@ public class Intake extends SubsystemBase {
   public enum IntakeState {
     kUp(0.44),
     kMid(0.16),
-    kDown(0);
+    kDown(0.02);
 
     public final double rotations;
 
@@ -132,7 +127,7 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putNumber("IntakeAngle", getPosition());
     // SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
-    // SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
+    SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
     // SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
 
     // kP = SmartDashboard.getNumber("kp", kP);
