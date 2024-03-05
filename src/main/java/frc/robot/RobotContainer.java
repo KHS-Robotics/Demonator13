@@ -293,6 +293,23 @@ public class RobotContainer {
       .andThen(new SetIntakeState(IntakeState.kUp))
     );
 
+    // UNTESTED NEW ARM CODE!!!
+
+    // Trigger stowArm = new Trigger(operatorStick::stowArm);
+    // stowArm.onTrue(StateCommandGenerator.goToStowCommand());
+
+    // Trigger ampArm = new Trigger(operatorStick::ampArm);
+    // ampArmp.onTrue(StateCommandGenerator.goToAmpCommand());
+
+    // Trigger flatArm = new Trigger(operatorStick::podiumArm);
+    // flatArm.onTrue(StateCommandGenerator.goToFlatCommand());
+
+    // Trigger handoffArm = new Trigger(operatorStick::handoffArm);
+    // handoffArm.onTrue(StateCommandGenerator.goToHandoffCommand());
+
+    // Trigger subwooferArm = new Trigger(operatorStick::subwooferArm);
+    // subwooferArm.onTrue(StateCommandGenerator.goToSubwooferCommand());
+
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)

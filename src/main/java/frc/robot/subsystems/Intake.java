@@ -104,7 +104,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isIntakeDown() {
-    return rotationSetpoint < 0.04;
+    return getPosition() < 0.04;
+  }
+
+  public boolean isIntakeUp() {
+    return getPosition() > 0.4;
   }
 
   public boolean hasNoteInside() {
