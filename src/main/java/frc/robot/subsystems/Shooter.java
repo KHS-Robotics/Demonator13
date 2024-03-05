@@ -398,7 +398,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putNumber("shooterAngle", getPosition());
     // SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
+    // SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     // SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     // SmartDashboard.putBoolean("Shooter-HasNote", hasNote());

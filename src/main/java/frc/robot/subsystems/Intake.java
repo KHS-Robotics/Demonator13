@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
     double ffOutput = kG * Math.cos(Math.PI * 2 * getPosition());
     double output = pidOutput + ffOutput;
 
-    if (getPosition() <= 0.04 && rotations <= 0.01) {
+    if (getPosition() <= 0.04 && rotations <= IntakeState.kDown.rotations) {
       output = 0;
     }
 
@@ -104,7 +104,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isIntakeDown() {
-    return rotationSetpoint < 0.04;
+    return getPosition() < 0.07;
+  }
+
+  public boolean isIntakeUp() {
+    return getPosition() > 0.4;
   }
 
   public boolean hasNoteInside() {
@@ -127,7 +131,7 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putNumber("IntakeAngle", getPosition());
     // SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
+    // SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
     // SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
 
     // kP = SmartDashboard.getNumber("kp", kP);

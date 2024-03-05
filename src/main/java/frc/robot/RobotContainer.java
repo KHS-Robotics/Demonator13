@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -24,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -292,6 +293,23 @@ public class RobotContainer {
       .andThen(new SetIntakeState(IntakeState.kUp))
     );
 
+    // UNTESTED NEW ARM CODE!!!
+
+    // Trigger stowArm = new Trigger(operatorStick::stowArm);
+    // stowArm.onTrue(StateCommandGenerator.goToStowCommand());
+
+    // Trigger ampArm = new Trigger(operatorStick::ampArm);
+    // ampArmp.onTrue(StateCommandGenerator.goToAmpCommand());
+
+    // Trigger flatArm = new Trigger(operatorStick::podiumArm);
+    // flatArm.onTrue(StateCommandGenerator.goToFlatCommand());
+
+    // Trigger handoffArm = new Trigger(operatorStick::handoffArm);
+    // handoffArm.onTrue(StateCommandGenerator.goToHandoffCommand());
+
+    // Trigger subwooferArm = new Trigger(operatorStick::subwooferArm);
+    // subwooferArm.onTrue(StateCommandGenerator.goToSubwooferCommand());
+
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(
       new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
@@ -384,6 +402,22 @@ public class RobotContainer {
 
     // Swerves
     NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> swerveDrive.stop(), swerveDrive));
+    // SwerveStraighten - used when lowering intake and deploying demon horns to make initial odometry updates more accurate
+    NamedCommands.registerCommand("SwerveStraighten", 
+      new RepeatCommand(
+        new InstantCommand(() -> 
+          swerveDrive.setModuleStates(new SwerveModuleState[] {
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0))
+          }),
+          swerveDrive
+        )
+      )
+      .withTimeout(1)
+      .andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive))
+    );
   }
 
   private void configurePathPlannerLogging() {

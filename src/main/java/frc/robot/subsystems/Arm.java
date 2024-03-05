@@ -98,7 +98,7 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putNumber("armAngle", getPosition());
     // SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+    // SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
 
     // kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);
