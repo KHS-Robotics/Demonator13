@@ -72,7 +72,7 @@ public class StateCommandGenerator {
 
     public static Command goToSubwooferCommand() {
         if (RobotContainer.arm.getPosition() < ArmState.kStow.rotations + 0.2) {
-            // intake up
+            // arm up
             // move intake then move 
             return new SequentialCommandGroup(new SetIntakeState(IntakeState.kDown), new ParallelCommandGroup(new SetArmState(ArmState.kShootFromSubwoofer), new SetShooterState(ShooterState.kShootFromSubwoofer)));
         } else if (RobotContainer.arm.isAtState(ArmState.kShootFromPodium)) {

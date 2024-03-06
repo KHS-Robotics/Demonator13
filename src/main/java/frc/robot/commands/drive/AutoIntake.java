@@ -5,16 +5,12 @@ import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.cameras.Note;
 
 public class AutoIntake extends Command {
-  private final Timer timer = new Timer();
-  private final double kTimeForBreamBreakTrippedToCompleteInSeconds = 0.05;
-
   private boolean hasNoteInitially;
   private Optional<Note> target = Optional.empty();
   private Pose2d robotTarget;
@@ -66,13 +62,8 @@ public class AutoIntake extends Command {
   @Override
   public boolean isFinished() {
     var hasNote = RobotContainer.shooter.hasNote();
-    if (hasNote) {
-      timer.start();
-    } else {
-      timer.reset();
-    }
 
-    return hasNoteInitially || (hasNote && timer.hasElapsed(kTimeForBreamBreakTrippedToCompleteInSeconds));
+    return hasNoteInitially || hasNote;
   }
 
   // Called once after isFinished returns true
@@ -81,7 +72,5 @@ public class AutoIntake extends Command {
     RobotContainer.shooter.stopIndexer();
     RobotContainer.intake.stop();
     RobotContainer.swerveDrive.stop();
-    timer.stop();
-    timer.reset();
   }
 }
