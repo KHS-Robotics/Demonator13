@@ -53,12 +53,6 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Feed"
@@ -135,12 +129,6 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.1
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Feed"
@@ -214,12 +202,6 @@
                 "type": "named",
                 "data": {
                   "name": "SetShootFromSubwoofer"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.1
                 }
               },
               {

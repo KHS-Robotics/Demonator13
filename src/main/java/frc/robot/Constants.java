@@ -53,4 +53,6 @@ public class Constants {
 
   public static final double INTAKE_TOP = 0.582;
   public static final double INTAKE_BOTTOM = 0.223;
+
+  //public static final double PODIUM_ANGLE_RED = Math.atan2()
 }

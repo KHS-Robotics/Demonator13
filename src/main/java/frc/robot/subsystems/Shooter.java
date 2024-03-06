@@ -72,9 +72,9 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 25;
+  private final double pivotkP = 55;
   private final double pivotkI = 2;
-  private final double pivotkD = 1;
+  private final double pivotkD = 5;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
@@ -100,7 +100,7 @@ public class Shooter extends SubsystemBase {
     indexMotor.setIdleMode(IdleMode.kBrake);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
-    shootMotor.setSmartCurrentLimit(40);
+    shootMotor.setSmartCurrentLimit(30);
     indexMotor.setSmartCurrentLimit(40);
 
     shooterEncoder = shootMotor.getEncoder();
@@ -384,7 +384,7 @@ public class Shooter extends SubsystemBase {
     kIntake(0.125),
     kShoot(0.2),
     kShootFromSubwoofer(0.085),
-    kShootFromPodium(0.09),
+    kShootFromPodium(0.95),
     kAmp(0.15),
     kShootFromSubwooferAuto(0.094);
 
@@ -397,9 +397,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("shooterAngle", getPosition());
+    SmartDashboard.putNumber("shooterAngle", getPosition());
     // SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
-    // SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
+    SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     // SmartDashboard.putBoolean("Shooter-HasNote", hasNote());

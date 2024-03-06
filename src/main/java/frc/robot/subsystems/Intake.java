@@ -30,7 +30,7 @@ public class Intake extends SubsystemBase {
 
   private final double kG = 0.59328;
 
-  private double kP = 7.5;
+  private double kP = 12;
   private double kI = 0.5;
   private double kD = 0.5;
 
