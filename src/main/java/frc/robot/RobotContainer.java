@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -323,10 +324,10 @@ public class RobotContainer {
     // UNTESTED NEW ARM CODE!!!
 
     Trigger stowArm = new Trigger(operatorStick::stowArm);
-    stowArm.onTrue(StateCommandGenerator.goToStowCommand());
+    stowArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToStowCommand()));
 
     Trigger ampArm = new Trigger(operatorStick::ampArm);
-    ampArm.onTrue(StateCommandGenerator.goToAmpCommand().alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
+    ampArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToAmpCommand()).alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
 
     // Trigger flatArm = new Trigger(operatorStick::podiumArm);
     // flatArm.onTrue(StateCommandGenerator.goToFlatCommand());
