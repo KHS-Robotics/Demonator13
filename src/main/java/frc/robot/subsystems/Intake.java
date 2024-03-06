@@ -59,7 +59,7 @@ public class Intake extends SubsystemBase {
 
   public void goToSetpoint(double rotations) {
     double pidOutput = pivotPositionController.calculate(getPosition(), rotations);
-    double ffOutput = kG * Math.cos(Math.PI * 2 * getPosition());
+    double ffOutput = kG * Math.cos(Math.PI * 2 * (getPosition() - 0.081));
     double output = pidOutput + ffOutput;
 
     if (getPosition() <= 0.04 && rotations <= IntakeState.kDown.rotations) {
@@ -104,7 +104,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isIntakeDown() {
-    return getPosition() < 0.07;
+    return rotationSetpoint < (IntakeState.kDown.rotations + 0.02);
   }
 
   public boolean isIntakeUp() {
@@ -129,9 +129,9 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("IntakeAngle", getPosition());
+    SmartDashboard.putNumber("IntakeAngle", getPosition());
     // SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
-    // SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
+    SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
     // SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
 
     // kP = SmartDashboard.getNumber("kp", kP);

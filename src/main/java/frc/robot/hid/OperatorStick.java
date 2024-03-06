@@ -63,4 +63,8 @@ public class OperatorStick extends Joystick {
   public boolean fullyTrustVision() {
     return this.getRawButton(11);
   }
+
+  public boolean getShooterRamping() {
+    return this.getRawAxis(3) < -0.99;
+  }
 }

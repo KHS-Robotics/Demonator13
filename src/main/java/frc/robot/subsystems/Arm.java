@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean isArmClearingIntake() {
-    return rotationSetpoint < 0.75;
+    return getPosition() < 0.69;
   }
 
   public enum ArmState {
@@ -96,9 +96,10 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // SmartDashboard.putNumber("armAngle", getPosition());
+    SmartDashboard.putNumber("armAngle", getPosition());
     // SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
-    // SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+    SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
+    // SmartDashboard.putBoolean("armAtSetpoint", Math.abs(rotationSetpoint - getPosition()) <= 0.02);
 
     // kG = SmartDashboard.getNumber("kG", kG);
     // kP = SmartDashboard.getNumber("kP", kP);

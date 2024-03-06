@@ -29,11 +29,11 @@ public class StateCommandGenerator {
         if (RobotContainer.arm.getPosition() < ArmState.kShoot.rotations + 0.02) {
             // arm up
             // move arm and intake together
-            return new ParallelCommandGroup(new SetIntakeState(IntakeState.kUp), new SetArmState(ArmState.kAmp));
+            return new ParallelCommandGroup(new SetArmState(ArmState.kAmp));
         } else {
             // arm down
             // move arm then move intake
-            return new ParallelCommandGroup(new SetArmState(ArmState.kAmp), new SequentialCommandGroup(new WaitForArmStow(), new SetIntakeState(IntakeState.kUp)));
+            return new ParallelCommandGroup(new SetArmState(ArmState.kAmp), new SequentialCommandGroup(new WaitForArmStow()));
         }
     }
 
@@ -59,10 +59,10 @@ public class StateCommandGenerator {
             // intake up
             // move intake then move 
             return new SequentialCommandGroup(new SetIntakeState(IntakeState.kDown), new ParallelCommandGroup(new SetArmState(ArmState.kIntake), new SetShooterState(ShooterState.kIntake)));
-        } else if (RobotContainer.arm.isAtState(ArmState.kShootFromPodium)) {
+        } else if (!(RobotContainer.arm.isArmClearingIntake() || RobotContainer.intake.isIntakeDown())) {
             // arm flat
             // move arm up and intake down together, then arm down and shooter down together
-            return new SequentialCommandGroup(new ParallelCommandGroup(new SetArmState(ArmState.kStow), new SequentialCommandGroup(new WaitCommand(0.1), new SetIntakeState(IntakeState.kDown))), new ParallelCommandGroup(new SetArmState(ArmState.kIntake), new SetShooterState(ShooterState.kIntake)));
+            return new SequentialCommandGroup(new SequentialCommandGroup(new SetArmState(ArmState.kStow), new SetIntakeState(IntakeState.kDown)), new ParallelCommandGroup(new SetArmState(ArmState.kIntake), new SetShooterState(ShooterState.kIntake)));
         } else {
             // arm down
             // move arm and shooter together
@@ -78,7 +78,7 @@ public class StateCommandGenerator {
         } else if (RobotContainer.arm.isAtState(ArmState.kShootFromPodium)) {
             // arm flat
             // move arm up and intake down together, then arm down and shooter down together
-            return new SequentialCommandGroup(new ParallelCommandGroup(new SetArmState(ArmState.kStow), new SequentialCommandGroup(new WaitCommand(0.1), new SetIntakeState(IntakeState.kDown))), new ParallelCommandGroup(new SetArmState(ArmState.kShootFromSubwoofer), new SetShooterState(ShooterState.kShootFromSubwoofer)));
+            return new SequentialCommandGroup(new SequentialCommandGroup(new SetArmState(ArmState.kStow), new SetIntakeState(IntakeState.kDown)), new ParallelCommandGroup(new SetArmState(ArmState.kShootFromSubwoofer), new SetShooterState(ShooterState.kShootFromSubwoofer)));
         } else {
             // arm down
             // move arm and shooter together

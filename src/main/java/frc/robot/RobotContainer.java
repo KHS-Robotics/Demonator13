@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -61,11 +62,13 @@ public class RobotContainer {
   }
 
   private SendableChooser<Command> autoChooser;
+
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
   }
-  
+
   private AutoBuilder autoBuilder;
+
   public AutoBuilder getAutoBuilder() {
     return autoBuilder;
   }
@@ -107,13 +110,16 @@ public class RobotContainer {
   public static final Intake intake = new Intake();
   public static final Shooter shooter = new Shooter();
   public static final Arm arm = new Arm();
-  //public static final NewLEDStrip ledStrip = new NewLEDStrip();
+  // public static final NewLEDStrip ledStrip = new NewLEDStrip();
   public static final OldLEDStrip leds = new OldLEDStrip();
 
   // Cameras
-  public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera", Constants.INTAKE_NOTE_CAMERA_OFFSET);
-  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera", Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera", Constants.REAR_APRILTAG_CAMERA_OFFSET);
+  public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera",
+      Constants.INTAKE_NOTE_CAMERA_OFFSET);
+  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
+      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera",
+      Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -147,67 +153,72 @@ public class RobotContainer {
     resetHeading.onTrue(new InstantCommand(() -> {
       RobotContainer.swerveDrive.resetNavx();
       var isRedAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
-      RobotContainer.swerveDrive.setPose(new Pose2d(8, 4, isRedAlliance ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0)));
+      RobotContainer.swerveDrive
+          .setPose(new Pose2d(8, 4, isRedAlliance ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0)));
     }, RobotContainer.swerveDrive));
 
     var robotRelativeDrive = driverController.rightTrigger(0.5);
     robotRelativeDrive.whileTrue(new DriveSwerveWithXbox(false));
 
     // Scoring
-    var scoreAmp = new Trigger(() -> driverController.getHID().getRightBumper() && RobotContainer.arm.isAtState(ArmState.kAmp));
-    scoreAmp.onTrue(
-      new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
-      .andThen(
-        new WaitCommand(0.5)
-        .andThen(
-          new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter)
-        )
-      )
-    );
-    scoreAmp.onFalse(new InstantCommand(() ->{
+    var scoreAmp = new Trigger(
+        () -> driverController.getHID().getRightBumper() && RobotContainer.arm.isAtState(ArmState.kAmp));
+    scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
+    scoreAmp.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
-      RobotContainer.shooter.stopShooting();
+      shooter.setVelocity(10);
     }, RobotContainer.shooter));
 
-    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper() && (arm.isAtState(ArmState.kShootFromPodium) || arm.isAtState(ArmState.kShootFromSubwoofer)));
-    shootManual.onTrue(
-      new RampShooter(() -> 15)
-      .andThen(
-        new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
-      )
-    );
+    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper()
+        && (arm.isAtState(ArmState.kShootFromPodium) || arm.isAtState(ArmState.kShootFromSubwoofer)));
+    shootManual.onTrue(new RampShooter(() -> 15).andThen(new InstantCommand(() -> shooter.feed())));
     shootManual.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
+      if (arm.isAtState(ArmState.kShootFromSubwoofer)) {
+        shooter.setVelocity(15);
+      } else {
+        shooter.setVelocity(10);
+      }
     }, RobotContainer.shooter));
 
     // Arm
     // var handoffArm = driverController.a();
     // handoffArm.onTrue(
-    //   new SetIntakeState(IntakeState.kDown)
-    //   .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
+    // new SetIntakeState(IntakeState.kDown)
+    // .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new
+    // SetArmState(ArmState.kIntake)))
     // );
 
     // var stowArm = driverController.b();
     // stowArm.onTrue(
-    //   (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
-    //   .andThen(new SetIntakeState(IntakeState.kUp))
+    // (new SetArmState(ArmState.kStow).alongWith(new
+    // SetShooterState(ShooterState.kIntake)))
+    // .andThen(new SetIntakeState(IntakeState.kUp))
     // );
 
     // var ampArm = driverController.y();
-    // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
+    // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new
+    // SetShooterState(ShooterState.kAmp)));
 
-    // var subwooferArm = new Trigger(() -> driverController.getHID().getXButton() && RobotContainer.intake.isIntakeDown());
-    // subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    // var subwooferArm = new Trigger(() -> driverController.getHID().getXButton()
+    // && RobotContainer.intake.isIntakeDown());
+    // subwooferArm.onTrue(new
+    // SetArmState(ArmState.kShootFromSubwoofer).alongWith(new
+    // SetShooterState(ShooterState.kShootFromSubwoofer)));
 
-    // var armPodium = new Trigger(() -> driverController.getHID().getRightStickButton() && RobotContainer.intake.isIntakeDown());
-    // armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)));
+    // var armPodium = new Trigger(() ->
+    // driverController.getHID().getRightStickButton() &&
+    // RobotContainer.intake.isIntakeDown());
+    // armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new
+    // SetShooterState(ShooterState.kShootFromPodium)));
 
     // Intake
-    // var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0 && RobotContainer.arm.isArmClearingIntake());
+    // var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0
+    // && RobotContainer.arm.isArmClearingIntake());
     // retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
 
-    // var deployIntake = new Trigger(() -> driverController.getHID().getPOV() == 180 && RobotContainer.arm.isArmClearingIntake());
+    // var deployIntake = new Trigger(() -> driverController.getHID().getPOV() ==
+    // 180 && RobotContainer.arm.isArmClearingIntake());
     // deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
 
     // var midIntakePovLeft = driverController.povLeft();
@@ -215,7 +226,8 @@ public class RobotContainer {
     // var midIntakePovRight = driverController.povRight();
     // midIntakePovRight.onTrue(new SetIntakeState(IntakeState.kMid));
 
-    var intakeNote = new Trigger(() -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.9 && !RobotContainer.shooter.hasNote());
+    var intakeNote = new Trigger(
+        () -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.9 && !RobotContainer.shooter.hasNote());
     intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
@@ -235,15 +247,14 @@ public class RobotContainer {
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
     var shootManual = new Trigger(operatorStick::shootManual);
-    shootManual.onTrue(
-      new RampShooter(() -> 20)
-      .andThen(
-        new InstantCommand(() -> RobotContainer.shooter.feed(), RobotContainer.shooter)
-      )
-    );
+    shootManual.onTrue(new RampShooter(() -> 20).andThen(new InstantCommand(() -> shooter.feed())));
     shootManual.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopShooting();
       RobotContainer.shooter.stopIndexer();
+      if (arm.isAtState(ArmState.kShootFromPodium)) {
+        shooter.setVelocity(20);
+      } else {
+        shooter.setVelocity(10);
+      }
     }, RobotContainer.shooter));
 
     var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
@@ -274,32 +285,48 @@ public class RobotContainer {
 
     var midIntake = new Trigger(operatorStick::midIntake);
     midIntake.onTrue(new SetIntakeState(IntakeState.kMid));
-    
-    var handoffArm = new Trigger(() -> operatorStick.handoffArm() && Math.abs(arm.getPosition() - 0.75) > 0.05);
-    handoffArm.onTrue(
-      new SetIntakeState(IntakeState.kDown)
-      .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))
-    );
 
-    var ampArm = new Trigger(operatorStick::ampArm);
-    ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new SetShooterState(ShooterState.kAmp)));
+    var handoffArm = new Trigger(operatorStick::handoffArm);
+    var handoffArmCmd = new ConditionalCommand(
+        // onTrue
+        new SetIntakeState(IntakeState.kDown)
+            .andThen((new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))),
+        // onFalse
+        new SetArmState(ArmState.kStow)
+            .andThen(new SetIntakeState(IntakeState.kDown)
+                .andThen((new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake))))),
+        () -> arm.isArmClearingIntake() || intake.isIntakeDown());
+    handoffArm.onTrue(handoffArmCmd);
 
-    var subwooferArm = new Trigger(() -> operatorStick.subwooferArm() && RobotContainer.intake.isIntakeDown());
-    subwooferArm.onTrue(new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+    // var ampArm = new Trigger(operatorStick::ampArm);
+    // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new
+    // SetShooterState(ShooterState.kAmp)));
 
-    var stowArm = new Trigger(operatorStick::stowArm);
-    stowArm.onTrue(
-      (new SetArmState(ArmState.kStow).alongWith(new SetShooterState(ShooterState.kIntake)))
-      .andThen(new SetIntakeState(IntakeState.kUp))
-    );
+    var subArm = new Trigger(operatorStick::subwooferArm);
+    var subArmCmd = new ConditionalCommand(
+        // onTrue
+        new SetIntakeState(IntakeState.kDown)
+            .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer).alongWith(new SetArmState(ArmState.kShootFromSubwoofer)))).alongWith(new InstantCommand(() -> shooter.setVelocity(15))),
+        // onFalse
+        new SetArmState(ArmState.kStow)
+            .andThen(new SetIntakeState(IntakeState.kDown)
+                .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer).alongWith(new SetArmState(ArmState.kShootFromSubwoofer)))).alongWith(new InstantCommand(() -> shooter.setVelocity(15)))),
+        () -> arm.isArmClearingIntake() || intake.isIntakeDown());
+    subArm.onTrue(subArmCmd);
+
+    // var stowArm = new Trigger(operatorStick::stowArm);
+    // stowArm.onTrue(
+    // (new SetArmState(ArmState.kStow).alongWith(new
+    // SetShooterState(ShooterState.kIntake)))
+    // .andThen(new SetIntakeState(IntakeState.kUp)));
 
     // UNTESTED NEW ARM CODE!!!
 
-    // Trigger stowArm = new Trigger(operatorStick::stowArm);
-    // stowArm.onTrue(StateCommandGenerator.goToStowCommand());
+    Trigger stowArm = new Trigger(operatorStick::stowArm);
+    stowArm.onTrue(StateCommandGenerator.goToStowCommand());
 
-    // Trigger ampArm = new Trigger(operatorStick::ampArm);
-    // ampArmp.onTrue(StateCommandGenerator.goToAmpCommand());
+    Trigger ampArm = new Trigger(operatorStick::ampArm);
+    ampArm.onTrue(StateCommandGenerator.goToAmpCommand().alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
 
     // Trigger flatArm = new Trigger(operatorStick::podiumArm);
     // flatArm.onTrue(StateCommandGenerator.goToFlatCommand());
@@ -311,26 +338,24 @@ public class RobotContainer {
     // subwooferArm.onTrue(StateCommandGenerator.goToSubwooferCommand());
 
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
-    scoreAmp.onTrue(
-      new InstantCommand(() -> RobotContainer.shooter.driveShooter(-14), RobotContainer.shooter)
-      .andThen(
-        new WaitCommand(0.5)
-        .andThen(
-          new InstantCommand(() -> RobotContainer.shooter.index(), RobotContainer.shooter)
-        )
-      )
-    );
-    scoreAmp.onFalse(new InstantCommand(() ->{
+    scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
+    scoreAmp.onFalse(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
-      RobotContainer.shooter.stopShooting();
+      shooter.setVelocity(10);
     }, RobotContainer.shooter));
 
     Trigger podiumAngle = new Trigger(operatorStick::levelArm);
-    podiumAngle.onTrue(new SetArmState(ArmState.kStow).andThen(new SetIntakeState(IntakeState.kUp).andThen(new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium)))));
+    podiumAngle.onTrue(new SetArmState(ArmState.kStow).andThen(new SetIntakeState(IntakeState.kUp).andThen(
+        new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium))))
+        .alongWith(new InstantCommand(() -> shooter.setVelocity(20))));
 
     Trigger resetPoseWithVision = new Trigger(operatorStick::fullyTrustVision);
     resetPoseWithVision.onTrue(new InstantCommand(() -> swerveDrive.fullyTrustVision = true));
     resetPoseWithVision.onFalse(new InstantCommand(() -> swerveDrive.fullyTrustVision = false));
+
+    Trigger rampShooter = new Trigger(operatorStick::getShooterRamping);
+    rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10), shooter));
+    rampShooter.onFalse(new InstantCommand(() -> shooter.stopShooting(), shooter));
   }
 
   /**
@@ -340,11 +365,11 @@ public class RobotContainer {
     registerNamedCommands();
 
     var pathFollowerConfig = new HolonomicPathFollowerConfig(
-      new PIDConstants(4.0, 0.0, 0.3),
-      new PIDConstants(1.8, 0.0, 0.8),
-      SwerveDrive.kMaxSpeedMetersPerSecond,
-      Constants.DRIVE_BASE_RADIUS_METERS,
-      new ReplanningConfig(true, true));
+        new PIDConstants(4.0, 0.0, 0.3),
+        new PIDConstants(1.8, 0.0, 0.8),
+        SwerveDrive.kMaxSpeedMetersPerSecond,
+        Constants.DRIVE_BASE_RADIUS_METERS,
+        new ReplanningConfig(true, true));
 
     AutoBuilder.configureHolonomic(
         swerveDrive::getPose,
@@ -352,7 +377,8 @@ public class RobotContainer {
         swerveDrive::getChassisSpeeds,
         swerveDrive::setModuleStates,
         pathFollowerConfig,
-        () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red,
+        () -> DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red,
         swerveDrive);
 
     autoBuilder = new AutoBuilder();
@@ -366,14 +392,17 @@ public class RobotContainer {
     // Arm
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
     NamedCommands.registerCommand("SetArmAndShooterForIntake",
-      (new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kShootFromPodium).andThen(new SetArmState(ArmState.kShootFromSubwoofer)))
-      .andThen(
-        new InstantCommand(() -> {
-        intake.intake();
-        shooter.index();
-      }, intake, shooter))
-    ));
-    NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwoofer).alongWith(new SetShooterState(ShooterState.kShootFromSubwoofer)));
+        (new SetShooterState(ShooterState.kIntake)
+            .alongWith(
+                new SetArmState(ArmState.kIntake))
+            .andThen(
+                new InstantCommand(() -> {
+                  intake.intake();
+                  shooter.index();
+                }, intake, shooter))));
+    NamedCommands.registerCommand("SetShootFromSubwoofer",
+        new SetArmState(ArmState.kShootFromSubwoofer)
+            .alongWith(new SetShooterState(ShooterState.kShootFromSubwooferAuto)));
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
 
     // Intake + Indexing
@@ -393,31 +422,27 @@ public class RobotContainer {
     // Shooting
     NamedCommands.registerCommand("ShootSpeaker", new ShootSpeaker());
     NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 15));
-    NamedCommands.registerCommand("Feed", 
-      new InstantCommand(() -> shooter.feed(), shooter)
-      .andThen(new WaitCommand(0.2))
-      .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter))
-    );
+    NamedCommands.registerCommand("Feed",
+        new InstantCommand(() -> shooter.feed(), shooter)
+            .andThen(new WaitCommand(0.2))
+            .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter)));
     NamedCommands.registerCommand("StopShooter", new InstantCommand(() -> shooter.stopShooting(), shooter));
 
     // Swerves
     NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> swerveDrive.stop(), swerveDrive));
-    // SwerveStraighten - used when lowering intake and deploying demon horns to make initial odometry updates more accurate
-    NamedCommands.registerCommand("SwerveStraighten", 
-      new RepeatCommand(
-        new InstantCommand(() -> 
-          swerveDrive.setModuleStates(new SwerveModuleState[] {
-            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(0))
-          }),
-          swerveDrive
-        )
-      )
-      .withTimeout(1)
-      .andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive))
-    );
+    // SwerveStraighten - used when lowering intake and deploying demon horns to
+    // make initial odometry updates more accurate
+    NamedCommands.registerCommand("SwerveStraighten",
+        new RepeatCommand(
+            new InstantCommand(() -> swerveDrive.setModuleStates(new SwerveModuleState[] {
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(0))
+            }),
+                swerveDrive))
+            .withTimeout(1)
+            .andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)));
   }
 
   private void configurePathPlannerLogging() {
