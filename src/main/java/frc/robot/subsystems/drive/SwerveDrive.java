@@ -46,77 +46,77 @@ public class SwerveDrive extends SubsystemBase {
   private PIDController yPid;
   public double vX;
   public double vY;
-  private final Translation2d frontLeftLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d frontRightLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS, -Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d frontLeftLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS,
+      Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d frontRightLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS,
+      -Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS,
+      Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS,
+      -Constants.DRIVE_BASE_RADIUS_METERS);
 
   public boolean fullyTrustVision = false;
 
   public static final SwerveModule frontLeft = new SwerveModule(
-    "FL",
-    RobotMap.FRONT_LEFT_DRIVE,
-    RobotMap.FRONT_LEFT_PIVOT,
-    Constants.PIVOT_P,
-    Constants.PIVOT_I,
-    Constants.PIVOT_D,
-    Constants.DRIVE_P,
-    Constants.DRIVE_I,
-    Constants.DRIVE_D,
-    Constants.DRIVE_KS,
-    Constants.DRIVE_KV,
-    Constants.DRIVE_KA,
-    RobotMap.FRONT_LEFT_PIVOT_ENCODER,
-    Constants.FRONT_LEFT_PIVOT_OFFSET_DEGREES
-  );
+      "FL",
+      RobotMap.FRONT_LEFT_DRIVE,
+      RobotMap.FRONT_LEFT_PIVOT,
+      Constants.PIVOT_P,
+      Constants.PIVOT_I,
+      Constants.PIVOT_D,
+      Constants.DRIVE_P,
+      Constants.DRIVE_I,
+      Constants.DRIVE_D,
+      Constants.DRIVE_KS,
+      Constants.DRIVE_KV,
+      Constants.DRIVE_KA,
+      RobotMap.FRONT_LEFT_PIVOT_ENCODER,
+      Constants.FRONT_LEFT_PIVOT_OFFSET_DEGREES);
   public static final SwerveModule frontRight = new SwerveModule(
-    "FR",
-    RobotMap.FRONT_RIGHT_DRIVE,
-    RobotMap.FRONT_RIGHT_PIVOT,
-    Constants.PIVOT_P,
-    Constants.PIVOT_I,
-    Constants.PIVOT_D,
-    Constants.DRIVE_P,
-    Constants.DRIVE_I,
-    Constants.DRIVE_D,
-    Constants.DRIVE_KS,
-    Constants.DRIVE_KV,
-    Constants.DRIVE_KA,
-    RobotMap.FRONT_RIGHT_PIVOT_ENCODER,
-    Constants.FRONT_RIGHT_PIVOT_OFFSET_DEGREES
-  );
+      "FR",
+      RobotMap.FRONT_RIGHT_DRIVE,
+      RobotMap.FRONT_RIGHT_PIVOT,
+      Constants.PIVOT_P,
+      Constants.PIVOT_I,
+      Constants.PIVOT_D,
+      Constants.DRIVE_P,
+      Constants.DRIVE_I,
+      Constants.DRIVE_D,
+      Constants.DRIVE_KS,
+      Constants.DRIVE_KV,
+      Constants.DRIVE_KA,
+      RobotMap.FRONT_RIGHT_PIVOT_ENCODER,
+      Constants.FRONT_RIGHT_PIVOT_OFFSET_DEGREES);
   public static final SwerveModule rearLeft = new SwerveModule(
-    "RL",
-    RobotMap.REAR_LEFT_DRIVE,
-    RobotMap.REAR_LEFT_PIVOT,
-    Constants.PIVOT_P,
-    Constants.PIVOT_I,
-    Constants.PIVOT_D,
-    Constants.DRIVE_P,
-    Constants.DRIVE_I,
-    Constants.DRIVE_D,
-    Constants.DRIVE_KS,
-    Constants.DRIVE_KV,
-    Constants.DRIVE_KA,
-    RobotMap.REAR_LEFT_PIVOT_ENCODER,
-    Constants.REAR_LEFT_PIVOT_OFFSET_DEGREES
-  );
+      "RL",
+      RobotMap.REAR_LEFT_DRIVE,
+      RobotMap.REAR_LEFT_PIVOT,
+      Constants.PIVOT_P,
+      Constants.PIVOT_I,
+      Constants.PIVOT_D,
+      Constants.DRIVE_P,
+      Constants.DRIVE_I,
+      Constants.DRIVE_D,
+      Constants.DRIVE_KS,
+      Constants.DRIVE_KV,
+      Constants.DRIVE_KA,
+      RobotMap.REAR_LEFT_PIVOT_ENCODER,
+      Constants.REAR_LEFT_PIVOT_OFFSET_DEGREES);
   public static final SwerveModule rearRight = new SwerveModule(
-    "RR",
-    RobotMap.REAR_RIGHT_DRIVE,
-    RobotMap.REAR_RIGHT_PIVOT,
-    Constants.PIVOT_P,
-    Constants.PIVOT_I,
-    Constants.PIVOT_D,
-    Constants.DRIVE_P,
-    Constants.DRIVE_I,
-    Constants.DRIVE_D,
-    Constants.DRIVE_KS,
-    Constants.DRIVE_KV,
-    Constants.DRIVE_KA,
-    RobotMap.REAR_RIGHT_PIVOT_ENCODER,
-    Constants.REAR_RIGHT_PIVOT_OFFSET_DEGREES
-  );
+      "RR",
+      RobotMap.REAR_RIGHT_DRIVE,
+      RobotMap.REAR_RIGHT_PIVOT,
+      Constants.PIVOT_P,
+      Constants.PIVOT_I,
+      Constants.PIVOT_D,
+      Constants.DRIVE_P,
+      Constants.DRIVE_I,
+      Constants.DRIVE_D,
+      Constants.DRIVE_KS,
+      Constants.DRIVE_KV,
+      Constants.DRIVE_KA,
+      RobotMap.REAR_RIGHT_PIVOT_ENCODER,
+      Constants.REAR_RIGHT_PIVOT_OFFSET_DEGREES);
 
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation,
       frontRightLocation, rearLeftLocation, rearRightLocation);
@@ -127,10 +127,10 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(frontRight.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(rearLeft.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
-      }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)), 
+      }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
       VecBuilder.fill(0.1, 0.1, 0.1),
-      VecBuilder.fill(6, 6, 100000));
- 
+      VecBuilder.fill(6, 6, Double.MAX_VALUE));
+
   /**
    * Constructs Swerve Drive
    */
@@ -159,11 +159,15 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Sensitivity control for the joystick that uses a cubic function to smooth out the inputs
-   * instead of linear control: <code> s*x^3 + (1-s)*x </code> where s is the sensitivity and x is the input.
+   * Sensitivity control for the joystick that uses a cubic function to smooth out
+   * the inputs
+   * instead of linear control: <code> s*x^3 + (1-s)*x </code> where s is the
+   * sensitivity and x is the input.
    * https://www.wolframalpha.com/input?i=0.5%3A+s*x%5E3+%2B+%281-s%29*x+where+s+%3D+0.5
-   * @param s the sensitivity from [0, 1] where 0 is full linear and 1 is full cubic
-   * @return 
+   * 
+   * @param s the sensitivity from [0, 1] where 0 is full linear and 1 is full
+   *          cubic
+   * @return
    */
   public double sensControl(double s) {
     return Constants.JOYSTICK_SENSITIVITY * Math.pow(s, 3) + (1 - Constants.JOYSTICK_SENSITIVITY) * s;
@@ -198,9 +202,10 @@ public class SwerveDrive extends SubsystemBase {
       rearRight.setDesiredState(swerveModuleStates[3]);
     }
   }
-  /** 
-  * used for autonomous
-  */
+
+  /**
+   * used for autonomous
+   */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     frontLeft.setDesiredState(desiredStates[0], true);
     frontRight.setDesiredState(desiredStates[1], true);
@@ -228,7 +233,9 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   public void holdAngleWhileDriving(double x, double y, Rotation2d setAngle, boolean fieldOriented) {
-    var rotateOutput = MathUtil.clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    var rotateOutput = MathUtil
+        .clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1)
+        * kMaxAngularSpeedRadiansPerSecond;
     this.drive(x, y, rotateOutput, fieldOriented);
   }
 
@@ -240,7 +247,9 @@ public class SwerveDrive extends SubsystemBase {
     Pose2d pose = getPose();
     double xSpeed = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
     double ySpeed = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
-    double vTheta = MathUtil.clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1) * kMaxAngularSpeedRadiansPerSecond;
+    double vTheta = MathUtil
+        .clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1)
+        * kMaxAngularSpeedRadiansPerSecond;
     this.drive(xSpeed, ySpeed, vTheta, fieldOriented);
   }
 
@@ -266,72 +275,97 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // vision
-    //updateOdometryUsingFrontCamera();
-    //updateOdometryUsingRearCamera();
+    // updateOdometryUsingFrontCamera();
+    // updateOdometryUsingRearCamera();
   }
 
   private void updateOdometryUsingFrontCamera() {
     Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedFrontPose.isPresent()) {
-      double stdDevXY = 0, distance = 0;
-      for (var target : estimatedFrontPose.get().targetsUsed) {
-        distance = target.getBestCameraToTarget().getTranslation().getNorm();
-        stdDevXY = distance / 2.0;
-      }
+      var stdDevs = RobotContainer.frontAprilTagCamera
+          .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
 
-      double distanceFromRobotPose = getPose().getTranslation().getDistance(estimatedFrontPose.get().estimatedPose.getTranslation().toTranslation2d());
-
+      // this is stupid and we should never use it in a match!!!
       if (fullyTrustVision) {
-        stdDevXY = 0.01;
+        stdDevs.set(0, 0, 0.01);
+        stdDevs.set(1, 0, 0.01);
       }
-      var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
-      var ambiguity = 0.5;
-      if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
-        updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, ambiguity);
-      }
+
+      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
     }
   }
 
   private void updateOdometryUsingRearCamera() {
     Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
     if (estimatedRearPose.isPresent()) {
-      double stdDevXY = 0, distance = 0, stdDevX = 0, stdDevY = 0;
-      for (var target : estimatedRearPose.get().targetsUsed) {
-        distance = target.getBestCameraToTarget().getTranslation().getNorm();
-        // stdDevX = target.getBestCameraToTarget().getTranslation().getX() - getPose().getX();
-        // stdDevY = target.getBestCameraToTarget().getTranslation().getY() - getPose().getY();
-        stdDevXY = distance / 4.0;
-      }
+      var stdDevs = RobotContainer.rearAprilTagCamera
+          .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
 
-      double distanceFromRobotPose = getPose().getTranslation().getDistance(estimatedRearPose.get().estimatedPose.getTranslation().toTranslation2d());
-
+      // this is stupid and we should never use it in a match!!!
       if (fullyTrustVision) {
-        stdDevXY = 0.01;
+        stdDevs.set(0, 0, 0.01);
+        stdDevs.set(1, 0, 0.01);
       }
-      var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
-      var ambiguity = 1;
-      if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
-        updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
-      }
+
+      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
     }
   }
 
-  private void updateOdometryUsingVisionMeasurement(EstimatedRobotPose ePose, Matrix<N3, N1> visionMeasurementStdDevs, double ambiguity) {
-    List<PhotonTrackedTarget> targetsUsed = ePose.targetsUsed;
-    poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+  // private void updateOdometryUsingFrontCamera() {
+  // Optional<EstimatedRobotPose> estimatedFrontPose =
+  // RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+  // if (estimatedFrontPose.isPresent()) {
+  // double stdDevXY = 0, distance = 0;
+  // for (var target : estimatedFrontPose.get().targetsUsed) {
+  // distance = target.getBestCameraToTarget().getTranslation().getNorm();
+  // stdDevXY = distance / 2.0;
+  // }
 
-    // if there are any good measurements we should use it
-    boolean goodMeasurements = false;
-    for (PhotonTrackedTarget t : targetsUsed) {
-      if (t.getPoseAmbiguity() < ambiguity) {
-        goodMeasurements = true;
-        break;
-      }
-    }
+  // double distanceFromRobotPose =
+  // getPose().getTranslation().getDistance(estimatedFrontPose.get().estimatedPose.getTranslation().toTranslation2d());
 
-    if (goodMeasurements) {
-      poseEstimator.addVisionMeasurement(ePose.estimatedPose.toPose2d(), ePose.timestampSeconds);
-    }
+  // if (fullyTrustVision) {
+  // stdDevXY = 0.01;
+  // }
+  // var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
+  // var ambiguity = 0.5;
+  // if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
+  // updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs,
+  // ambiguity);
+  // }
+  // }
+  // }
+
+  // private void updateOdometryUsingRearCamera() {
+  //   Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+  //   if (estimatedRearPose.isPresent()) {
+  //     double stdDevXY = 0, distance = 0, stdDevX = 0, stdDevY = 0;
+  //     for (var target : estimatedRearPose.get().targetsUsed) {
+  //       distance = target.getBestCameraToTarget().getTranslation().getNorm();
+  //       // stdDevX = target.getBestCameraToTarget().getTranslation().getX() -
+  //       // getPose().getX();
+  //       // stdDevY = target.getBestCameraToTarget().getTranslation().getY() -
+  //       // getPose().getY();
+  //       stdDevXY = distance / 4.0;
+  //     }
+
+  //     double distanceFromRobotPose = getPose().getTranslation()
+  //         .getDistance(estimatedRearPose.get().estimatedPose.getTranslation().toTranslation2d());
+
+  //     if (fullyTrustVision) {
+  //       stdDevXY = 0.01;
+  //     }
+  //     var stdDevs = VecBuilder.fill(stdDevXY, stdDevXY, 100000);
+  //     var ambiguity = 1;
+  //     if ((distance < 4 && distanceFromRobotPose < 1) || fullyTrustVision) {
+  //       updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, ambiguity);
+  //     }
+  //   }
+  // }
+
+  private void updateOdometryUsingVisionMeasurement(EstimatedRobotPose ePose, Matrix<N3, N1> visionMeasurementStdDevs,
+      double timestamp) {
+    poseEstimator.addVisionMeasurement(ePose.estimatedPose.toPose2d(), ePose.timestampSeconds);
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -364,7 +398,8 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Sets swerve modules to be all angled - useful when trying to stay still on an incline.
+   * Sets swerve modules to be all angled - useful when trying to stay still on an
+   * incline.
    */
   public void lock() {
     frontRight.setDesiredState(0, 45);
