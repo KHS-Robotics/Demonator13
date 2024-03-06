@@ -43,7 +43,7 @@ import frc.robot.commands.shooter.WaitForNote;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.OldLEDStrip;
+import frc.robot.subsystems.LEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -112,7 +112,7 @@ public class RobotContainer {
   public static final Shooter shooter = new Shooter();
   public static final Arm arm = new Arm();
   // public static final NewLEDStrip ledStrip = new NewLEDStrip();
-  public static final OldLEDStrip leds = new OldLEDStrip();
+  public static final LEDStrip leds = new LEDStrip();
 
   // Cameras
   public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera",

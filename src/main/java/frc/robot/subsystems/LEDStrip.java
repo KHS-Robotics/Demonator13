@@ -14,7 +14,7 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.Arm.ArmState;
 
-public class OldLEDStrip {
+public class LEDStrip {
   Thread t;
   AddressableLED strip;
   AddressableLED strip2;
@@ -31,7 +31,7 @@ public class OldLEDStrip {
   float currentPosition = 0f;
   Color[] pixelArray;
 
-  public OldLEDStrip() {
+  public LEDStrip() {
     pixelArray = new Color[Constants.LED_LENGTH];
     for (int i = 0; i < pixelArray.length; i++) {
       pixelArray[i] = new Color(0);
@@ -213,7 +213,8 @@ public class OldLEDStrip {
     }
   }
 
-  // if there is a note flash on and off really fast, if there's not a note run disabled pattern
+  // if there is a note flash on and off really fast, if there's not a note run
+  // disabled pattern
   public void runIntake() {
     ticksPerSecond = 50;
     var alliance = DriverStation.getAlliance();
@@ -228,23 +229,20 @@ public class OldLEDStrip {
         }
       }
     } else {
-      if (alliance.isPresent()) {
-        if (alliance.get() == Alliance.Blue) {
-          runSquareWave(Color.BLUE, -1f, 10f);
-        } else {
-          runSquareWave(Color.RED, -1f, 10f);
-        }
-      }
+      runSquareWave(new Color(255, 50, 0), -1f, 16f);
     }
   }
 
-  // if there's a note, run square wave really fast, when the note leaves flash on and off really fast
+  // if there's a note, just show orange, when the note leaves flash white on
+  // and off really fast
   public void runShoot() {
     var atSetpoint = RobotContainer.shooter.isShooterRampedUp(1);
     var goodTrajectory = RobotContainer.shooter.goodTrajectory;
 
     if (RobotContainer.shooter.hasNote()) {
-      runSquareWave(new Color(255, 50, 0), 1f, 8f);
+      for (int i = 0; i < Constants.LED_LENGTH; i++) {
+        setRGB(i, 255, 50, 0);
+      }
     } else {
       if ((counter / 5) % 2 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
@@ -257,15 +255,16 @@ public class OldLEDStrip {
       }
     }
 
-    
   }
 
   public void runStowed() {
-    runDisabled();
+    for (int i = 0; i < Constants.LED_LENGTH; i++) {
+      setRGB(i, 255, 50, 0);
+    }
   }
 
   public void runAmp() {
-    runDisabled();
+    runShoot();
   }
 
   public void runSquareWave(Color c, float speed, float sections) {
@@ -289,7 +288,6 @@ public class OldLEDStrip {
         j = 0;
       }
 
-      
       setPixelColorHSB(i, hsb[0], hsb[1], j);
     }
   }
@@ -335,15 +333,15 @@ public class OldLEDStrip {
     var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
     var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
 
-    if (isDisabled)
-      state = LEDState.kDisabled;
-    else if(isScoringSpeaker)
+    if (isScoringSpeaker)
       state = LEDState.kShoot;
-    else if(isScoringAmp)
+    else if (isScoringAmp)
       state = LEDState.kAmp;
-    else if(hasIntakeDeployed)
+    else if (hasIntakeDeployed)
       state = LEDState.kIntake;
-    else
+    else if (isDisabled)
+      state = LEDState.kDisabled;
+    else 
       state = LEDState.kStowed;
 
     SmartDashboard.putString("LED State", state.toString());
