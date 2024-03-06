@@ -330,13 +330,13 @@ public class RobotContainer {
     ampArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToAmpCommand()).alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
 
     // Trigger flatArm = new Trigger(operatorStick::podiumArm);
-    // flatArm.onTrue(StateCommandGenerator.goToFlatCommand());
+    // flatArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToFlatCommand()));
 
     // Trigger handoffArm = new Trigger(operatorStick::handoffArm);
-    // handoffArm.onTrue(StateCommandGenerator.goToHandoffCommand());
+    // handoffArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToHandoffCommand()));
 
     // Trigger subwooferArm = new Trigger(operatorStick::subwooferArm);
-    // subwooferArm.onTrue(StateCommandGenerator.goToSubwooferCommand());
+    // subwooferArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToSubwooferCommand()));
 
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
