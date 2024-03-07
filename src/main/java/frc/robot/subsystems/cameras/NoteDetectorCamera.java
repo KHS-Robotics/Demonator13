@@ -52,7 +52,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   public Translation2d estimateNotePose(PhotonTrackedTarget target) {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
     // phi is the angle on the xy plane from the x axis
-    double phi = -Math.toRadians(target.getYaw());
+    double phi = -Math.toRadians(target.getYaw() - 20);
     // theta is the angle from the z axis
     double theta = (Math.PI / 2) - cameraOffset.getRotation().getY() - Math.toRadians(target.getPitch());
 
@@ -69,9 +69,9 @@ public class NoteDetectorCamera extends SubsystemBase {
     // find x and y by multiplying the x and y components of the unit vector by t
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
     // rotate translation back to account for camera (now as if the camera was parallel to robot's rotation)
-    Translation2d noteCameraRelativeRotated = noteCameraRelative.rotateBy(Rotation2d.fromDegrees(-20));
+    //Translation2d noteCameraRelativeRotated = noteCameraRelative.rotateBy(Rotation2d.fromDegrees(-20));
     // remove camera offset and rotate by robot angle
-    Translation2d noteRobotRelative = noteCameraRelativeRotated.plus(cameraOffset.getTranslation().toTranslation2d()).rotateBy(robotPose.getRotation());
+    Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d()).rotateBy(robotPose.getRotation());
     // add robot pose
     Translation2d noteFieldRelative = noteRobotRelative.plus(robotPose.getTranslation());
 
