@@ -8,6 +8,8 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -26,8 +28,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -262,11 +266,15 @@ public class RobotContainer {
     var subArmCmd = new ConditionalCommand(
         // onTrue
         new SetIntakeState(IntakeState.kDown)
-            .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer).alongWith(new SetArmState(ArmState.kShootFromSubwoofer)))).alongWith(new InstantCommand(() -> shooter.setVelocity(15))),
+            .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer)
+                .alongWith(new SetArmState(ArmState.kShootFromSubwoofer))))
+            .alongWith(new InstantCommand(() -> shooter.setVelocity(15))),
         // onFalse
         new SetArmState(ArmState.kStow)
             .andThen(new SetIntakeState(IntakeState.kDown)
-                .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer).alongWith(new SetArmState(ArmState.kShootFromSubwoofer)))).alongWith(new InstantCommand(() -> shooter.setVelocity(15)))),
+                .andThen((new SetShooterState(ShooterState.kShootFromSubwoofer)
+                    .alongWith(new SetArmState(ArmState.kShootFromSubwoofer))))
+                .alongWith(new InstantCommand(() -> shooter.setVelocity(15)))),
         () -> arm.isArmClearingIntake() || intake.isIntakeDown());
     subArm.onTrue(subArmCmd);
 
@@ -282,16 +290,20 @@ public class RobotContainer {
     stowArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToStowCommand()));
 
     Trigger ampArm = new Trigger(operatorStick::ampArm);
-    ampArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToAmpCommand()).alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
+    ampArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToAmpCommand())
+        .alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
 
     // Trigger flatArm = new Trigger(operatorStick::podiumArm);
-    // flatArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToFlatCommand()));
+    // flatArm.onTrue(new ProxyCommand(() ->
+    // StateCommandGenerator.goToFlatCommand()));
 
     // Trigger handoffArm = new Trigger(operatorStick::handoffArm);
-    // handoffArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToHandoffCommand()));
+    // handoffArm.onTrue(new ProxyCommand(() ->
+    // StateCommandGenerator.goToHandoffCommand()));
 
     // Trigger subwooferArm = new Trigger(operatorStick::subwooferArm);
-    // subwooferArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToSubwooferCommand()));
+    // subwooferArm.onTrue(new ProxyCommand(() ->
+    // StateCommandGenerator.goToSubwooferCommand()));
 
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
@@ -306,8 +318,10 @@ public class RobotContainer {
         .alongWith(new InstantCommand(() -> shooter.setVelocity(20))));
 
     // Trigger resetPoseWithVision = new Trigger(operatorStick::fullyTrustVision);
-    // resetPoseWithVision.onTrue(new InstantCommand(() -> swerveDrive.fullyTrustVision = true));
-    // resetPoseWithVision.onFalse(new InstantCommand(() -> swerveDrive.fullyTrustVision = false));
+    // resetPoseWithVision.onTrue(new InstantCommand(() ->
+    // swerveDrive.fullyTrustVision = true));
+    // resetPoseWithVision.onFalse(new InstantCommand(() ->
+    // swerveDrive.fullyTrustVision = false));
 
     Trigger rampShooter = new Trigger(operatorStick::getShooterRamping);
     rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10)));
@@ -347,15 +361,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     // Arm
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
-    NamedCommands.registerCommand("SetArmAndShooterForIntake",
-        (new SetShooterState(ShooterState.kIntake)
-            .alongWith(
-                new SetArmState(ArmState.kIntake))
-            .andThen(
-                new InstantCommand(() -> {
-                  intake.intake();
-                  shooter.index();
-                }, intake, shooter))));
+    NamedCommands.registerCommand("SetArmAndShooterForIntake", intakeSetpointAndRun());
     NamedCommands.registerCommand("SetShootFromSubwoofer",
         new SetArmState(ArmState.kShootFromSubwoofer)
             .alongWith(new SetShooterState(ShooterState.kShootFromSubwooferAuto)));
@@ -378,27 +384,109 @@ public class RobotContainer {
     // Shooting
     NamedCommands.registerCommand("ShootSpeaker", new ShootSpeaker());
     NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 15));
-    NamedCommands.registerCommand("Feed",
-        new InstantCommand(() -> shooter.feed(), shooter)
-            .andThen(new WaitCommand(0.2))
-            .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter)));
+    NamedCommands.registerCommand("Feed", feedCommand());
     NamedCommands.registerCommand("StopShooter", new InstantCommand(() -> shooter.stopShooting(), shooter));
 
     // Swerves
     NamedCommands.registerCommand("StopSwerves", new InstantCommand(() -> swerveDrive.stop(), swerveDrive));
     // SwerveStraighten - used when lowering intake and deploying demon horns to
     // make initial odometry updates more accurate
-    NamedCommands.registerCommand("SwerveStraighten",
-        new RepeatCommand(
-            new InstantCommand(() -> swerveDrive.setModuleStates(new SwerveModuleState[] {
-                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
-                new SwerveModuleState(0, Rotation2d.fromDegrees(0))
-            }),
-                swerveDrive))
-            .withTimeout(1)
-            .andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)));
+    NamedCommands.registerCommand("SwerveStraighten", straightenSwervesCommand());
+
+    // General
+    NamedCommands.registerCommand("ShootSubwooferSequence", shootSubwooferSequence());
+    NamedCommands.registerCommand("InitSequence", initSequence());
+
+  }
+
+  private Command stopAllCommand() {
+    return new InstantCommand(() -> {
+      shooter.stopIndexer();
+      shooter.stopShooting();
+      intake.stop();
+      swerveDrive.stop();
+    }, shooter, intake, swerveDrive);
+  }
+
+  private Command feedCommand() {
+    return new InstantCommand(() -> shooter.feed(), shooter)
+        .andThen(new WaitCommand(0.05))
+        .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter));
+  }
+
+  private Command straightenSwervesCommand() {
+    return new RepeatCommand(
+        new InstantCommand(() -> swerveDrive.setModuleStates(new SwerveModuleState[] {
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(0))
+        }),
+            swerveDrive))
+        .withTimeout(1)
+        .andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive));
+  }
+
+  private Command intakeSetpointAndRun() {
+    return (new SetShooterState(ShooterState.kIntake)
+        .alongWith(
+            new SetArmState(ArmState.kIntake))
+        .andThen(
+            new InstantCommand(() -> {
+              intake.intake();
+              shooter.index();
+            }, intake, shooter)));
+  }
+
+  private Command initSequence() {
+    return new ParallelCommandGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns),
+        new RampShooter(() -> 15), straightenSwervesCommand());
+  }
+
+  private Command shootSubwooferSequence() {
+    return new SequentialCommandGroup(new SetShooterState(ShooterState.kShootFromSubwooferAuto)
+        .alongWith(new SetArmState(ArmState.kShootFromSubwoofer)), feedCommand(), intakeSetpointAndRun());
+  }
+
+  private Command getPathCommand(String name) {
+    PathPlannerPath path = PathPlannerPath.fromPathFile(name);
+    return AutoBuilder.followPath(path);
+  }
+
+  // this will get a string or something from glass idk yet
+  private Command getNoteSequence(String startPosition, String notePosition) {
+    String getNotePathName = startPosition + " get " + notePosition;
+    String getReturnPathName = "return " + startPosition + " get " + notePosition;
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+        getPathCommand(getNotePathName).andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)),
+        new WaitForNote().withTimeout(3)),
+        getPathCommand(getReturnPathName), 
+        new InstantCommand(() -> swerveDrive.stop(), swerveDrive),
+        shootSubwooferSequence());
+  }
+
+  // THIS EXPECTS YOU TO PUT THE NOTE POSITIONS IN THE RIGHT ORDER!! (I don't want to sort them based on startPosition because it's 3am and I'm sleepy)
+  public Command fullAuto(String startPosition, String... notePositions) {
+    // if no note positions are passed shoot in place and stop everything
+    if (notePositions.length == 0) {
+      return initSequence().andThen(shootSubwooferSequence()).andThen(stopAllCommand());
+    }
+
+    // set all to lowercase to match the path names
+    for (String s : notePositions) {
+      s = s.toLowerCase();
+    }
+    startPosition = startPosition.toLowerCase();
+
+    // get each note sequence, each noteSequence includes path to get, grab, if missed timeout after 3 secs, return path, shoot
+    Command[] noteSequences = new Command[notePositions.length];
+    for (int i = 0; i < notePositions.length; i++) {
+      noteSequences[i] = getNoteSequence(startPosition, notePositions[i]);
+    }
+
+    // combine init and all noteSequence
+    return new SequentialCommandGroup(initSequence(), new SequentialCommandGroup(noteSequences));
   }
 
   private void configurePathPlannerLogging() {

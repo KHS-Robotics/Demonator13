@@ -99,6 +99,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     autonomousRoutine = robotContainer.getAutonomousCommand();
+
+    // if autonomousRoutine is custom use RobotContainer.fullAuto(start, note...)
+    // somehow get and parse a string from glass for start and note...
     if (autonomousRoutine != null) {
       autonomousRoutine.schedule();
     }
