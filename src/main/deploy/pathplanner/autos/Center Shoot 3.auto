@@ -78,7 +78,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Center Shoot 2 Get Note"
+                        "pathName": "center get center"
                       }
                     },
                     {
@@ -110,7 +110,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Return Center Shoot 2 Get Note"
+                        "pathName": "return center get center"
                       }
                     },
                     {
@@ -154,7 +154,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Center Shoot 3 Get Note"
+                        "pathName": "center get podium"
                       }
                     },
                     {
@@ -186,7 +186,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Return Center Shoot 3 Get Note"
+                        "pathName": "return center get podium"
                       }
                     },
                     {

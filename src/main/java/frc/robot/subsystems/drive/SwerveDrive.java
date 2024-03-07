@@ -7,11 +7,9 @@
 
 package frc.robot.subsystems.drive;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -27,10 +25,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import frc.robot.Constants;
@@ -446,9 +442,9 @@ public class SwerveDrive extends SubsystemBase {
     var pose = getPose();
     RobotContainer.field.setRobotPose(pose);
 
-    var yaw = RobotContainer.getRobotYaw();
-    var roll = RobotContainer.getRobotRoll();
-    var pitch = RobotContainer.getRobotPitch();
+    // var yaw = RobotContainer.getRobotYaw();
+    // var roll = RobotContainer.getRobotRoll();
+    // var pitch = RobotContainer.getRobotPitch();
     // SmartDashboard.putNumber("Navx-Yaw", yaw);
     // SmartDashboard.putNumber("Navx-Roll", roll);
     // SmartDashboard.putNumber("Navx-Pitch", pitch);

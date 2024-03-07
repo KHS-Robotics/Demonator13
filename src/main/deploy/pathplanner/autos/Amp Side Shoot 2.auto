@@ -84,7 +84,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Amp Side Shoot 2 Get Note"
+                        "pathName": "amp side get source"
                       }
                     },
                     {
@@ -112,7 +112,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Return Amp Side Shoot 2 Get Note"
+                  "pathName": "return amp side get source"
                 }
               },
               {
