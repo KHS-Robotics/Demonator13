@@ -7,6 +7,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -102,6 +103,23 @@ public class Robot extends TimedRobot {
 
     // if autonomousRoutine is custom use RobotContainer.fullAuto(start, note...)
     // somehow get and parse a string from glass for start and note...
+    if (autonomousRoutine.getName().equals("Dynamic")) {
+      String commandString = SmartDashboard.getString("DynamicAutoString", "");
+      String[] split = commandString.split(" ");
+      String[] notePoseStrings = new String[split.length - 1];
+      
+      for (int i = 1; i < split.length; i++) {
+        notePoseStrings[i] = split[i];
+      }
+
+      if (commandString.equals("")) {
+        autonomousRoutine = robotContainer.fullAuto("center");
+      } else {
+        autonomousRoutine = robotContainer.fullAuto(split[0], notePoseStrings);
+      }
+
+    }
+
     if (autonomousRoutine != null) {
       autonomousRoutine.schedule();
     }

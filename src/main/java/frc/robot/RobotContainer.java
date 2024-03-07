@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Dynamic;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
@@ -352,7 +353,9 @@ public class RobotContainer {
 
     autoBuilder = new AutoBuilder();
     autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser.addOption("Dynamic", new Dynamic());
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putString("DynamicAutoString", "");
 
     configurePathPlannerLogging();
   }
