@@ -182,51 +182,6 @@ public class RobotContainer {
       }
     }, RobotContainer.shooter));
 
-    // Arm
-    // var handoffArm = driverController.a();
-    // handoffArm.onTrue(
-    // new SetIntakeState(IntakeState.kDown)
-    // .andThen(new SetShooterState(ShooterState.kIntake).alongWith(new
-    // SetArmState(ArmState.kIntake)))
-    // );
-
-    // var stowArm = driverController.b();
-    // stowArm.onTrue(
-    // (new SetArmState(ArmState.kStow).alongWith(new
-    // SetShooterState(ShooterState.kIntake)))
-    // .andThen(new SetIntakeState(IntakeState.kUp))
-    // );
-
-    // var ampArm = driverController.y();
-    // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new
-    // SetShooterState(ShooterState.kAmp)));
-
-    // var subwooferArm = new Trigger(() -> driverController.getHID().getXButton()
-    // && RobotContainer.intake.isIntakeDown());
-    // subwooferArm.onTrue(new
-    // SetArmState(ArmState.kShootFromSubwoofer).alongWith(new
-    // SetShooterState(ShooterState.kShootFromSubwoofer)));
-
-    // var armPodium = new Trigger(() ->
-    // driverController.getHID().getRightStickButton() &&
-    // RobotContainer.intake.isIntakeDown());
-    // armPodium.onTrue(new SetArmState(ArmState.kShootFromPodium).alongWith(new
-    // SetShooterState(ShooterState.kShootFromPodium)));
-
-    // Intake
-    // var retractIntake = new Trigger(() -> driverController.getHID().getPOV() == 0
-    // && RobotContainer.arm.isArmClearingIntake());
-    // retractIntake.onTrue(new SetIntakeState(IntakeState.kUp));
-
-    // var deployIntake = new Trigger(() -> driverController.getHID().getPOV() ==
-    // 180 && RobotContainer.arm.isArmClearingIntake());
-    // deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
-
-    // var midIntakePovLeft = driverController.povLeft();
-    // midIntakePovLeft.onTrue(new SetIntakeState(IntakeState.kMid));
-    // var midIntakePovRight = driverController.povRight();
-    // midIntakePovRight.onTrue(new SetIntakeState(IntakeState.kMid));
-
     var intakeNote = new Trigger(
         () -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.9 && !RobotContainer.shooter.hasNote());
     intakeNote.onTrue(new InstantCommand(() -> {
