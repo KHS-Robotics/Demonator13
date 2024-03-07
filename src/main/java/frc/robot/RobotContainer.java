@@ -350,9 +350,9 @@ public class RobotContainer {
         new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kShootFromPodium))))
         .alongWith(new InstantCommand(() -> shooter.setVelocity(20))));
 
-    Trigger resetPoseWithVision = new Trigger(operatorStick::fullyTrustVision);
-    resetPoseWithVision.onTrue(new InstantCommand(() -> swerveDrive.fullyTrustVision = true));
-    resetPoseWithVision.onFalse(new InstantCommand(() -> swerveDrive.fullyTrustVision = false));
+    // Trigger resetPoseWithVision = new Trigger(operatorStick::fullyTrustVision);
+    // resetPoseWithVision.onTrue(new InstantCommand(() -> swerveDrive.fullyTrustVision = true));
+    // resetPoseWithVision.onFalse(new InstantCommand(() -> swerveDrive.fullyTrustVision = false));
 
     Trigger rampShooter = new Trigger(operatorStick::getShooterRamping);
     rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10), shooter));

@@ -72,9 +72,9 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 55;
-  private final double pivotkI = 2;
-  private final double pivotkD = 5;
+  private final double pivotkP = 20;
+  private final double pivotkI = 0.5;
+  private final double pivotkD = 3;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
