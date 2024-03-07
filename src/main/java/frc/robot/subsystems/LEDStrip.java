@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import java.awt.Color;
 
-import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -218,7 +217,6 @@ public class LEDStrip {
   // disabled pattern
   public void runIntake() {
     ticksPerSecond = 50;
-    var alliance = DriverStation.getAlliance();
     if (RobotContainer.shooter.hasNote()) {
       if (counter % 5 <= 5) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
@@ -237,8 +235,8 @@ public class LEDStrip {
   // if there's a note, just show orange, when the note leaves flash white on
   // and off really fast
   public void runShoot() {
-    var atSetpoint = RobotContainer.shooter.isShooterRampedUp(1);
-    var goodTrajectory = RobotContainer.shooter.goodTrajectory;
+    // var atSetpoint = RobotContainer.shooter.isShooterRampedUp(1);
+    // var goodTrajectory = RobotContainer.shooter.goodTrajectory;
 
     if (RobotContainer.shooter.hasNote()) {
       for (int i = 0; i < Constants.LED_LENGTH; i++) {
