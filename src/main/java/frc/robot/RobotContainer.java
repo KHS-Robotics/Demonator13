@@ -355,8 +355,8 @@ public class RobotContainer {
     // resetPoseWithVision.onFalse(new InstantCommand(() -> swerveDrive.fullyTrustVision = false));
 
     Trigger rampShooter = new Trigger(operatorStick::getShooterRamping);
-    rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10), shooter));
-    rampShooter.onFalse(new InstantCommand(() -> shooter.stopShooting(), shooter));
+    rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10)));
+    rampShooter.onFalse(new InstantCommand(() -> shooter.stopShooting()));
   }
 
   /**
