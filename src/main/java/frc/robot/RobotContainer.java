@@ -462,6 +462,14 @@ public class RobotContainer {
     return AutoBuilder.followPath(path);
   }
 
+  private PathPlannerPath getPath(String name) {
+    return PathPlannerPath.fromPathFile(name);
+  }
+
+  private Pose2d pathStartPose(String name) {
+    return getPath(name).getPreviewStartingHolonomicPose();
+  }
+
   // this will get a string or something from glass idk yet
   private Command getNoteSequence(String startPosition, String notePosition) {
     String getNotePathName = startPosition + " get " + notePosition;

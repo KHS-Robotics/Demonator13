@@ -12,40 +12,186 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "LiftArmToDeployDemonHorns"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "DeployIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SwerveStraighten"
-                }
-              }
-            ]
+            "name": "InitSequence"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "ShootSubwooferSequence"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "center get center"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HasNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "return center get center"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StopSwerves"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootSubwooferSequence"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "center get podium"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HasNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "return center get podium"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StopSwerves"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootSubwooferSequence"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "center get amp"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "StopSwerves"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HasNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "return center get amp"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StopSwerves"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootSubwooferSequence"
+                }
+              }
+            ]
           }
         }
       ]

@@ -84,7 +84,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "amp get source"
+                        "pathName": "amp get amp"
                       }
                     },
                     {
@@ -112,7 +112,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "return amp get source"
+                  "pathName": "return amp get amp"
                 }
               },
               {
