@@ -227,6 +227,13 @@ public class RobotContainer {
       RobotContainer.intake.stop();
     }, RobotContainer.shooter, RobotContainer.intake));
 
+    // var shootSpeaker = new Trigger(() -> driverController.getHID().getBackButton() && arm.isAtState(ArmState.kShootFromPodium) && shooter.hasNote());
+    // shootSpeaker.whileTrue(new ShootSpeaker());
+    // shootSpeaker.onFalse(new InstantCommand(() -> {
+    //   shooter.stopIndexer();
+    //   shooter.setVelocity(10);
+    // }));
+
     var outtakeNote = new Trigger(operatorStick::outtakeNote);
     outtakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.outtake();
@@ -484,10 +491,12 @@ public class RobotContainer {
     // get each note sequence, each noteSequence includes path to get, grab, if missed timeout after 3 secs, return path, shoot
     Command[] noteSequences = new Command[notePositions.length];
     for (int i = 0; i < notePositions.length; i++) {
+      System.out.println(notePositions[i]);
       noteSequences[i] = getNoteSequence(startPosition, notePositions[i]);
     }
 
     // combine init and all noteSequence
+    System.out.println(startPosition + notePositions);
     return new SequentialCommandGroup(initSequence(), new SequentialCommandGroup(noteSequences));
   }
 

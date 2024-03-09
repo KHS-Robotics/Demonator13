@@ -5,6 +5,8 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -106,16 +108,25 @@ public class Robot extends TimedRobot {
     if (autonomousRoutine.getName().equals("Dynamic")) {
       String commandString = SmartDashboard.getString("DynamicAutoString", "");
       String[] split = commandString.split(" ");
-      String[] notePoseStrings = new String[split.length - 1];
+      ArrayList<String> splitList = new ArrayList<>();
+      for (String s : split) {
+        splitList.add(s);
+      }
+      ArrayList<String> notePoseStrings = new ArrayList<>();
       
       for (int i = 1; i < split.length; i++) {
-        notePoseStrings[i] = split[i];
+        notePoseStrings.add(splitList.get(i));
+      }
+
+      String[] notePoseStringsArray = new String[notePoseStrings.size()];
+      for (int i = 0; i < notePoseStrings.size(); i++) {
+        notePoseStringsArray[i] = notePoseStrings.get(i);
       }
 
       if (commandString.equals("")) {
         autonomousRoutine = robotContainer.fullAuto("center");
       } else {
-        autonomousRoutine = robotContainer.fullAuto(split[0], notePoseStrings);
+        autonomousRoutine = robotContainer.fullAuto(splitList.get(0), notePoseStringsArray);
       }
 
     }

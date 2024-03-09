@@ -25,8 +25,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotMap;
 import frc.robot.Constants;
@@ -246,7 +248,7 @@ public class SwerveDrive extends SubsystemBase {
     double xSpeed = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
     double ySpeed = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
     double vTheta = MathUtil
-        .clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(target.getRotation().getDegrees())), -1, 1)
+        .clamp(anglePid.calculate(normalizeAngle(getAngle().getDegrees()), normalizeAngle(target.getRotation().getDegrees())), -1, 1)
         * kMaxAngularSpeedRadiansPerSecond;
     this.drive(xSpeed, ySpeed, vTheta, fieldOriented);
   }
@@ -273,9 +275,9 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // vision
-    if (RobotState.isTeleop()) {
+    if (DriverStation.isTeleopEnabled()) {
       updateOdometryUsingFrontCamera();
-      // updateOdometryUsingRearCamera();
+      updateOdometryUsingRearCamera();
     }
   }
 
@@ -449,8 +451,8 @@ public class SwerveDrive extends SubsystemBase {
     // SmartDashboard.putNumber("Navx-Roll", roll);
     // SmartDashboard.putNumber("Navx-Pitch", pitch);
 
-    // SmartDashboard.putNumber("Pose-X", pose.getX());
-    // SmartDashboard.putNumber("Pose-Y", pose.getY());
-    // SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("Pose-X", pose.getX());
+    SmartDashboard.putNumber("Pose-Y", pose.getY());
+    SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
   }
 }
