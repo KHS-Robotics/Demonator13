@@ -20,13 +20,13 @@ public class TargetPointWhileDriving extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    targetPoint = RobotContainer.intakeCamera.notes.get(0).position;
+    // targetPoint = RobotContainer.intakeCamera.notes.get(0).position;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    targetPoint = RobotContainer.intakeCamera.notes.get(0).position;
+    // targetPoint = RobotContainer.intakeCamera.notes.get(0).position;
 
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
     Translation2d vec = targetPoint.minus(robotPose.getTranslation());

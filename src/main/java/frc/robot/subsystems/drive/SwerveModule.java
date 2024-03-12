@@ -72,7 +72,8 @@ public class SwerveModule extends SubsystemBase {
     pivotMotor = new CANSparkMax(pivotMotorChannel, MotorType.kBrushless);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
     pivotMotor.setSmartCurrentLimit(30);
-    driveMotor.setSmartCurrentLimit(65);
+
+    driveMotor.setSmartCurrentLimit(40);
 
     pivotMotor.setIdleMode(IdleMode.kBrake);
     driveMotor.setIdleMode(IdleMode.kBrake);
@@ -100,6 +101,10 @@ public class SwerveModule extends SubsystemBase {
     this.offsetAngle = offsetAngle;
   }
 
+  public void setDriveCurrentLimit(int amps) {
+    driveMotor.setSmartCurrentLimit(amps);
+  }
+
   /**
    * Constructs a Swerve Module.
    *
@@ -119,9 +124,9 @@ public class SwerveModule extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var state = getState();
-    SmartDashboard.putNumber("Speed", state.speedMetersPerSecond);
-    SmartDashboard.putNumber("Angle", state.angle.getDegrees());
+    //var state = getState();
+    //SmartDashboard.putNumber("Speed", state.speedMetersPerSecond);
+    //SmartDashboard.putNumber("Angle", state.angle.getDegrees());
   }
 
   /**

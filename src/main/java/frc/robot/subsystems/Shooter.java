@@ -72,9 +72,9 @@ public class Shooter extends SubsystemBase {
   private final double pivotkG = 0.30328;
   private final double pivotkV = 0.9972;
   private final double pivotkA = 0.025145;
-  private final double pivotkP = 20;
-  private final double pivotkI = 0.5;
-  private final double pivotkD = 3;
+  private final double pivotkP = 30;
+  private final double pivotkI = 6;
+  private final double pivotkD = 1.5;
 
   private final double kMaxNeoRPM = 5676;
   private final double kWheelRadius = Units.inchesToMeters(2);
@@ -119,6 +119,7 @@ public class Shooter extends SubsystemBase {
 
     pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
     pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
+    pivotPID.setIZone(0.075);
 
     projectileEquation3d = (double[] x) -> {
       double vx = x[3];
@@ -222,7 +223,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(3);
+    this.indexMotor.setVoltage(2.9);
+  }
+
+  public void indexAuto() {
+    this.indexMotor.setVoltage(2.5);
   }
 
   public void outdex() {
@@ -384,9 +389,9 @@ public class Shooter extends SubsystemBase {
     kIntake(0.125),
     kShoot(0.2),
     kShootFromSubwoofer(0.085),
-    kShootFromPodium(0.95),
+    kShootFromPodium(0.098),
     kAmp(0.15),
-    kShootFromSubwooferAuto(0.094);
+    kShootFromSubwooferAuto(0.0955);
 
     public final double rotations;
 
@@ -402,7 +407,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
-    // SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
+    SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     // SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);

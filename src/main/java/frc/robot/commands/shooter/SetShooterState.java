@@ -42,6 +42,6 @@ public class SetShooterState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return !wait || Math.abs(RobotContainer.shooter.getPosition() - shooterState.rotations) <= 0.01;
+    return !wait || Math.abs(RobotContainer.shooter.getPosition() - shooterState.rotations) <= 0.0125;
   }
 }

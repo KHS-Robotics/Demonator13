@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.0095378821285446,
-      "y": 4.403274541213847
+      "x": 1.0212487186743262,
+      "y": 6.640044321458116
     },
-    "rotation": -60.05246212442676
+    "rotation": 59.11505466927137
   },
   "command": {
     "type": "sequential",
@@ -15,6 +15,12 @@
           "type": "parallel",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "SwerveStraighten"
+                }
+              },
               {
                 "type": "named",
                 "data": {
@@ -31,12 +37,6 @@
                 "type": "named",
                 "data": {
                   "name": "DeployIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SwerveStraighten"
                 }
               }
             ]
@@ -56,24 +56,6 @@
                 "type": "named",
                 "data": {
                   "name": "Feed"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopShooter"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Source side shoot 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopSwerves"
                 }
               }
             ]

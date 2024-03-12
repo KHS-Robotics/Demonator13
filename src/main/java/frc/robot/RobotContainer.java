@@ -119,12 +119,15 @@ public class RobotContainer {
   public static final LEDStrip leds = new LEDStrip();
 
   // Cameras
-  public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera",
-      Constants.INTAKE_NOTE_CAMERA_OFFSET);
-  public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
-      Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera",
-      Constants.REAR_APRILTAG_CAMERA_OFFSET);
+  // public static final NoteDetectorCamera intakeCamera = new
+  // NoteDetectorCamera("NoteCamera",
+  // Constants.INTAKE_NOTE_CAMERA_OFFSET);
+  // public static final AprilTagCamera frontAprilTagCamera = new
+  // AprilTagCamera("FrontCamera",
+  // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  // public static final AprilTagCamera rearAprilTagCamera = new
+  // AprilTagCamera("RearCamera",
+  // Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -165,26 +168,35 @@ public class RobotContainer {
     var robotRelativeDrive = driverController.rightTrigger(0.5);
     robotRelativeDrive.whileTrue(new DriveSwerveWithXbox(false));
 
+    var turbo = driverController.leftBumper();
+    turbo.onTrue(new InstantCommand(() -> {
+      swerveDrive.setDriveCurrentLimits(50);
+    }));
+    turbo.onFalse(new InstantCommand(() -> {
+      swerveDrive.setDriveCurrentLimits(40);
+    }));
+
+
     // Scoring
     var scoreAmp = new Trigger(
         () -> driverController.getHID().getRightBumper() && RobotContainer.arm.isAtState(ArmState.kAmp));
     scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
-    scoreAmp.onFalse(new InstantCommand(() -> {
+    scoreAmp.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
       shooter.setVelocity(10);
-    }, RobotContainer.shooter));
+    }, RobotContainer.shooter)));
 
     var shootManual = new Trigger(() -> driverController.getHID().getRightBumper()
         && (arm.isAtState(ArmState.kShootFromPodium) || arm.isAtState(ArmState.kShootFromSubwoofer)));
     shootManual.onTrue(new RampShooter(() -> 15).andThen(new InstantCommand(() -> shooter.feed())));
-    shootManual.onFalse(new InstantCommand(() -> {
+    shootManual.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
       if (arm.isAtState(ArmState.kShootFromSubwoofer)) {
         shooter.setVelocity(15);
       } else {
         shooter.setVelocity(10);
       }
-    }, RobotContainer.shooter));
+    }, RobotContainer.shooter)));
 
     var intakeNote = new Trigger(
         () -> Math.abs(driverController.getHID().getLeftTriggerAxis()) > 0.9 && !RobotContainer.shooter.hasNote());
@@ -200,22 +212,22 @@ public class RobotContainer {
     var cancelAll = driverController.back();
     cancelAll.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
-    var autoIntakeNote = driverController.leftBumper();
-    autoIntakeNote.whileTrue(new AutoIntake());
+    // var autoIntakeNote = driverController.leftBumper();
+    // autoIntakeNote.whileTrue(new AutoIntake());
   }
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
     var shootManual = new Trigger(operatorStick::shootManual);
     shootManual.onTrue(new RampShooter(() -> 20).andThen(new InstantCommand(() -> shooter.feed())));
-    shootManual.onFalse(new InstantCommand(() -> {
+    shootManual.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
       if (arm.isAtState(ArmState.kShootFromPodium)) {
         shooter.setVelocity(20);
       } else {
         shooter.setVelocity(10);
       }
-    }, RobotContainer.shooter));
+    }, RobotContainer.shooter)));
 
     var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
     intakeNote.onTrue(new InstantCommand(() -> {
@@ -227,11 +239,13 @@ public class RobotContainer {
       RobotContainer.intake.stop();
     }, RobotContainer.shooter, RobotContainer.intake));
 
-    // var shootSpeaker = new Trigger(() -> driverController.getHID().getBackButton() && arm.isAtState(ArmState.kShootFromPodium) && shooter.hasNote());
+    // var shootSpeaker = new Trigger(() ->
+    // driverController.getHID().getBackButton() &&
+    // arm.isAtState(ArmState.kShootFromPodium) && shooter.hasNote());
     // shootSpeaker.whileTrue(new ShootSpeaker());
     // shootSpeaker.onFalse(new InstantCommand(() -> {
-    //   shooter.stopIndexer();
-    //   shooter.setVelocity(10);
+    // shooter.stopIndexer();
+    // shooter.setVelocity(10);
     // }));
 
     var outtakeNote = new Trigger(operatorStick::outtakeNote);
@@ -314,10 +328,11 @@ public class RobotContainer {
 
     var scoreAmp = new Trigger(operatorStick::scoreAmp);
     scoreAmp.onTrue(new InstantCommand(() -> shooter.feed()));
-    scoreAmp.onFalse(new InstantCommand(() -> {
-      RobotContainer.shooter.stopIndexer();
-      shooter.setVelocity(10);
-    }, RobotContainer.shooter));
+    scoreAmp.onFalse(new WaitCommand(1).andThen(
+        new InstantCommand(() -> {
+          RobotContainer.shooter.stopIndexer();
+          shooter.setVelocity(10);
+        }, RobotContainer.shooter)));
 
     Trigger podiumAngle = new Trigger(operatorStick::levelArm);
     podiumAngle.onTrue(new SetArmState(ArmState.kStow).andThen(new SetIntakeState(IntakeState.kUp).andThen(
@@ -378,7 +393,7 @@ public class RobotContainer {
 
     // Intake + Indexing
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
-    NamedCommands.registerCommand("HasNote", new WaitForNote());
+    NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(4.5));
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
     NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
@@ -419,7 +434,7 @@ public class RobotContainer {
 
   private Command feedCommand() {
     return new InstantCommand(() -> shooter.feed(), shooter)
-        .andThen(new WaitCommand(0.05))
+        .andThen(new WaitCommand(0.20))
         .andThen(new InstantCommand(() -> shooter.stopIndexer(), shooter));
   }
 
@@ -443,7 +458,7 @@ public class RobotContainer {
         .andThen(
             new InstantCommand(() -> {
               intake.intake();
-              shooter.index();
+              shooter.indexAuto();
             }, intake, shooter)));
   }
 
@@ -476,14 +491,15 @@ public class RobotContainer {
     String getReturnPathName = "return " + startPosition + " get " + notePosition;
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
-        getPathCommand(getNotePathName).andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)),
-        new WaitForNote().withTimeout(3)),
-        getPathCommand(getReturnPathName), 
+            getPathCommand(getNotePathName).andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)),
+            new WaitForNote().withTimeout(3)),
+        getPathCommand(getReturnPathName),
         new InstantCommand(() -> swerveDrive.stop(), swerveDrive),
         shootSubwooferSequence());
   }
 
-  // THIS EXPECTS YOU TO PUT THE NOTE POSITIONS IN THE RIGHT ORDER!! (I don't want to sort them based on startPosition because it's 3am and I'm sleepy)
+  // THIS EXPECTS YOU TO PUT THE NOTE POSITIONS IN THE RIGHT ORDER!! (I don't want
+  // to sort them based on startPosition because it's 3am and I'm sleepy)
   public Command fullAuto(String startPosition, String... notePositions) {
     // if no note positions are passed shoot in place and stop everything
     if (notePositions.length == 0) {
@@ -496,7 +512,8 @@ public class RobotContainer {
     }
     startPosition = startPosition.toLowerCase();
 
-    // get each note sequence, each noteSequence includes path to get, grab, if missed timeout after 3 secs, return path, shoot
+    // get each note sequence, each noteSequence includes path to get, grab, if
+    // missed timeout after 3 secs, return path, shoot
     Command[] noteSequences = new Command[notePositions.length];
     for (int i = 0; i < notePositions.length; i++) {
       System.out.println(notePositions[i]);

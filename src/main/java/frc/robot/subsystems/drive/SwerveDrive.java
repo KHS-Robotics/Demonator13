@@ -26,7 +26,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -144,6 +143,13 @@ public class SwerveDrive extends SubsystemBase {
     yPid.setTolerance(0.1);
   }
 
+  public void setDriveCurrentLimits(int amps) {
+    frontLeft.setDriveCurrentLimit(amps);
+    frontRight.setDriveCurrentLimit(amps);
+    rearLeft.setDriveCurrentLimit(amps);
+    rearRight.setDriveCurrentLimit(amps);
+  }
+
   /**
    * Returns the angle of the robot as a Rotation2d as read by the navx.
    *
@@ -234,7 +240,7 @@ public class SwerveDrive extends SubsystemBase {
 
   public void holdAngleWhileDriving(double x, double y, Rotation2d setAngle, boolean fieldOriented) {
     var rotateOutput = MathUtil
-        .clamp(anglePid.calculate(getAngle().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1)
+        .clamp(anglePid.calculate(getPose().getRotation().getDegrees(), normalizeAngle(setAngle.getDegrees())), -1, 1)
         * kMaxAngularSpeedRadiansPerSecond;
     this.drive(x, y, rotateOutput, fieldOriented);
   }
@@ -248,7 +254,7 @@ public class SwerveDrive extends SubsystemBase {
     double xSpeed = MathUtil.clamp(xPid.calculate(pose.getX(), target.getX()), -1, 1) * kMaxSpeedMetersPerSecond;
     double ySpeed = MathUtil.clamp(yPid.calculate(pose.getY(), target.getY()), -1, 1) * kMaxSpeedMetersPerSecond;
     double vTheta = MathUtil
-        .clamp(anglePid.calculate(normalizeAngle(getAngle().getDegrees()), normalizeAngle(target.getRotation().getDegrees())), -1, 1)
+        .clamp(anglePid.calculate(normalizeAngle(pose.getRotation().getDegrees()), normalizeAngle(target.getRotation().getDegrees())), -1, 1)
         * kMaxAngularSpeedRadiansPerSecond;
     this.drive(xSpeed, ySpeed, vTheta, fieldOriented);
   }
@@ -282,35 +288,35 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   private void updateOdometryUsingFrontCamera() {
-    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
-    if (estimatedFrontPose.isPresent()) {
-      var stdDevs = RobotContainer.frontAprilTagCamera
-          .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
+    // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+    // if (estimatedFrontPose.isPresent()) {
+    //   var stdDevs = RobotContainer.frontAprilTagCamera
+    //       .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
 
-      // this is stupid and we should never use it in a match!!!
-      if (fullyTrustVision) {
-        stdDevs.set(0, 0, 0.01);
-        stdDevs.set(1, 0, 0.01);
-      }
+    //   // this is stupid and we should never use it in a match!!!
+    //   if (fullyTrustVision) {
+    //     stdDevs.set(0, 0, 0.01);
+    //     stdDevs.set(1, 0, 0.01);
+    //   }
 
-      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
-    }
+    //   updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
+    // }
   }
 
   private void updateOdometryUsingRearCamera() {
-    Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
-    if (estimatedRearPose.isPresent()) {
-      var stdDevs = RobotContainer.rearAprilTagCamera
-          .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
+    // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+    // if (estimatedRearPose.isPresent()) {
+    //   var stdDevs = RobotContainer.rearAprilTagCamera
+    //       .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
 
-      // this is stupid and we should never use it in a match!!!
-      if (fullyTrustVision) {
-        stdDevs.set(0, 0, 0.01);
-        stdDevs.set(1, 0, 0.01);
-      }
+    //   // this is stupid and we should never use it in a match!!!
+    //   if (fullyTrustVision) {
+    //     stdDevs.set(0, 0, 0.01);
+    //     stdDevs.set(1, 0, 0.01);
+    //   }
 
-      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
-    }
+    //   updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
+    // }
   }
 
   // private void updateOdometryUsingFrontCamera() {

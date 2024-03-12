@@ -36,7 +36,7 @@ public class AutoIntake extends Command {
     this.robotPose = RobotContainer.swerveDrive.getPose();
 
     // update target based on camera
-    this.target = RobotContainer.intakeCamera.getNearestNote();
+    // this.target = RobotContainer.intakeCamera.getNearestNote();
     if (this.target.isEmpty()) {
       return;
     }

@@ -19,6 +19,7 @@ public class NoteDetectorCamera extends SubsystemBase {
   public PhotonCamera camera;
   public Transform3d cameraOffset;
   public List<Note> notes;
+  ArrayList<Pose2d> allNotePoses = new ArrayList<>();
 
   public NoteDetectorCamera(String cameraName, Transform3d cameraOffset) {
     camera = new PhotonCamera(cameraName);
@@ -101,21 +102,20 @@ public class NoteDetectorCamera extends SubsystemBase {
   @Override
   public void periodic() {
     // no more caching
-    ArrayList<Pose2d> allNotePoses = new ArrayList<>();
-    notes.clear();
+    // notes.clear();
 
 
 
-    for (PhotonTrackedTarget t : getTargets()) {
-      notes.add(new Note(estimateNotePose(t)));
-    }
+    // for (PhotonTrackedTarget t : getTargets()) {
+    //   notes.add(new Note(estimateNotePose(t)));
+    // }
 
-    for (Note n : notes) {
-      allNotePoses.add(new Pose2d(n.position, new Rotation2d()));
-    }
+    // for (Note n : notes) {
+    //   allNotePoses.add(new Pose2d(n.position, new Rotation2d()));
+    // }
 
     
-    RobotContainer.field.getObject("note").setPoses(allNotePoses);
+    // RobotContainer.field.getObject("note").setPoses(allNotePoses);
   }
 
 }
