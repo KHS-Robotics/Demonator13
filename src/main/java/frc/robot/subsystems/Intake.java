@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
     intakeMotor.setSmartCurrentLimit(20);
 
     pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0.206289);
+    pivotEncoder.setZeroOffset(0.37);
 
     pivotPositionController = new PIDController(kP, kI, kD);
     pivotPositionController.setTolerance(1);

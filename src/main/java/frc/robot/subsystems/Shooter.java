@@ -386,7 +386,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.125),
+    kIntake(0.1),
     kShoot(0.2),
     kShootFromSubwoofer(0.085),
     kShootFromPodium(0.098),
@@ -409,6 +409,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
+    SmartDashboard.putNumber("output", shootMotor.getAppliedOutput());
+    SmartDashboard.putNumber("setpoint", shootMotor.getOutputCurrent());
     // SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);
     // SmartDashboard.putBoolean((""shooterGoodTrajectory", goodTrajectory);
