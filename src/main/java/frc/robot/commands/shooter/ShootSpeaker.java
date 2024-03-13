@@ -5,9 +5,15 @@ import java.util.Optional;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleArrayTopic;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
@@ -19,9 +25,13 @@ public class ShootSpeaker extends Command {
   Alliance color;
   boolean hasAlliance, hasNoteInitially;
   double targetX, targetY, targetZ;
-  final double v0 = 15;
+  final double v0 = 20;
   boolean goodTrajectory = true;
-  Timer timer;
+  public Timer timer;
+  double[] optimalParams = new double[3];
+  DoubleArraySubscriber optimalParamsSubscriber;
+  DoubleArrayPublisher targetPosePublisher, robotPosePublisher;
+  DoubleArrayTopic optimalParamsTopic, targetPoseTopic, robotPoseTopic;
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter, RobotContainer.swerveDrive);
@@ -55,36 +65,25 @@ public class ShootSpeaker extends Command {
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
     }
+    optimalParamsTopic = NetworkTableInstance.getDefault().getDoubleArrayTopic("optimalParams");
+    targetPoseTopic = NetworkTableInstance.getDefault().getDoubleArrayTopic("targetPose");
+    optimalParamsSubscriber = optimalParamsTopic.subscribe(new double[3]);
+    targetPosePublisher = targetPoseTopic.publish();
+    robotPosePublisher = robotPoseTopic.publish();
+
+    targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    shooter.setVelocity(v0);
-    Pose2d robotPose = swerveDrive.getPose();
+    Pose2d robotPose = RobotContainer.swerveDrive.getPose();
+    robotPosePublisher.set(new double[] {robotPose.getX(), robotPose.getY(), swerveDrive.vX, swerveDrive.vY, robotPose.getRotation().getRadians()});
 
-    // theta phi time
-    double[] optimalParams = shooter.optimizeShooterOrientation(1,
-        Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX()), 0.1, targetX, targetY, targetZ);
+    optimalParams = optimalParamsSubscriber.get();
 
-    // center of the exit of the shooter (middle of shooter)
-    Translation3d shooterPoseRobotRelative = shooter.shooterExitRobotRelative(optimalParams[0]);
-    Translation3d shooterPose = shooter.shooterExitFieldRelative(robotPose, shooterPoseRobotRelative);
+    
 
-    double[] in = { shooterPose.getX(), shooterPose.getY(), shooterPose.getZ(),
-        swerveDrive.vX + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.cos(optimalParams[1])),
-        swerveDrive.vY + (v0 * Math.sin(Math.PI / 2 - optimalParams[0]) * Math.sin(optimalParams[1])),
-        v0 * Math.cos(Math.PI / 2 - optimalParams[0]) };
-
-    // we may not want to actually do any of this if it can't run in real time
-    double[][] trajectory = shooter.propagateWholeTrajectory3d(in, optimalParams[2], 10);
-    double[] finalPoint = trajectory[trajectory.length - 1];
-
-    if (finalPoint[5] < 0 || Math.abs(finalPoint[2] - targetZ) > 0.2) {
-      goodTrajectory = false;
-    } else {
-      goodTrajectory = true;
-    }
 
     // shooter needs to go to this angle relative to the ground, not the arm
     shooter.rotationSetpoint = shooter.armRelativeToGroundRelative((optimalParams[0] / (2 * Math.PI)) + shooter.shooterFlatAngle);
