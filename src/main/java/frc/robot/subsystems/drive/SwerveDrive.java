@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems.drive;
 
-import java.util.Optional;
-
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.MathUtil;
@@ -25,6 +23,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,6 +55,9 @@ public class SwerveDrive extends SubsystemBase {
       -Constants.DRIVE_BASE_RADIUS_METERS);
 
   public boolean fullyTrustVision = false;
+  private DoubleArrayPublisher robotPosePublisher;
+  private double[] poseArray = new double[] {0, 0, 0};
+
 
   public static final SwerveModule frontLeft = new SwerveModule(
       "FL",
@@ -141,6 +144,7 @@ public class SwerveDrive extends SubsystemBase {
     anglePid.setTolerance(1);
     xPid.setTolerance(0.1);
     yPid.setTolerance(0.1);
+    robotPosePublisher = NetworkTableInstance.getDefault().getDoubleArrayTopic("robotPose").publish();
   }
 
   public void setDriveCurrentLimits(int amps) {
@@ -449,6 +453,11 @@ public class SwerveDrive extends SubsystemBase {
 
     var pose = getPose();
     RobotContainer.field.setRobotPose(pose);
+    poseArray[0] = pose.getX();
+    poseArray[1] = pose.getY();
+    poseArray[2] = pose.getRotation().getRadians();
+    robotPosePublisher.set(poseArray);
+    
 
     // var yaw = RobotContainer.getRobotYaw();
     // var roll = RobotContainer.getRobotRoll();

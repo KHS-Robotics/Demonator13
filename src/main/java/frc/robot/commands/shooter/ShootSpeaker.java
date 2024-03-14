@@ -4,16 +4,13 @@ import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
@@ -65,11 +62,7 @@ public class ShootSpeaker extends Command {
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
     }
-    optimalParamsTopic = NetworkTableInstance.getDefault().getDoubleArrayTopic("optimalParams");
-    targetPoseTopic = NetworkTableInstance.getDefault().getDoubleArrayTopic("targetPose");
-    optimalParamsSubscriber = optimalParamsTopic.subscribe(new double[3]);
-    targetPosePublisher = targetPoseTopic.publish();
-    robotPosePublisher = robotPoseTopic.publish();
+    targetPosePublisher = NetworkTableInstance.getDefault().getDoubleArrayTopic("targetPose").publish();
 
     targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
   }
@@ -78,7 +71,6 @@ public class ShootSpeaker extends Command {
   @Override
   public void execute() {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
-    robotPosePublisher.set(new double[] {robotPose.getX(), robotPose.getY(), swerveDrive.vX, swerveDrive.vY, robotPose.getRotation().getRadians()});
 
     optimalParams = optimalParamsSubscriber.get();
 
