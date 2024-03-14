@@ -36,7 +36,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Dynamic;
 import frc.robot.commands.arm.SetArmState;
-import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
@@ -53,7 +52,6 @@ import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
-import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class RobotContainer {
