@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.MathUtil;
@@ -285,42 +287,42 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // vision
-    if (DriverStation.isTeleopEnabled()) {
+    if (DriverStation.isTeleopEnabled() || DriverStation.isDisabled()) {
       updateOdometryUsingFrontCamera();
       updateOdometryUsingRearCamera();
     }
   }
 
   private void updateOdometryUsingFrontCamera() {
-    // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedFrontPose.isPresent()) {
-    //   var stdDevs = RobotContainer.frontAprilTagCamera
-    //       .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
+    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedFrontPose.isPresent()) {
+      var stdDevs = RobotContainer.frontAprilTagCamera
+          .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
 
-    //   // this is stupid and we should never use it in a match!!!
-    //   if (fullyTrustVision) {
-    //     stdDevs.set(0, 0, 0.01);
-    //     stdDevs.set(1, 0, 0.01);
-    //   }
+      // this is stupid and we should never use it in a match!!!
+      if (fullyTrustVision) {
+        stdDevs.set(0, 0, 0.001);
+        stdDevs.set(1, 0, 0.001);
+      }
 
-    //   updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
-    // }
+      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
+    }
   }
 
   private void updateOdometryUsingRearCamera() {
-    // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedRearPose.isPresent()) {
-    //   var stdDevs = RobotContainer.rearAprilTagCamera
-    //       .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
+    Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedRearPose.isPresent()) {
+      var stdDevs = RobotContainer.rearAprilTagCamera
+          .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
 
-    //   // this is stupid and we should never use it in a match!!!
-    //   if (fullyTrustVision) {
-    //     stdDevs.set(0, 0, 0.01);
-    //     stdDevs.set(1, 0, 0.01);
-    //   }
+      // this is stupid and we should never use it in a match!!!
+      if (fullyTrustVision) {
+        stdDevs.set(0, 0, 0.001);
+        stdDevs.set(1, 0, 0.001);
+      }
 
-    //   updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
-    // }
+      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
+    }
   }
 
   // private void updateOdometryUsingFrontCamera() {

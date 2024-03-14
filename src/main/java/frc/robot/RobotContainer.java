@@ -122,12 +122,12 @@ public class RobotContainer {
   // public static final NoteDetectorCamera intakeCamera = new
   // NoteDetectorCamera("NoteCamera",
   // Constants.INTAKE_NOTE_CAMERA_OFFSET);
-  // public static final AprilTagCamera frontAprilTagCamera = new
-  // AprilTagCamera("FrontCamera",
-  // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  // public static final AprilTagCamera rearAprilTagCamera = new
-  // AprilTagCamera("RearCamera",
-  // Constants.REAR_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera frontAprilTagCamera = new
+  AprilTagCamera("FrontCamera",
+  Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera rearAprilTagCamera = new
+  AprilTagCamera("RearCamera",
+  Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
