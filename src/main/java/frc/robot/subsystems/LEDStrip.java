@@ -218,7 +218,7 @@ public class LEDStrip {
   public void runIntake() {
     ticksPerSecond = 50;
     if (RobotContainer.shooter.hasNote()) {
-      if (counter % 5 <= 5) {
+      if (counter % 3 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
           setRGB(i, 255, 50, 0);
         }
@@ -228,7 +228,7 @@ public class LEDStrip {
         }
       }
     } else {
-      runSquareWave(new Color(255, 50, 0), -1f, 16f);
+      runSquareWave(new Color(255, 50, 0), -0.6f, 10f);
     }
   }
 
@@ -328,7 +328,7 @@ public class LEDStrip {
 
   private void updateState() {
     var isDisabled = RobotState.isDisabled();
-    var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint != 0;
+    var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint == 15 || RobotContainer.shooter.veloctiySetpoint == 20;
     var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
     var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
 
