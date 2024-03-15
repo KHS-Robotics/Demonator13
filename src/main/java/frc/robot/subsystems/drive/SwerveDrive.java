@@ -7,6 +7,9 @@
 
 package frc.robot.subsystems.drive;
 
+import java.sql.Driver;
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.MathUtil;
@@ -285,42 +288,42 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.updateWithTime(Timer.getFPGATimestamp(), getAngle(), modulePositions);
 
     // vision
-    if (DriverStation.isTeleopEnabled()) {
+    if (DriverStation.isTeleopEnabled() || DriverStation.isDisabled()) {
       updateOdometryUsingFrontCamera();
       updateOdometryUsingRearCamera();
     }
   }
 
   private void updateOdometryUsingFrontCamera() {
-    // Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedFrontPose.isPresent()) {
-    //   var stdDevs = RobotContainer.frontAprilTagCamera
-    //       .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
+    Optional<EstimatedRobotPose> estimatedFrontPose = RobotContainer.frontAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedFrontPose.isPresent()) {
+      var stdDevs = RobotContainer.frontAprilTagCamera
+          .getEstimationStdDevs(estimatedFrontPose.get().estimatedPose.toPose2d());
 
-    //   // this is stupid and we should never use it in a match!!!
-    //   if (fullyTrustVision) {
-    //     stdDevs.set(0, 0, 0.01);
-    //     stdDevs.set(1, 0, 0.01);
-    //   }
+      // this is stupid and we should never use it in a match!!!
+      if (fullyTrustVision) {
+        stdDevs.set(0, 0, 0.01);
+        stdDevs.set(1, 0, 0.01);
+      }
 
-    //   updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
-    // }
+      updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
+    }
   }
 
   private void updateOdometryUsingRearCamera() {
-    // Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
-    // if (estimatedRearPose.isPresent()) {
-    //   var stdDevs = RobotContainer.rearAprilTagCamera
-    //       .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
+    Optional<EstimatedRobotPose> estimatedRearPose = RobotContainer.rearAprilTagCamera.getEstimatedGlobalPose();
+    if (estimatedRearPose.isPresent()) {
+      var stdDevs = RobotContainer.rearAprilTagCamera
+          .getEstimationStdDevs(estimatedRearPose.get().estimatedPose.toPose2d());
 
-    //   // this is stupid and we should never use it in a match!!!
-    //   if (fullyTrustVision) {
-    //     stdDevs.set(0, 0, 0.01);
-    //     stdDevs.set(1, 0, 0.01);
-    //   }
+      // this is stupid and we should never use it in a match!!!
+      if (fullyTrustVision) {
+        stdDevs.set(0, 0, 0.01);
+        stdDevs.set(1, 0, 0.01);
+      }
 
-    //   updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
-    // }
+      updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
+    }
   }
 
   // private void updateOdometryUsingFrontCamera() {
@@ -453,10 +456,10 @@ public class SwerveDrive extends SubsystemBase {
 
     var pose = getPose();
     RobotContainer.field.setRobotPose(pose);
-    poseArray[0] = pose.getX();
-    poseArray[1] = pose.getY();
-    poseArray[2] = pose.getRotation().getRadians();
-    robotPosePublisher.set(poseArray);
+    // poseArray[0] = pose.getX();
+    // poseArray[1] = pose.getY();
+    // poseArray[2] = pose.getRotation().getRadians();
+    // robotPosePublisher.set(poseArray);
     
 
     // var yaw = RobotContainer.getRobotYaw();
@@ -468,6 +471,6 @@ public class SwerveDrive extends SubsystemBase {
 
     SmartDashboard.putNumber("Pose-X", pose.getX());
     SmartDashboard.putNumber("Pose-Y", pose.getY());
-    SmartDashboard.putNumber("Pose-Degrees", pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("Pose-Radians", pose.getRotation().getRadians());
   }
 }

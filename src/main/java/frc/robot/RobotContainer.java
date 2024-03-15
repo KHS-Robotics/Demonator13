@@ -122,12 +122,12 @@ public class RobotContainer {
   // public static final NoteDetectorCamera intakeCamera = new
   // NoteDetectorCamera("NoteCamera",
   // Constants.INTAKE_NOTE_CAMERA_OFFSET);
-  // public static final AprilTagCamera frontAprilTagCamera = new
-  // AprilTagCamera("FrontCamera",
-  // Constants.FRONT_APRILTAG_CAMERA_OFFSET);
-  // public static final AprilTagCamera rearAprilTagCamera = new
-  // AprilTagCamera("RearCamera",
-  // Constants.REAR_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera frontAprilTagCamera = new
+  AprilTagCamera("FrontCamera",
+  Constants.FRONT_APRILTAG_CAMERA_OFFSET);
+  public static final AprilTagCamera rearAprilTagCamera = new
+  AprilTagCamera("RearCamera",
+  Constants.REAR_APRILTAG_CAMERA_OFFSET);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -157,7 +157,7 @@ public class RobotContainer {
   /** Binds commands to xbox controller buttons. */
   private void configureXboxControllerBindings() {
     // NavX + Odometry
-    var resetHeading = driverController.start().debounce(1);
+    var resetHeading = driverController.start().debounce(0.25);
     resetHeading.onTrue(new InstantCommand(() -> {
       RobotContainer.swerveDrive.resetNavx();
       var isRedAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
@@ -168,13 +168,13 @@ public class RobotContainer {
     var robotRelativeDrive = driverController.rightTrigger(0.5);
     robotRelativeDrive.whileTrue(new DriveSwerveWithXbox(false));
 
-    var turbo = driverController.leftBumper();
-    turbo.onTrue(new InstantCommand(() -> {
-      swerveDrive.setDriveCurrentLimits(50);
-    }));
-    turbo.onFalse(new InstantCommand(() -> {
-      swerveDrive.setDriveCurrentLimits(40);
-    }));
+    // var turbo = driverController.leftBumper();
+    // turbo.onTrue(new InstantCommand(() -> {
+    //   swerveDrive.setDriveCurrentLimits(50);
+    // }));
+    // turbo.onFalse(new InstantCommand(() -> {
+    //   swerveDrive.setDriveCurrentLimits(40);
+    // }));
 
 
     // Scoring
@@ -358,7 +358,7 @@ public class RobotContainer {
 
     var pathFollowerConfig = new HolonomicPathFollowerConfig(
         new PIDConstants(4.0, 0.0, 0.3),
-        new PIDConstants(1.8, 0.0, 0.8),
+        new PIDConstants(1.5, 0.0, 0.8),
         SwerveDrive.kMaxSpeedMetersPerSecond,
         Constants.DRIVE_BASE_RADIUS_METERS,
         new ReplanningConfig(true, true));

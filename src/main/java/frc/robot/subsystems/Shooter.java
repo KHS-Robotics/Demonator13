@@ -223,11 +223,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public void index() {
-    this.indexMotor.setVoltage(2.9);
+    this.indexMotor.setVoltage(3.1);
   }
 
   public void indexAuto() {
-    this.indexMotor.setVoltage(2.5);
+    this.indexMotor.setVoltage(3);
   }
 
   public void outdex() {
@@ -391,7 +391,7 @@ public class Shooter extends SubsystemBase {
     kShootFromSubwoofer(0.085),
     kShootFromPodium(0.098),
     kAmp(0.15),
-    kShootFromSubwooferAuto(0.0955);
+    kShootFromSubwooferAuto(0.0945);
 
     public final double rotations;
 
