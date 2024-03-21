@@ -12,14 +12,18 @@ import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
 
+import com.fasterxml.jackson.databind.InjectableValues.Std;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -60,6 +64,8 @@ public class SwerveDrive extends SubsystemBase {
   public boolean fullyTrustVision = false;
   private DoubleArrayPublisher robotPosePublisher;
   private double[] poseArray = new double[] {0, 0, 0};
+  public Pose2d frontVisionPose = new Pose2d();
+  public Pose2d rearVisionPose = new Pose2d();
 
 
   public static final SwerveModule frontLeft = new SwerveModule(
@@ -126,7 +132,7 @@ public class SwerveDrive extends SubsystemBase {
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftLocation,
       frontRightLocation, rearLeftLocation, rearRightLocation);
 
-  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics,
+  private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics,
       RobotContainer.navx.getRotation2d(), new SwerveModulePosition[] {
           new SwerveModulePosition(0, new Rotation2d(frontLeft.getAngle())),
           new SwerveModulePosition(0, new Rotation2d(frontRight.getAngle())),
@@ -134,7 +140,7 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
       }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
       VecBuilder.fill(0.1, 0.1, 0.1),
-      VecBuilder.fill(6, 6, Double.MAX_VALUE));
+      VecBuilder.fill(6, 6, 0.1));
 
   /**
    * Constructs Swerve Drive
@@ -204,10 +210,21 @@ public class SwerveDrive extends SubsystemBase {
       rearLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(rearLeft.getAngle())));
       rearRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(rearRight.getAngle())));
     } else {
-      var swerveModuleStates = kinematics
-          .toSwerveModuleStates(
-              fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getAngle())
-                  : new ChassisSpeeds(xSpeed, ySpeed, rot));
+
+      ChassisSpeeds desiredChassisSpeeds =
+        fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeed, ySpeed, rot, getPose().getRotation())
+            : new ChassisSpeeds(xSpeed, ySpeed, rot);
+
+      desiredChassisSpeeds = correctForDynamics(desiredChassisSpeeds);
+      var swerveModuleStates = kinematics.toSwerveModuleStates(desiredChassisSpeeds);
+
+      SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeedMetersPerSecond);
+      // var swerveModuleStates = kinematics
+      //     .toSwerveModuleStates(
+      //         fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getPose().getRotation())
+      //             : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
       frontLeft.setDesiredState(swerveModuleStates[0]);
       frontRight.setDesiredState(swerveModuleStates[1]);
@@ -231,6 +248,51 @@ public class SwerveDrive extends SubsystemBase {
     vY = chassisSpeeds.vyMetersPerSecond;
     setModuleStates(kinematics.toSwerveModuleStates(
         ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getAngle())));
+  }
+
+  /**
+   * Correction for swerve second order dynamics issue. Borrowed from 254:
+   * https://github.com/Team254/FRC-2022-Public/blob/main/src/main/java/com/team254/frc2022/subsystems/Drive.java#L325
+   * Discussion:
+   * https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964
+   */
+  private static ChassisSpeeds correctForDynamics(ChassisSpeeds originalSpeeds) {
+    final double LOOP_TIME_S = 0.02;
+    Pose2d futureRobotPose =
+        new Pose2d(
+            originalSpeeds.vxMetersPerSecond * LOOP_TIME_S,
+            originalSpeeds.vyMetersPerSecond * LOOP_TIME_S,
+            Rotation2d.fromRadians(originalSpeeds.omegaRadiansPerSecond * LOOP_TIME_S));
+    Twist2d twistForPose = log(futureRobotPose);
+    ChassisSpeeds updatedSpeeds =
+        new ChassisSpeeds(
+            twistForPose.dx / LOOP_TIME_S,
+            twistForPose.dy / LOOP_TIME_S,
+            twistForPose.dtheta / LOOP_TIME_S);
+    return updatedSpeeds;
+  }
+
+  /**
+   * Logical inverse of the above. Borrowed from 254:
+   * https://github.com/Team254/FRC-2022-Public/blob/b5da3c760b78d598b492e1cc51d8331c2ad50f6a/src/main/java/com/team254/lib/geometry/Pose2d.java
+   */
+  public static Twist2d log(final Pose2d transform) {
+    final double kEps = 1E-9;
+    final double dtheta = transform.getRotation().getRadians();
+    final double half_dtheta = 0.5 * dtheta;
+    final double cos_minus_one = Math.cos(transform.getRotation().getRadians()) - 1.0;
+    double halftheta_by_tan_of_halfdtheta;
+    if (Math.abs(cos_minus_one) < kEps) {
+      halftheta_by_tan_of_halfdtheta = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
+    } else {
+      halftheta_by_tan_of_halfdtheta =
+          -(half_dtheta * Math.sin(transform.getRotation().getRadians())) / cos_minus_one;
+    }
+    final Translation2d translation_part =
+        transform
+            .getTranslation()
+            .rotateBy(new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta));
+    return new Twist2d(translation_part.getX(), translation_part.getY(), dtheta);
   }
 
   public void setPose(Pose2d pose) {
@@ -306,6 +368,7 @@ public class SwerveDrive extends SubsystemBase {
         stdDevs.set(1, 0, 0.01);
       }
 
+      frontVisionPose = estimatedFrontPose.get().estimatedPose.toPose2d();
       updateOdometryUsingVisionMeasurement(estimatedFrontPose.get(), stdDevs, estimatedFrontPose.get().timestampSeconds);
     }
   }
@@ -322,6 +385,7 @@ public class SwerveDrive extends SubsystemBase {
         stdDevs.set(1, 0, 0.01);
       }
 
+      rearVisionPose = estimatedRearPose.get().estimatedPose.toPose2d();
       updateOdometryUsingVisionMeasurement(estimatedRearPose.get(), stdDevs, estimatedRearPose.get().timestampSeconds);
     }
   }
@@ -380,7 +444,8 @@ public class SwerveDrive extends SubsystemBase {
 
   private void updateOdometryUsingVisionMeasurement(EstimatedRobotPose ePose, Matrix<N3, N1> visionMeasurementStdDevs,
       double timestamp) {
-    poseEstimator.addVisionMeasurement(ePose.estimatedPose.toPose2d(), ePose.timestampSeconds);
+    //poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+    poseEstimator.addVisionMeasurement(ePose.estimatedPose.toPose2d(), ePose.timestampSeconds, visionMeasurementStdDevs);
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -456,6 +521,8 @@ public class SwerveDrive extends SubsystemBase {
 
     var pose = getPose();
     RobotContainer.field.setRobotPose(pose);
+    RobotContainer.field.getObject("RearVisionPose").setPose(rearVisionPose);
+    RobotContainer.field.getObject("FrontVisionPose").setPose(frontVisionPose);
     // poseArray[0] = pose.getX();
     // poseArray[1] = pose.getY();
     // poseArray[2] = pose.getRotation().getRadians();

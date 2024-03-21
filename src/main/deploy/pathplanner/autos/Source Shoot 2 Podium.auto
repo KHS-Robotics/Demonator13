@@ -2,17 +2,17 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.42,
-      "y": 5.527514849608872
+      "x": 1.07,
+      "y": 4.45
     },
-    "rotation": 0
+    "rotation": -62.4778672611439
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -30,13 +30,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "RampShooterForManualShot"
+                  "name": "SwerveStraighten"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "SwerveStraighten"
+                  "name": "RampShooterForManualShot"
                 }
               }
             ]
@@ -84,7 +84,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "center get center"
+                        "pathName": "source get podium"
                       }
                     },
                     {
@@ -110,28 +110,28 @@
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "parallel",
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
+                      "type": "named",
                       "data": {
-                        "pathName": "return center get center"
+                        "name": "SetShootFromSubwoofer"
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "path",
                       "data": {
-                        "name": "StopSwerves"
+                        "pathName": "return source get podium"
                       }
                     }
                   ]
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "SetShootFromSubwoofer"
+                  "waitTime": 0.5
                 }
               },
               {
@@ -139,90 +139,14 @@
                 "data": {
                   "name": "Feed"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetArmAndShooterForIntake"
-                }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "center get podium"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "StopSwerves"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "HasNote"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "return center get podium"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "StopSwerves"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetShootFromSubwoofer"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Feed"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopShooter"
-                }
-              }
-            ]
+            "pathName": "Source side shoot 1"
           }
         }
       ]

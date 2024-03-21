@@ -28,11 +28,11 @@ public class StateCommandGenerator {
         if (RobotContainer.arm.getPosition() < ArmState.kShoot.rotations + 0.02) {
             // arm up
             // move arm and intake together
-            return new ParallelCommandGroup(new SetArmState(ArmState.kAmp), new SetShooterState(ShooterState.kAmp));
+            return new ParallelCommandGroup(new SetArmState(ArmState.kAmp), new SetShooterState(ShooterState.kIntake));
         } else {
             // arm down
             // move arm then move intake
-            return new ParallelCommandGroup(new SetShooterState(ShooterState.kAmp), new SetArmState(ArmState.kAmp), new SequentialCommandGroup(new WaitForArmStow()));
+            return new ParallelCommandGroup(new SetShooterState(ShooterState.kIntake), new SetArmState(ArmState.kAmp), new SequentialCommandGroup(new WaitForArmStow()));
         }
     }
 

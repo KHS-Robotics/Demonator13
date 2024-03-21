@@ -69,7 +69,7 @@ public class AprilTagCamera extends SubsystemBase {
     if (!getLatestResult().hasTargets()) {
       return VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     }
-    var estStdDevs = VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE);
+    var estStdDevs = VecBuilder.fill(0.02, 0.02, 0.02);
     var targets = getLatestResult().getTargets();
     int numTags = 0;
     double avgDist = 0;

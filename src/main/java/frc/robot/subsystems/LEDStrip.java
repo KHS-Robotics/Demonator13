@@ -217,18 +217,21 @@ public class LEDStrip {
   // disabled pattern
   public void runIntake() {
     ticksPerSecond = 50;
-    if (RobotContainer.shooter.hasNote()) {
+    if (RobotContainer.shooter.hasNote() || !RobotContainer.intake.hasNoteInside()) {
       if (counter % 3 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
           setRGB(i, 255, 50, 0);
         }
       } else {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
-          setRGB(i, 0, 0, 0);
+          setRGB(i, 255, 50, 0);
         }
       }
     } else {
-      runSquareWave(new Color(255, 50, 0), -0.6f, 10f);
+      // runSquareWave(new Color(255, 50, 0), -0.6f, 10f);
+      for (int i = 0; i < Constants.LED_LENGTH; i++) {
+        setRGB(i, 0, 0, 0);
+      }
     }
   }
 
@@ -328,20 +331,25 @@ public class LEDStrip {
 
   private void updateState() {
     var isDisabled = RobotState.isDisabled();
-    var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint == 15 || RobotContainer.shooter.veloctiySetpoint == 20;
-    var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
-    var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
+    // var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint == 15 || RobotContainer.shooter.veloctiySetpoint == 20;
+    // var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
+    // var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
 
-    if (isScoringSpeaker)
-      state = LEDState.kShoot;
-    else if (isScoringAmp)
-      state = LEDState.kAmp;
-    else if (hasIntakeDeployed)
-      state = LEDState.kIntake;
-    else if (isDisabled)
+    // if (isScoringSpeaker)
+    //   state = LEDState.kShoot;
+    // else if (isScoringAmp)
+    //   state = LEDState.kAmp;
+    // else if (hasIntakeDeployed)
+    //   state = LEDState.kIntake;
+    // else if (isDisabled)
+    //   state = LEDState.kDisabled;
+    // else 
+    //   state = LEDState.kStowed;
+    if (isDisabled) {
       state = LEDState.kDisabled;
-    else 
-      state = LEDState.kStowed;
+    } else {
+      state = LEDState.kIntake;
+    }
 
     SmartDashboard.putString("LED State", state.toString());
   }

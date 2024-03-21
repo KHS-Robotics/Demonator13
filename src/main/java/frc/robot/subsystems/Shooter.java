@@ -94,7 +94,7 @@ public class Shooter extends SubsystemBase {
 
     pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
     pivotMotor.setIdleMode(IdleMode.kBrake);
-    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
 
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
     indexMotor.setIdleMode(IdleMode.kBrake);
@@ -386,12 +386,13 @@ public class Shooter extends SubsystemBase {
   }
 
   public enum ShooterState {
-    kIntake(0.1),
+    kIntake(0.125),
     kShoot(0.2),
-    kShootFromSubwoofer(0.085),
-    kShootFromPodium(0.098),
+    kShootFromSubwoofer(0.089),
+    kShootFromPodium(0.105),
     kAmp(0.15),
-    kShootFromSubwooferAuto(0.0945);
+    kShootFromSubwooferAuto(0.0945),
+    kFeedFromCenter(0.135);
 
     public final double rotations;
 
@@ -406,7 +407,7 @@ public class Shooter extends SubsystemBase {
     // SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
     SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
-    SmartDashboard.putNumber("Shooter-Velocity", getVelocity());
+    SmartDashboard.putNumber("Shooter-Velocity", -getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     SmartDashboard.putNumber("output", shootMotor.getAppliedOutput());

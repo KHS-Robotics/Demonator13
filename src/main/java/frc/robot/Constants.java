@@ -42,8 +42,8 @@ public class Constants {
   public static final double DRIVE_Y_I = 0;
   public static final double DRIVE_Y_D = 0;
 
-  public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(7.6882), Units.inchesToMeters(13.0), Units.inchesToMeters(12.1545), new Rotation3d(0, Math.toRadians(60), Math.toDegrees(0)));
-  public static final Transform3d REAR_APRILTAG_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(-6.6882), Units.inchesToMeters(-12.9915), Units.inchesToMeters(8.5545), new Rotation3d(0, Math.toRadians(60), Math.toRadians(180)));
+  public static final Transform3d FRONT_APRILTAG_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(7.6882), Units.inchesToMeters(13.0), Units.inchesToMeters(12.1545), new Rotation3d(0, Math.toRadians(60), 0));
+  public static final Transform3d REAR_APRILTAG_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(-7.25), Units.inchesToMeters(-6.75), Units.inchesToMeters(8.5), new Rotation3d(0, Math.toRadians(-60), Math.PI));
   public static final Transform3d INTAKE_NOTE_CAMERA_OFFSET = new Transform3d(Units.inchesToMeters(7.8971), Units.inchesToMeters(-12.99815), Units.inchesToMeters(18.3493), new Rotation3d(0, Math.toRadians(-20), Math.toRadians(20)));
   public static final double INTAKE_NOTE_CAMERA_HFOV = 53;
 
