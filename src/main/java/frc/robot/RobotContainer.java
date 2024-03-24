@@ -47,6 +47,7 @@ import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.commands.shooter.WaitForNote;
 import frc.robot.hid.OperatorStick;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDStrip;
 import frc.robot.subsystems.Shooter;
@@ -116,6 +117,7 @@ public class RobotContainer {
   public static final Intake intake = new Intake();
   public static final Shooter shooter = new Shooter();
   public static final Arm arm = new Arm();
+  // public static final Climber climber = new Climber();
   // public static final NewLEDStrip ledStrip = new NewLEDStrip();
   public static final LEDStrip leds = new LEDStrip();
 
