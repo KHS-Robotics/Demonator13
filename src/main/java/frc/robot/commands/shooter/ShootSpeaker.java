@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveDrive;
 
@@ -76,9 +77,7 @@ public class ShootSpeaker extends Command {
 
     
 
-
-    // shooter needs to go to this angle relative to the ground, not the arm
-    shooter.rotationSetpoint = shooter.armRelativeToGroundRelative((optimalParams[0] / (2 * Math.PI)) + shooter.shooterFlatAngle);
+    RobotContainer.arm.setSetpoint(optimalParams[0]);
 
 
     Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
@@ -100,10 +99,10 @@ public class ShootSpeaker extends Command {
     boolean fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
 
 
-    swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
+    swerveDrive.holdAngleWhileDriving(-xSpeed, -ySpeed, angleSetpoint, fieldRelative);
     shooter.goodTrajectory = goodTrajectory;
 
-    if (goodTrajectory && Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(shooter.getPosition() - optimalParams[0]) < 0.3) {
+    if (Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(RobotContainer.arm.getPosition() - optimalParams[0]) < 0.3) {
       shooter.feed();
       timer.start();
     }
@@ -118,9 +117,9 @@ public class ShootSpeaker extends Command {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    shooter.stopShooting();
+    //shooter.stopShooting();
     shooter.stopIndexer();
-    swerveDrive.stop();
+    //swerveDrive.stop();
     timer.stop();
     timer.reset();
   }

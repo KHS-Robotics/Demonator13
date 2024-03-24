@@ -50,7 +50,7 @@ public class TargetPointWhileDriving extends Command {
     fieldRelative = (RobotContainer.driverController.getRightTriggerAxis() < 0.3);
 
 
-    RobotContainer.swerveDrive.holdAngleWhileDriving(xSpeed, ySpeed, angleSetpoint, fieldRelative);
+    RobotContainer.swerveDrive.holdAngleWhileDriving(-xSpeed, -ySpeed, angleSetpoint, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()
