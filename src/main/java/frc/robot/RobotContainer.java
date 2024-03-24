@@ -226,7 +226,7 @@ public class RobotContainer {
       }
     }, RobotContainer.shooter)));
 
-    var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote());
+    var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote() && arm.isAtState(ArmState.kIntake));
     intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
@@ -368,7 +368,7 @@ public class RobotContainer {
         new PIDConstants(1.5, 0.0, 0.8),
         SwerveDrive.kMaxSpeedMetersPerSecond,
         Constants.DRIVE_BASE_RADIUS_METERS,
-        new ReplanningConfig(true, true));
+        new ReplanningConfig(true, true, 0.25, 0.1));
 
     AutoBuilder.configureHolonomic(
         swerveDrive::getPose,
@@ -396,7 +396,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetShootFromSubwoofer",
         new SetArmState(ArmState.kShootFromSubwoofer)
             .alongWith(new SetShooterState(ShooterState.kShootFromSubwooferAuto)));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot));
+    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot).andThen(new WaitCommand(0.2)));
 
     // Intake + Indexing
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());

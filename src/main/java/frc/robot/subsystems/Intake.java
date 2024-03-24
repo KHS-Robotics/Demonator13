@@ -111,7 +111,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean hasNoteInside() {
-    return intakeSensor.isPressed();
+    return !intakeSensor.isPressed();
   }
 
   public enum IntakeState {

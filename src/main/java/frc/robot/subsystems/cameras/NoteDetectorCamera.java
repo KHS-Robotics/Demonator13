@@ -30,11 +30,17 @@ public class NoteDetectorCamera extends SubsystemBase {
   }
 
   public List<PhotonTrackedTarget> getTargets() {
-    var result = camera.getLatestResult();
-    if (result.hasTargets()) {
-      return result.getTargets();
+    try {
+      var result = camera.getLatestResult();
+      if (result.hasTargets()) {
+        return result.getTargets();
+
+      }
+      return new ArrayList<PhotonTrackedTarget>();
+    } catch (Exception exception) {
+      exception.printStackTrace();
+      return new ArrayList<PhotonTrackedTarget>();
     }
-    return new ArrayList<PhotonTrackedTarget>();
   }
 
   public Optional<PhotonTrackedTarget> getNearestTarget() {
@@ -69,10 +75,13 @@ public class NoteDetectorCamera extends SubsystemBase {
 
     // find x and y by multiplying the x and y components of the unit vector by t
     Translation2d noteCameraRelative = new Translation2d(targetVector.getX() * t, targetVector.getY() * t);
-    // rotate translation back to account for camera (now as if the camera was parallel to robot's rotation)
-    //Translation2d noteCameraRelativeRotated = noteCameraRelative.rotateBy(Rotation2d.fromDegrees(-20));
+    // rotate translation back to account for camera (now as if the camera was
+    // parallel to robot's rotation)
+    // Translation2d noteCameraRelativeRotated =
+    // noteCameraRelative.rotateBy(Rotation2d.fromDegrees(-20));
     // remove camera offset and rotate by robot angle
-    Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d()).rotateBy(robotPose.getRotation());
+    Translation2d noteRobotRelative = noteCameraRelative.plus(cameraOffset.getTranslation().toTranslation2d())
+        .rotateBy(robotPose.getRotation());
     // add robot pose
     Translation2d noteFieldRelative = noteRobotRelative.plus(robotPose.getTranslation());
 
@@ -101,11 +110,9 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //no more caching
+    // no more caching
     notes.clear();
     allNotePoses.clear();
-
-
 
     for (PhotonTrackedTarget t : getTargets()) {
       notes.add(new Note(estimateNotePose(t)));

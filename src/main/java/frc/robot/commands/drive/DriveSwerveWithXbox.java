@@ -55,7 +55,7 @@ public class DriveSwerveWithXbox extends Command {
           * SwerveDrive.kMaxAngularSpeedRadiansPerSecond;
     }
 
-    RobotContainer.swerveDrive.drive(xSpeed, ySpeed, rot, fieldRelative);
+    RobotContainer.swerveDrive.drive(-xSpeed, -ySpeed, rot, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()

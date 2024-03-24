@@ -18,7 +18,6 @@ public class RobotMap {
   public static final int JOYSTICK_PORT = 1;
 
   public static final int LED_PORT = 0;
-  public static final int LED_PORT_2 = 1;
 
   public static final int INTAKE_MOTOR = 12;
   public static final int INTAKE_PIVOT = 5;

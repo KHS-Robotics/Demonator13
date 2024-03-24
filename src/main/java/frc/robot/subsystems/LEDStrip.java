@@ -217,7 +217,7 @@ public class LEDStrip {
   // disabled pattern
   public void runIntake() {
     ticksPerSecond = 50;
-    if (RobotContainer.shooter.hasNote() || !RobotContainer.intake.hasNoteInside()) {
+    if (RobotContainer.shooter.hasNote() || RobotContainer.intake.hasNoteInside()) {
       if (counter % 3 == 0) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
           setRGB(i, 255, 50, 0);

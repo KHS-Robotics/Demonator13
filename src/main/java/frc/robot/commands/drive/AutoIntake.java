@@ -37,7 +37,7 @@ public class AutoIntake extends Command {
 
     // update target based on camera
     this.target = RobotContainer.intakeCamera.getNearestNote();
-    if (this.target.isEmpty()) {
+    if (this.target.isEmpty() || RobotContainer.shooter.hasNote() || RobotContainer.intake.hasNoteInside()) {
       return;
     }
 

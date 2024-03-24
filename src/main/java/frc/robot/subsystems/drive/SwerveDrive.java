@@ -52,17 +52,12 @@ public class SwerveDrive extends SubsystemBase {
   private PIDController yPid;
   public double vX;
   public double vY;
-  private final Translation2d frontLeftLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS,
-      Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d frontRightLocation = new Translation2d(Constants.DRIVE_BASE_RADIUS_METERS,
-      -Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d rearLeftLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS,
-      Constants.DRIVE_BASE_RADIUS_METERS);
-  private final Translation2d rearRightLocation = new Translation2d(-Constants.DRIVE_BASE_RADIUS_METERS,
-      -Constants.DRIVE_BASE_RADIUS_METERS);
+  private final Translation2d frontLeftLocation = Constants.FRONT_LEFT_OFFSET;
+  private final Translation2d frontRightLocation = Constants.FRONT_RIGHT_OFFSET;
+  private final Translation2d rearLeftLocation = Constants.REAR_LEFT_OFFSET;
+  private final Translation2d rearRightLocation = Constants.REAR_RIGHT_OFFSET;
 
   public boolean fullyTrustVision = false;
-  private DoubleArrayPublisher robotPosePublisher;
   private double[] poseArray = new double[] {0, 0, 0};
   public Pose2d frontVisionPose = new Pose2d();
   public Pose2d rearVisionPose = new Pose2d();
@@ -140,7 +135,7 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition(0, new Rotation2d(rearRight.getAngle()))
       }, new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
       VecBuilder.fill(0.1, 0.1, 0.1),
-      VecBuilder.fill(6, 6, 0.1));
+      VecBuilder.fill(6, 6, Double.MAX_VALUE));
 
   /**
    * Constructs Swerve Drive
@@ -153,7 +148,6 @@ public class SwerveDrive extends SubsystemBase {
     anglePid.setTolerance(1);
     xPid.setTolerance(0.1);
     yPid.setTolerance(0.1);
-    robotPosePublisher = NetworkTableInstance.getDefault().getDoubleArrayTopic("robotPose").publish();
   }
 
   public void setDriveCurrentLimits(int amps) {
@@ -523,10 +517,10 @@ public class SwerveDrive extends SubsystemBase {
     RobotContainer.field.setRobotPose(pose);
     RobotContainer.field.getObject("RearVisionPose").setPose(rearVisionPose);
     RobotContainer.field.getObject("FrontVisionPose").setPose(frontVisionPose);
-    // poseArray[0] = pose.getX();
-    // poseArray[1] = pose.getY();
-    // poseArray[2] = pose.getRotation().getRadians();
-    // robotPosePublisher.set(poseArray);
+    poseArray[0] = pose.getX();
+    poseArray[1] = pose.getY();
+    poseArray[2] = pose.getRotation().getRadians();
+    SmartDashboard.putNumberArray("robotPose", poseArray);
     
 
     // var yaw = RobotContainer.getRobotYaw();
@@ -539,5 +533,7 @@ public class SwerveDrive extends SubsystemBase {
     SmartDashboard.putNumber("Pose-X", pose.getX());
     SmartDashboard.putNumber("Pose-Y", pose.getY());
     SmartDashboard.putNumber("Pose-Radians", pose.getRotation().getRadians());
+
+
   }
 }

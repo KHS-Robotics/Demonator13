@@ -92,9 +92,9 @@ public class Shooter extends SubsystemBase {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     shootMotor.setInverted(true);
 
-    pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
-    pivotMotor.setIdleMode(IdleMode.kBrake);
-    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
+    // pivotMotor = new CANSparkMax(RobotMap.SHOOTER_PIVOT, MotorType.kBrushless);
+    // pivotMotor.setIdleMode(IdleMode.kBrake);
+    // pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
 
     indexMotor = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
     indexMotor.setIdleMode(IdleMode.kBrake);
@@ -106,8 +106,8 @@ public class Shooter extends SubsystemBase {
     shooterEncoder = shootMotor.getEncoder();
     // rpm to rev/s to m/s
     shooterEncoder.setVelocityConversionFactor((1 / 60.0) * (2 * Math.PI * kWheelRadius));
-    pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0.145);
+    // pivotEncoder = pivotMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    // pivotEncoder.setZeroOffset(0.145);
 
     shooterPID = shootMotor.getPIDController();
     shooterPID.setP(kShooterP);
@@ -117,9 +117,9 @@ public class Shooter extends SubsystemBase {
     shooterPID.setIZone(3);
     shooterPID.setOutputRange(-1, 0);
 
-    pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
-    pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
-    pivotPID.setIZone(0.075);
+    // pivotFF = new ArmFeedforward(pivotkS, pivotkG, pivotkV, pivotkA);
+    // pivotPID = new PIDController(pivotkP, pivotkI, pivotkD);
+    // pivotPID.setIZone(0.075);
 
     projectileEquation3d = (double[] x) -> {
       double vx = x[3];
@@ -135,10 +135,10 @@ public class Shooter extends SubsystemBase {
   }
 
   public void goToSetpoint(double angle) {
-    double pidOutput = pivotPID.calculate(getPosition(), rotationSetpoint);
-    double ffOutput = pivotFF.calculate(getPosition() + RobotContainer.arm.getPosition(), 0);
-    var output = pidOutput + ffOutput;
-    pivotMotor.setVoltage(-output);
+    // double pidOutput = pivotPID.calculate(getPosition(), rotationSetpoint);
+    // double ffOutput = pivotFF.calculate(getPosition() + RobotContainer.arm.getPosition(), 0);
+    // var output = pidOutput + ffOutput;
+    // pivotMotor.setVoltage(-output);
   }
 
   public double getAbsoluteAngle() {
@@ -204,7 +204,7 @@ public class Shooter extends SubsystemBase {
 
   public void setSetpoint(double setpoint) {
     this.rotationSetpoint = setpoint;
-    pivotPID.reset();
+    //pivotPID.reset();
   }
 
   public boolean isShooterRampedUp(double tolerance) {
@@ -403,9 +403,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("shooterAngle", getPosition());
+    // SmartDashboard.putNumber("shooterAngle", getPosition());
     // SmartDashboard.putNumber("shooterAngleSetpoint", rotationSetpoint);
-    SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
+    // SmartDashboard.putNumber("shooterAngleError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putNumber("shooterAngleAbsolute", getAbsoluteAngle());
     SmartDashboard.putNumber("Shooter-Velocity", -getVelocity());
     SmartDashboard.putBoolean("Shooter-HasNote", hasNote());
@@ -416,6 +416,6 @@ public class Shooter extends SubsystemBase {
     // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);
     // SmartDashboard.putBoolean((""shooterGoodTrajectory", goodTrajectory);
 
-    goToSetpoint(rotationSetpoint);
+    // goToSetpoint(rotationSetpoint);
   }
 }

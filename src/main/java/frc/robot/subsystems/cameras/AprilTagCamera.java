@@ -38,7 +38,7 @@ public class AprilTagCamera extends SubsystemBase {
 
   public AprilTagCamera(String cameraName, Transform3d cameraOffset) {
     camera = new PhotonCamera(cameraName);
-    poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera,
+    poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
         cameraOffset);
     poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
@@ -48,12 +48,17 @@ public class AprilTagCamera extends SubsystemBase {
   }
 
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-    var visionEst = poseEstimator.update();
-    double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
-    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-    if (newResult)
-      lastEstTimestamp = latestTimestamp;
-    return visionEst;
+    try {
+      var visionEst = poseEstimator.update();
+      double latestTimestamp = camera.getLatestResult().getTimestampSeconds();
+      boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
+      if (newResult)
+        lastEstTimestamp = latestTimestamp;
+      return visionEst;
+    } catch (Exception exception) {
+      exception.printStackTrace();
+      return Optional.empty();
+    }
   }
 
   /**
@@ -69,7 +74,7 @@ public class AprilTagCamera extends SubsystemBase {
     if (!getLatestResult().hasTargets()) {
       return VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     }
-    var estStdDevs = VecBuilder.fill(0.02, 0.02, 0.02);
+    var estStdDevs = VecBuilder.fill(0.2, 0.2, 0.8);
     var targets = getLatestResult().getTargets();
     int numTags = 0;
     double avgDist = 0;
@@ -85,7 +90,8 @@ public class AprilTagCamera extends SubsystemBase {
     avgDist /= numTags;
     // Decrease std devs if multiple targets are visible
     if (numTags > 1)
-      estStdDevs = VecBuilder.fill(0.2, 0.2, Double.MAX_VALUE);;
+      estStdDevs = VecBuilder.fill(0.2, 0.2, Double.MAX_VALUE);
+    ;
     // Increase std devs based on (average) distance
     if (numTags == 1 && avgDist > 4)
       estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
