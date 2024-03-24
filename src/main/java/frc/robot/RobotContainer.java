@@ -40,6 +40,7 @@ import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
+import frc.robot.commands.shooter.NoteVisible;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
@@ -399,7 +400,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot).andThen(new WaitCommand(0.2)));
 
     // Intake + Indexing
+    NamedCommands.registerCommand("AutoIntake", new AutoIntake());
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
+    NamedCommands.registerCommand("NoteVisible", new NoteVisible());
     NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(4.5));
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
