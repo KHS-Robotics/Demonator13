@@ -100,7 +100,7 @@ public class Shooter extends SubsystemBase {
     indexMotor.setIdleMode(IdleMode.kBrake);
     indexSensor = indexMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
 
-    shootMotor.setSmartCurrentLimit(30);
+    shootMotor.setSmartCurrentLimit(40);
     indexMotor.setSmartCurrentLimit(40);
 
     shooterEncoder = shootMotor.getEncoder();

@@ -68,9 +68,9 @@ public class SwerveModule extends SubsystemBase {
     setName("Module-" + name);
 
     driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
     pivotMotor = new CANSparkMax(pivotMotorChannel, MotorType.kBrushless);
-    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
+    pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
     pivotMotor.setSmartCurrentLimit(30);
 
     driveMotor.setSmartCurrentLimit(40);

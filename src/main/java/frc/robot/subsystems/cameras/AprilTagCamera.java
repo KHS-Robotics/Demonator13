@@ -90,7 +90,7 @@ public class AprilTagCamera extends SubsystemBase {
     avgDist /= numTags;
     // Decrease std devs if multiple targets are visible
     if (numTags > 1)
-      estStdDevs = VecBuilder.fill(0.2, 0.2, Double.MAX_VALUE);
+      estStdDevs = VecBuilder.fill(0.2, 0.2, 0.2);
     ;
     // Increase std devs based on (average) distance
     if (numTags == 1 && avgDist > 4)

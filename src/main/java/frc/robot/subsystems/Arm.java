@@ -34,8 +34,8 @@ public class Arm extends SubsystemBase {
     pivotFollower.setIdleMode(IdleMode.kBrake);
     pivotFollower.follow(pivotMotor, true);
 
-    pivotMotor.setSmartCurrentLimit(40);
-    pivotFollower.setSmartCurrentLimit(40);
+    pivotMotor.setSmartCurrentLimit(45);
+    pivotFollower.setSmartCurrentLimit(45);
     
     pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
     
@@ -79,11 +79,12 @@ public class Arm extends SubsystemBase {
   }
 
   public enum ArmState {
-    kStow(0.618),
+    kStow(0.63),
     kDeployDemonHorns(0.605),
     kIntake(0.83),
     kShoot(0.75),
     kShootFromSubwoofer(0.75),
+    kShootFromSubwooferAuto(0.7575),
     kShootFromPodium(0.7075),
     kAmp(0.513),
     kFeedFromCenter(0.75);

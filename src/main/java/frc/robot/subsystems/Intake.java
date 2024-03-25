@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase {
 
   private final double kG = 0.59328;
 
-  private double kP = 12;
+  private double kP = 20;
   private double kI = 0.5;
   private double kD = 0.5;
 
@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase {
     pivotMotor.setIdleMode(IdleMode.kBrake);
     pivotMotor.setInverted(true);
     pivotMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
+    pivotMotor.setSmartCurrentLimit(40);
 
     intakeMotor.setSmartCurrentLimit(20);
 
@@ -63,6 +64,9 @@ public class Intake extends SubsystemBase {
 
     if (isIntakeDown() && rotations <= IntakeState.kDown.rotations) {
       output = 0;
+      pivotMotor.setIdleMode(IdleMode.kCoast);
+    } else {
+      pivotMotor.setIdleMode(IdleMode.kBrake);
     }
 
     pivotMotor.setVoltage(output);
@@ -103,7 +107,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean isIntakeDown() {
-    return getPosition() < (IntakeState.kDown.rotations + 0.02);
+    return getPosition() < (IntakeState.kDown.rotations + 0.06);
   }
 
   public boolean isIntakeUp() {

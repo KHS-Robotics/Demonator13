@@ -26,8 +26,8 @@ public class RobotMap {
   public static final int SHOOTER_PIVOT = 3;
   public static final int INDEXER = 6;
 
-  public static final int LEFT_CLIMBER = 0;
-  public static final int RIGHT_CLIMBER = 0;
+  public static final int LEFT_CLIMBER = 15;
+  public static final int RIGHT_CLIMBER = 16;
 
   public static final int ARM_PIVOT = 2;
   public static final int ARM_FOLLOWER = 17;

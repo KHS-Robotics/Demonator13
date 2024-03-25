@@ -25,15 +25,11 @@ public class OperatorStick extends Joystick {
   }
   
   public boolean deployIntake() {
-    return this.getRawButton(16);
+    return this.getRawButton(13);
   }
 
   public boolean retractIntake() {
     return this.getRawButton(14);
-  }
-
-  public boolean midIntake() {
-    return this.getRawButton(15);
   }
 
   public boolean ampArm() {
@@ -52,29 +48,41 @@ public class OperatorStick extends Joystick {
     return this.getRawButton(10);
   }
 
-  public boolean podiumArm() {
-    return this.getRawButton(9);
+  public boolean raiseRight() {
+    return this.getRawButton(11);
+  }
+
+  public boolean raiseLeft() {
+    return this.getRawButton(12);
+  }
+
+  public boolean lowerRight() {
+    return this.getRawButton(16);
+  }
+
+  public boolean lowerLeft() {
+    return this.getRawButton(15);
   }
 
   public boolean levelArm() {
     return this.getRawButton(8);
   }
 
-  public boolean fullyTrustVision() {
-    return this.getRawButton(11);
-  }
+  // public boolean fullyTrustVision() {
+  //   return this.getRawButton(11);
+  // }
 
   public boolean getShooterRamping() {
     return this.getRawAxis(3) < -0.99;
   }
 
   public boolean feedShotSetpoint() {
-    return this.getRawButton(12);
+    return this.getRawButton(9);
   }
 
-  public boolean forceIndex() {
-    return this.getRawButton(11);
-  }
+  // public boolean forceIndex() {
+  //   return this.getRawButton(11);
+  // }
 /* 
   public boolean stageArm() {
     return this.getRawButton();

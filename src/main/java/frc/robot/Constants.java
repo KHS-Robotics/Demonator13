@@ -21,7 +21,7 @@ public class Constants {
   public static final Translation2d REAR_RIGHT_OFFSET = new Translation2d(Units.inchesToMeters(-10.7), Units.inchesToMeters(-11.7));
 
 
-  public static final double PIVOT_P = 0.01;  
+  public static final double PIVOT_P = 0.007;  
   public static final double PIVOT_I = 0.0;
   public static final double PIVOT_D = 0.0001;
 

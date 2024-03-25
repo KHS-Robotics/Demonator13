@@ -81,11 +81,11 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "race",
+                "type": "sequential",
                 "data": {
                   "commands": [
                     {
@@ -97,7 +97,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "NoteVisible"
+                        "name": "StopSwerves"
                       }
                     }
                   ]
@@ -106,7 +106,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AutoIntake"
+                  "name": "HasNote"
                 }
               }
             ]
