@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -214,6 +215,12 @@ public class RobotContainer {
 
     var autoIntakeNote = driverController.leftBumper();
     autoIntakeNote.whileTrue(new AutoIntake());
+
+    // var shootSpeaker = driverController.a();
+    // shootSpeaker.whileTrue(new ShootSpeaker());
+    // shootSpeaker.onFalse(new InstantCommand(() -> {
+    //   shooter.setVelocity(15);
+    // }));
   }
 
   /** Binds commands to the operator stick. */
@@ -252,10 +259,12 @@ public class RobotContainer {
     outtakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.intake.outtake();
       RobotContainer.shooter.outdex();
+      RobotContainer.shooter.setShooterVoltage(-12);
     }, RobotContainer.intake, RobotContainer.shooter));
     outtakeNote.onFalse(new InstantCommand(() -> {
       RobotContainer.intake.stop();
       RobotContainer.shooter.stopIndexer();
+      RobotContainer.shooter.stopShooting();
     }, RobotContainer.intake, RobotContainer.shooter));
     
     var deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
@@ -419,7 +428,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("AutoIntake", new AutoIntake());
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
     NamedCommands.registerCommand("NoteVisible", new NoteVisible());
-    NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(4.5));
+    NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(3));
     NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
     NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
@@ -489,8 +498,10 @@ public class RobotContainer {
   }
 
   private Command initSequence() {
-    return new ParallelCommandGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns),
-        new RampShooter(() -> 15), straightenSwervesCommand());
+    // return new ParallelCommandGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns),
+    //     new RampShooter(() -> 15), straightenSwervesCommand());
+    return new ParallelDeadlineGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns).alongWith(
+        new RampShooter(() -> 15)).alongWith( straightenSwervesCommand()));
   }
 
   private Command shootSubwooferSequence() {

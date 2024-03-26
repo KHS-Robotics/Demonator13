@@ -198,6 +198,10 @@ public class Shooter extends SubsystemBase {
     return shooterEncoder.getVelocity();
   }
 
+  public void setShooterVoltage(double voltage) {
+    shootMotor.setVoltage(voltage);
+  }
+
   public void setState(ShooterState state) {
     setSetpoint(state.rotations);
   }
@@ -412,6 +416,7 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("shooterVelocityError", (Math.abs(getVelocity() - (-veloctiySetpoint))));
     SmartDashboard.putNumber("output", shootMotor.getAppliedOutput());
     SmartDashboard.putNumber("setpoint", shootMotor.getOutputCurrent());
+
     // SmartDashboard.putBoolean("shooterAtSetpoint", isShooterRampedUp(1));
     // SmartDashboard.putNumbershooterSetpoint", veloctiySetpoint);
     // SmartDashboard.putBoolean((""shooterGoodTrajectory", goodTrajectory);

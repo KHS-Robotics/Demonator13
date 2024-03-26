@@ -110,16 +110,20 @@ public class NoteDetectorCamera extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // no more caching
-    notes.clear();
-    allNotePoses.clear();
+    try {
+      // no more caching
+      notes.clear();
+      allNotePoses.clear();
 
-    for (PhotonTrackedTarget t : getTargets()) {
-      notes.add(new Note(estimateNotePose(t)));
-      allNotePoses.add(new Pose2d(estimateNotePose(t), new Rotation2d()));
+      for (PhotonTrackedTarget t : getTargets()) {
+        notes.add(new Note(estimateNotePose(t)));
+        allNotePoses.add(new Pose2d(estimateNotePose(t), new Rotation2d()));
+      }
+
+      RobotContainer.field.getObject("note").setPoses(allNotePoses);
+    } catch (Exception exception) {
+      exception.printStackTrace();
     }
-
-    RobotContainer.field.getObject("note").setPoses(allNotePoses);
   }
 
 }

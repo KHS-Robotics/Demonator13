@@ -1,0 +1,88 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.07,
+      "y": 6.64
+    },
+    "rotation": 58.26114746840738
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "InitSequence"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootSubwooferSequence"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "amp get amp"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "NoteVisible"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "return amp get amp"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StopSwerves"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootSubwooferSequence"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

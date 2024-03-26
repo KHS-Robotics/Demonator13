@@ -59,7 +59,7 @@ public class SwerveDrive extends SubsystemBase {
   private final Translation2d rearRightLocation = Constants.REAR_RIGHT_OFFSET;
 
   public boolean fullyTrustVision = false;
-  private double[] poseArray = new double[] {0, 0, 0};
+  private double[] poseArray = new double[] {0, 0, 0, 0, 0};
   public Pose2d frontVisionPose = new Pose2d();
   public Pose2d rearVisionPose = new Pose2d();
 
@@ -197,8 +197,7 @@ public class SwerveDrive extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    this.vX = xSpeed;
-    this.vY = ySpeed;
+    
     if (Math.abs(rot) < 0.005 && Math.abs(xSpeed) < 0.015 && Math.abs(ySpeed) < 0.015) {
       frontLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontLeft.getAngle())));
       frontRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontRight.getAngle())));
@@ -220,6 +219,9 @@ public class SwerveDrive extends SubsystemBase {
       //     .toSwerveModuleStates(
       //         fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, getPose().getRotation())
       //             : new ChassisSpeeds(xSpeed, ySpeed, rot));
+
+      this.vX = desiredChassisSpeeds.vxMetersPerSecond;
+      this.vY = desiredChassisSpeeds.vyMetersPerSecond;
 
       frontLeft.setDesiredState(swerveModuleStates[0]);
       frontRight.setDesiredState(swerveModuleStates[1]);
@@ -520,7 +522,9 @@ public class SwerveDrive extends SubsystemBase {
     RobotContainer.field.getObject("FrontVisionPose").setPose(frontVisionPose);
     poseArray[0] = pose.getX();
     poseArray[1] = pose.getY();
-    poseArray[2] = pose.getRotation().getRadians();
+    poseArray[2] = vX;
+    poseArray[3] = vY;
+    poseArray[4] = pose.getRotation().getRadians();
     SmartDashboard.putNumberArray("robotPose", poseArray);
     
 

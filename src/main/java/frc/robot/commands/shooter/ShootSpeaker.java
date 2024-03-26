@@ -2,15 +2,18 @@ package frc.robot.commands.shooter;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
@@ -27,9 +30,11 @@ public class ShootSpeaker extends Command {
   boolean goodTrajectory = true;
   public Timer timer;
   double[] optimalParams = new double[3];
+  NetworkTableInstance inst;
   DoubleArraySubscriber optimalParamsSubscriber;
   DoubleArrayPublisher targetPosePublisher, robotPosePublisher;
   DoubleArrayTopic optimalParamsTopic, targetPoseTopic, robotPoseTopic;
+  NetworkTable table;
 
   public ShootSpeaker() {
     this.addRequirements(RobotContainer.shooter, RobotContainer.swerveDrive);
@@ -63,9 +68,12 @@ public class ShootSpeaker extends Command {
       targetY = 8.001 - 2.063394 - (1.05 / 2);
       targetZ = 2.05;
     }
-    targetPosePublisher = NetworkTableInstance.getDefault().getDoubleArrayTopic("targetPose").publish();
+    table = NetworkTableInstance.getDefault().getTable("SmartDashboard");
+    
+    targetPosePublisher = table.getDoubleArrayTopic("targetPose").publish();
 
     targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
+    optimalParamsSubscriber = table.getDoubleArrayTopic("optimalParams").subscribe(optimalParams);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -74,13 +82,21 @@ public class ShootSpeaker extends Command {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
 
     optimalParams = optimalParamsSubscriber.get();
+    //System.out.println(optimalParams[0]);
 
     
 
-    RobotContainer.arm.setSetpoint(optimalParams[0]);
+    double armSetpoint = (optimalParams[0] / (Math.PI * 2)) + 0.25;
 
+    if (armSetpoint > 0.81) {
+      armSetpoint = 0.81;
+    }
+    //RobotContainer.arm.setSetpoint(armSetpoint);
 
-    Rotation2d angleSetpoint = Rotation2d.fromRadians(optimalParams[1]).rotateBy(Rotation2d.fromDegrees(180));
+    System.out.println(optimalParams[1]);
+    double rotation = Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX());
+
+    Rotation2d angleSetpoint = Rotation2d.fromRadians(rotation);//Rotation2d.fromRadians(MathUtil.angleModulus(optimalParams[1])).rotateBy(Rotation2d.fromDegrees(180));
 
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
