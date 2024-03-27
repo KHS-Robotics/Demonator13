@@ -170,6 +170,16 @@ public class RobotContainer {
     var robotRelativeDrive = driverController.rightTrigger(0.5);
     robotRelativeDrive.whileTrue(new DriveSwerveWithXbox(false));
 
+    var slowDrive = driverController.x();
+    slowDrive.onTrue(new InstantCommand(() -> {
+      SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 1;
+      SwerveDrive.kMaxSpeedMetersPerSecond = 1;
+    }));
+    slowDrive.onFalse(new InstantCommand(() -> {
+      SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
+      SwerveDrive.kMaxSpeedMetersPerSecond = 4.6;
+    }));
+
     // var turbo = driverController.leftBumper();
     // turbo.onTrue(new InstantCommand(() -> {
     // swerveDrive.setDriveCurrentLimits(50);
@@ -187,13 +197,12 @@ public class RobotContainer {
       shooter.setVelocity(10);
     }, RobotContainer.shooter)));
 
-    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper()
-        && (arm.isAtState(ArmState.kShootFromPodium) || arm.isAtState(ArmState.kShootFromSubwoofer)));
-    shootManual.onTrue(new RampShooter(() -> 15).andThen(new InstantCommand(() -> shooter.feed())));
+    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper());
+    shootManual.onTrue(new InstantCommand(() -> shooter.feed()));
     shootManual.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
-      if (arm.isAtState(ArmState.kShootFromSubwoofer)) {
-        shooter.setVelocity(15);
+      if (!arm.isAtState(ArmState.kAmp)) {
+        shooter.setVelocity(17);
       } else {
         shooter.setVelocity(10);
       }
@@ -216,11 +225,11 @@ public class RobotContainer {
     var autoIntakeNote = driverController.leftBumper();
     autoIntakeNote.whileTrue(new AutoIntake());
 
-    // var shootSpeaker = driverController.a();
-    // shootSpeaker.whileTrue(new ShootSpeaker());
-    // shootSpeaker.onFalse(new InstantCommand(() -> {
-    //   shooter.setVelocity(15);
-    // }));
+    var shootSpeaker = driverController.a();
+    shootSpeaker.whileTrue(new ShootSpeaker());
+    shootSpeaker.onFalse(new InstantCommand(() -> {
+      //shooter.setVelocity(15);
+    }));
   }
 
   /** Binds commands to the operator stick. */
@@ -357,12 +366,12 @@ public class RobotContainer {
 
     Trigger feedSetpoint = new Trigger(operatorStick::feedShotSetpoint);
     feedSetpoint.onTrue(new SetIntakeState(IntakeState.kDown).andThen(
-        new SetArmState(ArmState.kFeedFromCenter).alongWith(new SetShooterState(ShooterState.kFeedFromCenter))
-            .alongWith(new InstantCommand(() -> shooter.setVelocity(18)))));
+        new SetArmState(ArmState.kFeedFromCenter)
+            .alongWith(new InstantCommand(() -> shooter.setVelocity(16)))));
 
     // Trigger forceIndex = new Trigger(operatorStick::forceIndex);
     // forceIndex.onTrue(new InstantCommand(() -> shooter.index()));
-    // forceIndex.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> shooter.stopIndexer())));
+    // 5.543668orceIndex.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> shooter.stopIndexer())));
 
     var raiseRight = new Trigger(operatorStick::raiseRight);
     raiseRight.onTrue(new InstantCommand(() -> climber.raiseRight(), climber));
@@ -379,6 +388,12 @@ public class RobotContainer {
     var lowerLeft = new Trigger(operatorStick::lowerLeft);
     lowerLeft.onTrue(new InstantCommand(() -> climber.lowerLeft(), climber));
     lowerLeft.onFalse(new InstantCommand(() -> climber.stopLeft(), climber));
+
+    var stepAngleUp = new Trigger(operatorStick::stepAngleUp);
+    stepAngleUp.onTrue(new InstantCommand(() -> arm.setSetpoint(arm.rotationSetpoint + 0.0025)));
+
+    var stepAngleDown = new Trigger(operatorStick::stepAngleDown);
+    stepAngleDown.onTrue(new InstantCommand(() -> arm.setSetpoint(arm.rotationSetpoint - 0.0025)));
 
 
   }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
@@ -29,15 +30,10 @@ public class ShootSpeaker extends Command {
   final double v0 = 20;
   boolean goodTrajectory = true;
   public Timer timer;
-  double[] optimalParams = new double[3];
-  NetworkTableInstance inst;
-  DoubleArraySubscriber optimalParamsSubscriber;
-  DoubleArrayPublisher targetPosePublisher, robotPosePublisher;
-  DoubleArrayTopic optimalParamsTopic, targetPoseTopic, robotPoseTopic;
-  NetworkTable table;
+  Rotation2d angleSetpoint;
 
   public ShootSpeaker() {
-    this.addRequirements(RobotContainer.shooter, RobotContainer.swerveDrive);
+    this.addRequirements(RobotContainer.swerveDrive, RobotContainer.arm, RobotContainer.shooter);
     swerveDrive = RobotContainer.swerveDrive;
     shooter = RobotContainer.shooter;
     timer = new Timer();
@@ -46,11 +42,11 @@ public class ShootSpeaker extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    if (!shooter.hasNote()) {
-      hasNoteInitially = false;
-      return;
-    }
-    hasNoteInitially = true;
+    // if (!shooter.hasNote()) {
+    //   hasNoteInitially = false;
+    //   return;
+    // }
+    // hasNoteInitially = true;
 
     Optional<Alliance> alliance = DriverStation.getAlliance();
     hasAlliance = alliance.isPresent();
@@ -60,20 +56,22 @@ public class ShootSpeaker extends Command {
 
     color = alliance.get();
     if (color == Alliance.Blue) {
-      targetX = 0.4572 / 2;
-      targetY = 8.001 - 2.063394 - (1.05 / 2);
+      targetX = 0.108472;
+      targetY = 5.543668;
       targetZ = 2.05;
     } else {
-      targetX = 16.5354 - (0.4572 / 2);
-      targetY = 8.001 - 2.063394 - (1.05 / 2);
+      targetX = 16.452646;
+      targetY = 5.543668;
       targetZ = 2.05;
     }
-    table = NetworkTableInstance.getDefault().getTable("SmartDashboard");
-    
-    targetPosePublisher = table.getDoubleArrayTopic("targetPose").publish();
+    shooter.setVelocity(17);
 
-    targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
-    optimalParamsSubscriber = table.getDoubleArrayTopic("optimalParams").subscribe(optimalParams);
+    // table = NetworkTableInstance.getDefault().getTable("SmartDashboard");
+    
+    // targetPosePublisher = table.getDoubleArrayTopic("targetPose").publish();
+
+    // targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
+    // optimalParamsSubscriber = table.getDoubleArrayTopic("optimalParams").subscribe(optimalParams);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -81,23 +79,30 @@ public class ShootSpeaker extends Command {
   public void execute() {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
 
-    optimalParams = optimalParamsSubscriber.get();
+    // optimalParams = optimalParamsSubscriber.get();
     //System.out.println(optimalParams[0]);
 
     
 
-    double armSetpoint = (optimalParams[0] / (Math.PI * 2)) + 0.25;
+    // double armSetpoint = (optimalParams[0] / (Math.PI * 2)) + 0.25;
 
-    if (armSetpoint > 0.81) {
-      armSetpoint = 0.81;
-    }
-    //RobotContainer.arm.setSetpoint(armSetpoint);
+    // if (armSetpoint > 0.81) {
+    //   armSetpoint = 0.81;
+    // }
+    // //RobotContainer.arm.setSetpoint(armSetpoint);
 
-    System.out.println(optimalParams[1]);
-    double rotation = Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX());
+    // System.out.println(optimalParams[1]);
+    // double rotation = Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX());
 
-    Rotation2d angleSetpoint = Rotation2d.fromRadians(rotation);//Rotation2d.fromRadians(MathUtil.angleModulus(optimalParams[1])).rotateBy(Rotation2d.fromDegrees(180));
+    // Rotation2d angleSetpoint = Rotation2d.fromRadians(rotation);//Rotation2d.fromRadians(MathUtil.angleModulus(optimalParams[1])).rotateBy(Rotation2d.fromDegrees(180));
+    Translation2d vec = new Translation2d(targetX, targetY).minus(robotPose.getTranslation());
+    SmartDashboard.putNumber("targetx", targetX);
+    SmartDashboard.putNumber("targety", targetY);
+    double armAngle = Shooter.shooterTable.get(vec.getNorm());
+    RobotContainer.arm.setSetpoint(armAngle);
+    SmartDashboard.putNumber("distance", vec.getNorm());
 
+    angleSetpoint = Rotation2d.fromRadians(Math.atan2(vec.getY(), vec.getX())).plus(Rotation2d.fromDegrees(180));
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     var xSpeed = 0.0;
@@ -116,18 +121,18 @@ public class ShootSpeaker extends Command {
 
 
     swerveDrive.holdAngleWhileDriving(-xSpeed, -ySpeed, angleSetpoint, fieldRelative);
-    shooter.goodTrajectory = goodTrajectory;
+    // shooter.goodTrajectory = goodTrajectory;
 
-    if (Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(RobotContainer.arm.getPosition() - optimalParams[0]) < 0.3) {
-      shooter.feed();
-      timer.start();
-    }
+    // if (Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(RobotContainer.arm.getPosition() - optimalParams[0]) < 0.3) {
+    //   shooter.feed();
+    //   timer.start();
+    // }
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !hasNoteInitially || !hasAlliance || timer.hasElapsed(0.33);
+    return false; //!hasNoteInitially || !hasAlliance || timer.hasElapsed(0.33);
   }
 
   // Called once after isFinished returns true

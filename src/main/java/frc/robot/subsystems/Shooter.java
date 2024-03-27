@@ -30,6 +30,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -88,6 +89,8 @@ public class Shooter extends SubsystemBase {
 
   public double shooterFlatAngle;
 
+  public static InterpolatingDoubleTreeMap shooterTable = new InterpolatingDoubleTreeMap();
+
   public Shooter() {
     shootMotor = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
     shootMotor.setInverted(true);
@@ -132,6 +135,14 @@ public class Shooter extends SubsystemBase {
 
       return new double[] { vx, vy, vz, ax, ay, az, 0, 0 };
     };
+
+    shooterTable.put(1.12, 0.7565);
+    shooterTable.put(1.32, 0.745);
+    shooterTable.put(1.76, 0.73);
+    shooterTable.put(2.12, 0.722);
+    shooterTable.put(2.35, 0.7175);
+    shooterTable.put(2.76, 0.715);
+    
   }
 
   public void goToSetpoint(double angle) {

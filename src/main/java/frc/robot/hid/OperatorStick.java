@@ -23,6 +23,14 @@ public class OperatorStick extends Joystick {
   public boolean scoreAmp() {
     return this.getRawButton(2);
   }
+
+  public boolean stepAngleUp() {
+    return this.getRawButton(4);
+  }
+
+  public boolean stepAngleDown() {
+    return this.getRawButton(3);
+  }
   
   public boolean deployIntake() {
     return this.getRawButton(13);

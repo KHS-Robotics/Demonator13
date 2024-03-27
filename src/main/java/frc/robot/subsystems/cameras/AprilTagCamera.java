@@ -38,7 +38,7 @@ public class AprilTagCamera extends SubsystemBase {
 
   public AprilTagCamera(String cameraName, Transform3d cameraOffset) {
     camera = new PhotonCamera(cameraName);
-    poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, camera,
+    poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, camera,
         cameraOffset);
     poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }

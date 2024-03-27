@@ -17,8 +17,8 @@ public class Arm extends SubsystemBase {
   private CANcoder pivotEncoder;
   private PIDController armPid;
 
-  private double kP = 25;
-  private double kI = 0;
+  private double kP = 30;
+  private double kI = 6;
   private double kD = 0;
 
   private double kG = 0.7;
@@ -38,11 +38,14 @@ public class Arm extends SubsystemBase {
     pivotFollower.setSmartCurrentLimit(45);
     
     pivotEncoder = new CANcoder(RobotMap.ARM_CANCODER);
+
+    
     
     // pivotMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
     // pivotMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
     
     armPid = new PIDController(kP, kI, kD);
+    armPid.setIZone(0.1);
   }
 
   public void goToSetpoint(double angle) {
@@ -71,7 +74,7 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean isAtState(ArmState state) {
-    return Math.abs(getPosition() - state.rotations) <= 0.02;
+    return Math.abs(getPosition() - state.rotations) <= 0.01;
   }
 
   public boolean isArmClearingIntake() {
@@ -81,7 +84,7 @@ public class Arm extends SubsystemBase {
   public enum ArmState {
     kStow(0.63),
     kDeployDemonHorns(0.605),
-    kIntake(0.83),
+    kIntake(0.827),
     kShoot(0.75),
     kShootFromSubwoofer(0.75),
     kShootFromSubwooferAuto(0.7575),
@@ -99,7 +102,7 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("armAngle", getPosition());
-    // SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
+    SmartDashboard.putNumber("armSetpoint", rotationSetpoint);
     SmartDashboard.putNumber("armError", Math.abs(rotationSetpoint - getPosition()));
     // SmartDashboard.putBoolean("armAtSetpoint", Math.abs(rotationSetpoint - getPosition()) <= 0.02);
 

@@ -7,19 +7,15 @@
 
 package frc.robot.subsystems.drive;
 
-import java.sql.Driver;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
-
-import com.fasterxml.jackson.databind.InjectableValues.Std;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.estimator.UnscentedKalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -30,9 +26,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -198,7 +191,7 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     
-    if (Math.abs(rot) < 0.005 && Math.abs(xSpeed) < 0.015 && Math.abs(ySpeed) < 0.015) {
+    if (Math.abs(rot) < 0.005 && Math.abs(xSpeed) < 0.005 && Math.abs(ySpeed) < 0.005) {
       frontLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontLeft.getAngle())));
       frontRight.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(frontRight.getAngle())));
       rearLeft.setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(rearLeft.getAngle())));
@@ -517,14 +510,16 @@ public class SwerveDrive extends SubsystemBase {
     updateOdometry();
 
     var pose = getPose();
+
+
     RobotContainer.field.setRobotPose(pose);
     RobotContainer.field.getObject("RearVisionPose").setPose(rearVisionPose);
     RobotContainer.field.getObject("FrontVisionPose").setPose(frontVisionPose);
-    poseArray[0] = pose.getX();
-    poseArray[1] = pose.getY();
-    poseArray[2] = vX;
-    poseArray[3] = vY;
-    poseArray[4] = pose.getRotation().getRadians();
+    // poseArray[0] = pose.getX();
+    // poseArray[1] = pose.getY();
+    // poseArray[2] = vX;
+    // poseArray[3] = vY;
+    // poseArray[4] = pose.getRotation().getRadians();
     SmartDashboard.putNumberArray("robotPose", poseArray);
     
 
