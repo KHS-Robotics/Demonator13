@@ -46,13 +46,6 @@ public class AutoIntake extends Command {
 
     // angle from robot center to note
     Rotation2d angleToNote = new Rotation2d(Math.atan2(vec.getY(), vec.getX()));
-    // Rotation2d angleToNoteDrive;
-
-    // if (DriverStation.getAlliance().get() == Alliance.Red) {
-    //   angleToNoteDrive = angleToNote.plus(Rotation2d.fromDegrees(180));
-    // } else {
-    //   angleToNoteDrive = angleToNote;
-    // }
 
     // vector from robot center to note, but shifted so that the intake will be on the center of the note
     // this is our actual x,y target that we need to drive to, angleToNote is our actual angle that we need to face

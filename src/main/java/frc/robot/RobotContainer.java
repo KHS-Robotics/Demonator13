@@ -43,7 +43,6 @@ import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.shooter.NoteVisible;
 import frc.robot.commands.shooter.RampShooter;
-import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.commands.shooter.ShootSpeaker;
 import frc.robot.commands.shooter.WaitForNote;
 import frc.robot.hid.OperatorStick;
@@ -54,7 +53,6 @@ import frc.robot.subsystems.LEDStrip;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.cameras.AprilTagCamera;
 import frc.robot.subsystems.cameras.NoteDetectorCamera;
 import frc.robot.subsystems.drive.SwerveDrive;
@@ -123,9 +121,8 @@ public class RobotContainer {
   public static final LEDStrip leds = new LEDStrip();
 
   // Cameras
-  public static final NoteDetectorCamera intakeCamera = new
-  NoteDetectorCamera("NoteCamera",
-  Constants.INTAKE_NOTE_CAMERA_OFFSET);
+  public static final NoteDetectorCamera intakeCamera = new NoteDetectorCamera("NoteCamera",
+      Constants.INTAKE_NOTE_CAMERA_OFFSET);
   public static final AprilTagCamera frontAprilTagCamera = new AprilTagCamera("FrontCamera",
       Constants.FRONT_APRILTAG_CAMERA_OFFSET);
   public static final AprilTagCamera rearAprilTagCamera = new AprilTagCamera("RearCamera",
@@ -222,13 +219,14 @@ public class RobotContainer {
     var cancelAll = driverController.back();
     cancelAll.onTrue(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
-    var autoIntakeNote = driverController.leftBumper();
+    var autoIntakeNote = new Trigger(
+        () -> driverController.getHID().getLeftBumper() && arm.isAtState(ArmState.kIntake) && !shooter.hasNote());
     autoIntakeNote.whileTrue(new AutoIntake());
 
     var shootSpeaker = driverController.a();
     shootSpeaker.whileTrue(new ShootSpeaker());
     shootSpeaker.onFalse(new InstantCommand(() -> {
-      //shooter.setVelocity(15);
+      // shooter.setVelocity(15);
     }));
   }
 
@@ -245,7 +243,8 @@ public class RobotContainer {
       }
     }, RobotContainer.shooter)));
 
-    var intakeNote = new Trigger(() -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote() && arm.isAtState(ArmState.kIntake));
+    var intakeNote = new Trigger(
+        () -> operatorStick.intakeNote() && !RobotContainer.shooter.hasNote() && arm.isAtState(ArmState.kIntake));
     intakeNote.onTrue(new InstantCommand(() -> {
       RobotContainer.shooter.index();
       RobotContainer.intake.intake();
@@ -275,7 +274,7 @@ public class RobotContainer {
       RobotContainer.shooter.stopIndexer();
       RobotContainer.shooter.stopShooting();
     }, RobotContainer.intake, RobotContainer.shooter));
-    
+
     var deployIntake = new Trigger(() -> operatorStick.deployIntake() && RobotContainer.arm.isArmClearingIntake());
     deployIntake.onTrue(new SetIntakeState(IntakeState.kDown));
 
@@ -286,11 +285,11 @@ public class RobotContainer {
     var handoffArmCmd = new ConditionalCommand(
         // onTrue
         new SetIntakeState(IntakeState.kDown)
-            .andThen((new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake)))),
+            .andThen(new SetArmState(ArmState.kIntake)),
         // onFalse
         new SetArmState(ArmState.kStow)
             .andThen(new SetIntakeState(IntakeState.kDown)
-                .andThen((new SetShooterState(ShooterState.kIntake).alongWith(new SetArmState(ArmState.kIntake))))),
+                .andThen(new SetArmState(ArmState.kIntake))),
         () -> arm.isArmClearingIntake() || intake.isIntakeDown());
     handoffArm.onTrue(handoffArmCmd);
 
@@ -302,14 +301,12 @@ public class RobotContainer {
     var subArmCmd = new ConditionalCommand(
         // onTrue
         new SetIntakeState(IntakeState.kDown)
-            .andThen((new SetShooterState(ShooterState.kIntake)
-                .alongWith(new SetArmState(ArmState.kShootFromSubwoofer))))
+            .andThen((new SetArmState(ArmState.kShootFromSubwoofer)))
             .alongWith(new InstantCommand(() -> shooter.setVelocity(15))),
         // onFalse
         new SetArmState(ArmState.kStow)
             .andThen(new SetIntakeState(IntakeState.kDown)
-                .andThen((new SetShooterState(ShooterState.kIntake)
-                    .alongWith(new SetArmState(ArmState.kShootFromSubwoofer))))
+                .andThen((new SetArmState(ArmState.kShootFromSubwoofer)))
                 .alongWith(new InstantCommand(() -> shooter.setVelocity(15)))),
         () -> arm.isArmClearingIntake() || intake.isIntakeDown());
     subArm.onTrue(subArmCmd);
@@ -351,7 +348,7 @@ public class RobotContainer {
 
     Trigger podiumAngle = new Trigger(operatorStick::levelArm);
     podiumAngle.onTrue(new SetArmState(ArmState.kStow).andThen(new SetIntakeState(IntakeState.kUp).andThen(
-        new SetArmState(ArmState.kShootFromPodium).alongWith(new SetShooterState(ShooterState.kIntake))))
+        new SetArmState(ArmState.kShootFromPodium)))
         .alongWith(new InstantCommand(() -> shooter.setVelocity(20))));
 
     // Trigger resetPoseWithVision = new Trigger(operatorStick::fullyTrustVision);
@@ -371,7 +368,8 @@ public class RobotContainer {
 
     // Trigger forceIndex = new Trigger(operatorStick::forceIndex);
     // forceIndex.onTrue(new InstantCommand(() -> shooter.index()));
-    // 5.543668orceIndex.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> shooter.stopIndexer())));
+    // 5.543668orceIndex.onFalse(new WaitCommand(1).andThen(new InstantCommand(() ->
+    // shooter.stopIndexer())));
 
     var raiseRight = new Trigger(operatorStick::raiseRight);
     raiseRight.onTrue(new InstantCommand(() -> climber.raiseRight(), climber));
@@ -394,7 +392,6 @@ public class RobotContainer {
 
     var stepAngleDown = new Trigger(operatorStick::stepAngleDown);
     stepAngleDown.onTrue(new InstantCommand(() -> arm.setSetpoint(arm.rotationSetpoint - 0.0025)));
-
 
   }
 
@@ -434,9 +431,7 @@ public class RobotContainer {
     // Arm
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
     NamedCommands.registerCommand("SetArmAndShooterForIntake", intakeSetpointAndRun());
-    NamedCommands.registerCommand("SetShootFromSubwoofer",
-        new SetArmState(ArmState.kShootFromSubwooferAuto)
-            .alongWith(new SetShooterState(ShooterState.kShootFromSubwooferAuto)));
+    NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwooferAuto));
     NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot).andThen(new WaitCommand(0.2)));
 
     // Intake + Indexing
@@ -502,9 +497,9 @@ public class RobotContainer {
   }
 
   private Command intakeSetpointAndRun() {
-    return (new SetShooterState(ShooterState.kIntake)
-        .alongWith(
-            new SetArmState(ArmState.kIntake))
+    return (
+
+    new SetArmState(ArmState.kIntake)
         .andThen(
             new InstantCommand(() -> {
               intake.intake();
@@ -513,15 +508,18 @@ public class RobotContainer {
   }
 
   private Command initSequence() {
-    // return new ParallelCommandGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns),
-    //     new RampShooter(() -> 15), straightenSwervesCommand());
-    return new ParallelDeadlineGroup(new SetIntakeState(IntakeState.kDown), new SetArmState(ArmState.kDeployDemonHorns).alongWith(
-        new RampShooter(() -> 15)).alongWith( straightenSwervesCommand()));
+    // return new ParallelCommandGroup(new SetIntakeState(IntakeState.kDown), new
+    // SetArmState(ArmState.kDeployDemonHorns),
+    // new RampShooter(() -> 15), straightenSwervesCommand());
+    return new ParallelDeadlineGroup(new SetIntakeState(IntakeState.kDown),
+        new SetArmState(ArmState.kDeployDemonHorns).alongWith(
+            new RampShooter(() -> 15)).alongWith(straightenSwervesCommand()));
   }
 
   private Command shootSubwooferSequence() {
     return new SequentialCommandGroup(new RampShooter(() -> 15)
-        .alongWith(new SetArmState(ArmState.kShootFromSubwooferAuto)), new WaitCommand(0.1), feedCommand(), intakeSetpointAndRun());
+        .alongWith(new SetArmState(ArmState.kShootFromSubwooferAuto)), new WaitCommand(0.1), feedCommand(),
+        intakeSetpointAndRun());
   }
 
   private Command getPathCommand(String name) {

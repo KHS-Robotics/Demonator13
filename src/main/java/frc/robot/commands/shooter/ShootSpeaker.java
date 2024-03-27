@@ -2,22 +2,15 @@ package frc.robot.commands.shooter;
 
 import java.util.Optional;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleArrayTopic;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.drive.SwerveDrive;
 
@@ -66,38 +59,15 @@ public class ShootSpeaker extends Command {
     }
     shooter.setVelocity(17);
 
-    // table = NetworkTableInstance.getDefault().getTable("SmartDashboard");
-    
-    // targetPosePublisher = table.getDoubleArrayTopic("targetPose").publish();
-
-    // targetPosePublisher.set(new double[] {targetX, targetY, targetZ});
-    // optimalParamsSubscriber = table.getDoubleArrayTopic("optimalParams").subscribe(optimalParams);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
     Pose2d robotPose = RobotContainer.swerveDrive.getPose();
-
-    // optimalParams = optimalParamsSubscriber.get();
-    //System.out.println(optimalParams[0]);
-
-    
-
-    // double armSetpoint = (optimalParams[0] / (Math.PI * 2)) + 0.25;
-
-    // if (armSetpoint > 0.81) {
-    //   armSetpoint = 0.81;
-    // }
-    // //RobotContainer.arm.setSetpoint(armSetpoint);
-
-    // System.out.println(optimalParams[1]);
-    // double rotation = Math.atan2(targetY - robotPose.getY(), targetX - robotPose.getX());
-
-    // Rotation2d angleSetpoint = Rotation2d.fromRadians(rotation);//Rotation2d.fromRadians(MathUtil.angleModulus(optimalParams[1])).rotateBy(Rotation2d.fromDegrees(180));
     Translation2d vec = new Translation2d(targetX, targetY).minus(robotPose.getTranslation());
-    SmartDashboard.putNumber("targetx", targetX);
-    SmartDashboard.putNumber("targety", targetY);
+    // SmartDashboard.putNumber("targetx", targetX);
+    // SmartDashboard.putNumber("targety", targetY);
     double armAngle = Shooter.shooterTable.get(vec.getNorm());
     RobotContainer.arm.setSetpoint(armAngle);
     SmartDashboard.putNumber("distance", vec.getNorm());
@@ -121,11 +91,10 @@ public class ShootSpeaker extends Command {
 
 
     swerveDrive.holdAngleWhileDriving(-xSpeed, -ySpeed, angleSetpoint, fieldRelative);
-    // shooter.goodTrajectory = goodTrajectory;
 
-    // if (Math.abs(robotPose.getRotation().getRadians() - optimalParams[1]) < 0.3 && Math.abs(RobotContainer.arm.getPosition() - optimalParams[0]) < 0.3) {
+    // for later
+    // if (RobotContainer.arm.isAtSetpoint()) {
     //   shooter.feed();
-    //   timer.start();
     // }
   }
 

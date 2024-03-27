@@ -8,10 +8,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.intake.SetIntakeState;
-import frc.robot.commands.shooter.SetShooterState;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Shooter.ShooterState;
 
 /** Sets intake, arm and shooter to intake states and then performs AutoIntake. */
 public class AutoPickupNote extends SequentialCommandGroup {
@@ -27,7 +25,7 @@ public class AutoPickupNote extends SequentialCommandGroup {
   public AutoPickupNote() {
     addCommands(
       prepareIntakeForHandoff,
-      new SetArmState(ArmState.kIntake).alongWith(new SetShooterState(ShooterState.kIntake)),
+      new SetArmState(ArmState.kIntake),
       new AutoIntake()
     );
   }

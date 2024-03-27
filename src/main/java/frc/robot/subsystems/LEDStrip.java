@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.RobotMap;
-import frc.robot.subsystems.Arm.ArmState;
 
 public class LEDStrip {
   Thread t;

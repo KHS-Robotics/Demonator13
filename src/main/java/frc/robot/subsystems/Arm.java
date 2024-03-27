@@ -46,6 +46,7 @@ public class Arm extends SubsystemBase {
     
     armPid = new PIDController(kP, kI, kD);
     armPid.setIZone(0.1);
+    armPid.setTolerance(0.01);
   }
 
   public void goToSetpoint(double angle) {
@@ -75,6 +76,10 @@ public class Arm extends SubsystemBase {
 
   public boolean isAtState(ArmState state) {
     return Math.abs(getPosition() - state.rotations) <= 0.01;
+  }
+
+  public boolean isAtSetpoint() {
+    return armPid.atSetpoint();
   }
 
   public boolean isArmClearingIntake() {
