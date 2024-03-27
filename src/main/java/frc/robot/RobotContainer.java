@@ -194,7 +194,7 @@ public class RobotContainer {
       shooter.setVelocity(10);
     }, RobotContainer.shooter)));
 
-    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper());
+    var shootManual = new Trigger(() -> driverController.getHID().getRightBumper() && -shooter.getVelocity() > 8);
     shootManual.onTrue(new InstantCommand(() -> shooter.feed()));
     shootManual.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
@@ -232,7 +232,7 @@ public class RobotContainer {
 
   /** Binds commands to the operator stick. */
   private void configureOperatorStickBindings() {
-    var shootManual = new Trigger(operatorStick::shootManual);
+    var shootManual = new Trigger(() -> operatorStick.shootManual() && -shooter.getVelocity() > 8);
     shootManual.onTrue(new RampShooter(() -> 20).andThen(new InstantCommand(() -> shooter.feed())));
     shootManual.onFalse(new WaitCommand(1).andThen(new InstantCommand(() -> {
       RobotContainer.shooter.stopIndexer();
