@@ -17,8 +17,8 @@ public class Arm extends SubsystemBase {
   private CANcoder pivotEncoder;
   private PIDController armPid;
 
-  private double kP = 30;
-  private double kI = 6;
+  private double kP = 32;
+  private double kI = 8;
   private double kD = 0;
 
   private double kG = 0.7;

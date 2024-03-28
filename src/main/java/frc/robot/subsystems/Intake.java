@@ -132,7 +132,7 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putNumber("IntakeAngle", getPosition());
     // SmartDashboard.putNumber("IntakeSetpoint", rotationSetpoint);
     SmartDashboard.putNumber("IntakeError", Math.abs(getPosition() - rotationSetpoint));
-    // SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
+    SmartDashboard.putBoolean("IntakeHasNote", hasNoteInside());
 
     // kP = SmartDashboard.getNumber("kp", kP);
     // kI = SmartDashboard.getNumber("ki", kI);

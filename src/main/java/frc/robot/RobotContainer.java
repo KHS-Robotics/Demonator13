@@ -223,7 +223,7 @@ public class RobotContainer {
         () -> driverController.getHID().getLeftBumper() && arm.isAtState(ArmState.kIntake) && !shooter.hasNote());
     autoIntakeNote.whileTrue(new AutoIntake());
 
-    var shootSpeaker = driverController.a();
+    var shootSpeaker = new Trigger(() -> driverController.getHID().getAButton() && shooter.hasNote());
     shootSpeaker.whileTrue(new ShootSpeaker());
     shootSpeaker.onFalse(new InstantCommand(() -> {
       // shooter.setVelocity(15);
@@ -297,7 +297,7 @@ public class RobotContainer {
     // ampArm.onTrue(new SetArmState(ArmState.kAmp).alongWith(new
     // SetShooterState(ShooterState.kAmp)));
 
-    var subArm = new Trigger(operatorStick::subwooferArm);
+    var subArm = new Trigger(() -> operatorStick.subwooferArm() && (shooter.hasNote() || (intake.hasNoteInside() && shooter.hasNote()) || (!intake.hasNoteInside() && !shooter.hasNote())));
     var subArmCmd = new ConditionalCommand(
         // onTrue
         new SetIntakeState(IntakeState.kDown)
@@ -319,10 +319,10 @@ public class RobotContainer {
 
     // UNTESTED NEW ARM CODE!!!
 
-    Trigger stowArm = new Trigger(operatorStick::stowArm);
+    Trigger stowArm = new Trigger(() -> operatorStick.stowArm() && (shooter.hasNote() || (intake.hasNoteInside() && shooter.hasNote()) || (!intake.hasNoteInside() && !shooter.hasNote())));
     stowArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToStowCommand()));
 
-    Trigger ampArm = new Trigger(operatorStick::ampArm);
+    Trigger ampArm = new Trigger(() -> operatorStick.ampArm() && (shooter.hasNote() || (intake.hasNoteInside() && shooter.hasNote()) || (!intake.hasNoteInside() && !shooter.hasNote())));
     ampArm.onTrue(new ProxyCommand(() -> StateCommandGenerator.goToAmpCommand())
         .alongWith(new InstantCommand(() -> shooter.setVelocity(10))));
 
@@ -346,7 +346,7 @@ public class RobotContainer {
           shooter.setVelocity(10);
         }, RobotContainer.shooter)));
 
-    Trigger podiumAngle = new Trigger(operatorStick::levelArm);
+    Trigger podiumAngle = new Trigger(() -> operatorStick.podiumArm() && (shooter.hasNote() || (intake.hasNoteInside() && shooter.hasNote()) || (!intake.hasNoteInside() && !shooter.hasNote())));
     podiumAngle.onTrue(new SetArmState(ArmState.kStow).andThen(new SetIntakeState(IntakeState.kUp).andThen(
         new SetArmState(ArmState.kShootFromPodium)))
         .alongWith(new InstantCommand(() -> shooter.setVelocity(20))));
@@ -361,7 +361,7 @@ public class RobotContainer {
     rampShooter.onTrue(new InstantCommand(() -> shooter.setVelocity(10)));
     rampShooter.onFalse(new InstantCommand(() -> shooter.stopShooting()));
 
-    Trigger feedSetpoint = new Trigger(operatorStick::feedShotSetpoint);
+    Trigger feedSetpoint = new Trigger(() -> operatorStick.feedShotSetpoint() && (shooter.hasNote() || (intake.hasNoteInside() && shooter.hasNote()) || (!intake.hasNoteInside() && !shooter.hasNote())));
     feedSetpoint.onTrue(new SetIntakeState(IntakeState.kDown).andThen(
         new SetArmState(ArmState.kFeedFromCenter)
             .alongWith(new InstantCommand(() -> shooter.setVelocity(16)))));

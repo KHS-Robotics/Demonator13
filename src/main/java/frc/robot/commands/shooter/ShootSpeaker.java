@@ -54,7 +54,7 @@ public class ShootSpeaker extends Command {
       targetZ = 2.05;
     } else {
       targetX = 16.452646;
-      targetY = 5.543668;
+      targetY = 5.516698;
       targetZ = 2.05;
     }
     shooter.setVelocity(17);

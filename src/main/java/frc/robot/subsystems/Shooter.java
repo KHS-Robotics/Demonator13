@@ -61,12 +61,18 @@ public class Shooter extends SubsystemBase {
     shooterPID.setIZone(3);
     shooterPID.setOutputRange(-1, 0);
 
-    shooterTable.put(1.12, 0.7565);
-    shooterTable.put(1.32, 0.745);
-    shooterTable.put(1.76, 0.73);
-    shooterTable.put(2.12, 0.722);
-    shooterTable.put(2.35, 0.7175);
-    shooterTable.put(2.76, 0.715);
+    shooterTable.put(1.27, 0.75);
+    shooterTable.put(1.47, 0.745);
+    shooterTable.put(1.67, 0.74);
+    shooterTable.put(1.87, 0.731);
+    shooterTable.put(2.07, 0.72);
+    shooterTable.put(2.27, 0.7175);
+    shooterTable.put(2.47, 0.714);
+    shooterTable.put(2.67, 0.713);
+    shooterTable.put(2.87, 0.7076);
+    shooterTable.put(3.07, 0.7058);
+    shooterTable.put(3.27, 0.70325);
+    shooterTable.put(3.47, 0.7);
     
   }
 

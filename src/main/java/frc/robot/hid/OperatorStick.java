@@ -72,7 +72,7 @@ public class OperatorStick extends Joystick {
     return this.getRawButton(15);
   }
 
-  public boolean levelArm() {
+  public boolean podiumArm() {
     return this.getRawButton(8);
   }
 

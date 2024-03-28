@@ -34,6 +34,6 @@ public class SetArmState extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(RobotContainer.arm.getPosition() - armState.rotations) <= 0.015;
+    return Math.abs(RobotContainer.arm.getPosition() - armState.rotations) <= 0.01;
   }
 }
