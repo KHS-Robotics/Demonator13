@@ -8,7 +8,6 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -27,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
@@ -35,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Dynamic;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
@@ -81,30 +78,6 @@ public class RobotContainer {
 
   public static final AHRS navx = new AHRS(Port.kUSB);
 
-  /**
-   * Returns the angle or "yaw" of the robot in degrees. CW positive ranging from
-   * [-180, 180].
-   */
-  public static double getRobotYaw() {
-    return navx.getYaw();
-  }
-
-  /**
-   * Returns the pitch angle of the robot in degrees. This tracks the
-   * forwards/backwards tilt of the robot.
-   */
-  public static double getRobotPitch() {
-    return navx.getPitch();
-  }
-
-  /**
-   * Returns the roll angle of the robot in degrees. This tracks the
-   * left/right tilt of the robot.
-   */
-  public static double getRobotRoll() {
-    return navx.getRoll();
-  }
-
   public static final Field2d field = new Field2d();
 
   // Human Interface Devices (HIDs)
@@ -117,7 +90,6 @@ public class RobotContainer {
   public static final Shooter shooter = new Shooter();
   public static final Arm arm = new Arm();
   public static final Climber climber = new Climber();
-  // public static final NewLEDStrip ledStrip = new NewLEDStrip();
   public static final LEDStrip leds = new LEDStrip();
 
   // Cameras
@@ -368,9 +340,7 @@ public class RobotContainer {
 
     autoBuilder = new AutoBuilder();
     autoChooser = AutoBuilder.buildAutoChooser();
-    autoChooser.addOption("Dynamic", new Dynamic());
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    SmartDashboard.putString("DynamicAutoString", "");
 
     configurePathPlannerLogging();
   }
@@ -413,7 +383,7 @@ public class RobotContainer {
     // General
     NamedCommands.registerCommand("ShootSubwooferSequence", shootSubwooferSequence());
     NamedCommands.registerCommand("InitSequence", initSequence());
-
+    NamedCommands.registerCommand("StopAll", stopAllCommand());
   }
 
   private Command stopAllCommand() {
@@ -444,79 +414,25 @@ public class RobotContainer {
   }
 
   private Command intakeSetpointAndRun() {
-    return (
-
-    new SetArmState(ArmState.kIntake)
-        .andThen(
-            new InstantCommand(() -> {
-              intake.intake();
-              shooter.indexAuto();
-            }, intake, shooter)));
+    return new SetArmState(ArmState.kIntake)
+        .andThen(new InstantCommand(() -> {
+          intake.intake();
+          shooter.indexAuto();
+        }, intake, shooter));
   }
 
   private Command initSequence() {
-    return new ParallelDeadlineGroup(new SetIntakeState(IntakeState.kDown),
-        new SetArmState(ArmState.kDeployDemonHorns).alongWith(
-            new RampShooter(() -> 15)));//.alongWith(straightenSwervesCommand()));
+    return new ParallelDeadlineGroup(
+        new SetIntakeState(IntakeState.kDown),
+        new SetArmState(ArmState.kDeployDemonHorns).alongWith(new RampShooter(() -> 15)));
   }
 
   private Command shootSubwooferSequence() {
-    return new SequentialCommandGroup(new RampShooter(() -> 15)
-        .alongWith(new SetArmState(ArmState.kShootFromSubwooferAuto)), new WaitCommand(0.1), feedCommand(),
-        intakeSetpointAndRun());
-  }
-
-  private Command getPathCommand(String name) {
-    PathPlannerPath path = PathPlannerPath.fromPathFile(name);
-    return AutoBuilder.followPath(path);
-  }
-
-  private PathPlannerPath getPath(String name) {
-    return PathPlannerPath.fromPathFile(name);
-  }
-
-  private Pose2d pathStartPose(String name) {
-    return getPath(name).getPreviewStartingHolonomicPose();
-  }
-
-  // this will get a string or something from glass idk yet
-  private Command getNoteSequence(String startPosition, String notePosition) {
-    String getNotePathName = startPosition + " get " + notePosition;
-    String getReturnPathName = "return " + startPosition + " get " + notePosition;
     return new SequentialCommandGroup(
-        new ParallelCommandGroup(
-            getPathCommand(getNotePathName).andThen(new InstantCommand(() -> swerveDrive.stop(), swerveDrive)),
-            new WaitForNote().withTimeout(3)),
-        getPathCommand(getReturnPathName),
-        new InstantCommand(() -> swerveDrive.stop(), swerveDrive),
-        shootSubwooferSequence());
-  }
-
-  // THIS EXPECTS YOU TO PUT THE NOTE POSITIONS IN THE RIGHT ORDER!! (I don't want
-  // to sort them based on startPosition because it's 3am and I'm sleepy)
-  public Command fullAuto(String startPosition, String... notePositions) {
-    // if no note positions are passed shoot in place and stop everything
-    if (notePositions.length == 0) {
-      return initSequence().andThen(shootSubwooferSequence()).andThen(stopAllCommand());
-    }
-
-    // set all to lowercase to match the path names
-    for (String s : notePositions) {
-      s = s.toLowerCase();
-    }
-    startPosition = startPosition.toLowerCase();
-
-    // get each note sequence, each noteSequence includes path to get, grab, if
-    // missed timeout after 3 secs, return path, shoot
-    Command[] noteSequences = new Command[notePositions.length];
-    for (int i = 0; i < notePositions.length; i++) {
-      System.out.println(notePositions[i]);
-      noteSequences[i] = getNoteSequence(startPosition, notePositions[i]);
-    }
-
-    // combine init and all noteSequence
-    System.out.println(startPosition + notePositions);
-    return new SequentialCommandGroup(initSequence(), new SequentialCommandGroup(noteSequences));
+        new RampShooter(() -> 15).alongWith(new SetArmState(ArmState.kShootFromSubwooferAuto)),
+        new WaitCommand(0.1),
+        feedCommand(),
+        intakeSetpointAndRun());
   }
 
   private void configurePathPlannerLogging() {

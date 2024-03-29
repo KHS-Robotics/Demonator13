@@ -49,7 +49,7 @@ public class Note {
   // weights should be based on yaw value, close to edge should be weighted very little
   // maybe 0-1 with a factor x^2 or x^3
   // avg = (sum(W*X)/sum(W))
-  private void updatePose() {
+  protected void updatePose() {
     double x = 0.0;
     double y = 0.0;
 

@@ -5,11 +5,8 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -36,15 +33,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     DriverStation.silenceJoystickConnectionWarning(true);
-
-    // Starts recording to data log
-    // DataLogManager.start();
-    // Record both DS control and joystick data
-    // DriverStation.startDataLog(DataLogManager.getLog());
-
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our autonomous chooser on the dashboard.
-    robotContainer = RobotContainer.getInstance();
     
     // for debugging
     CommandScheduler.getInstance().onCommandInitialize((command) -> {
@@ -59,6 +47,10 @@ public class Robot extends TimedRobot {
       var cmdName = command.getName();
       System.out.println(cmdName + " ended.");
     });
+
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our autonomous chooser on the dashboard.
+    robotContainer = RobotContainer.getInstance();
   }
 
   /**
@@ -79,7 +71,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods. This must be called from the
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
-    SmartDashboard.getEntry("LED State").getInstance().flush();
     CommandScheduler.getInstance().run();
   }
 
@@ -96,9 +87,9 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
+    
     SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
     SwerveDrive.kMaxSpeedMetersPerSecond = 4.6;
-    // RobotContainer.shooter.setSetpoint(RobotContainer.shooter.getPosition());
   }
 
   /**
@@ -107,42 +98,22 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    autonomousRoutine = new ProxyCommand(() -> robotContainer.getAutonomousCommand()).andThen(new InstantCommand(() -> {
-      RobotContainer.swerveDrive.stop();
-      RobotContainer.shooter.stopIndexer();
-      RobotContainer.shooter.stopShooting();
-      RobotContainer.intake.stop();
-    }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake));
-
-    // if autonomousRoutine is custom use RobotContainer.fullAuto(start, note...)
-    // somehow get and parse a string from glass for start and note...
-    if (autonomousRoutine.getName().equals("Dynamic")) {
-      String commandString = SmartDashboard.getString("DynamicAutoString", "");
-      String[] split = commandString.split(" ");
-      ArrayList<String> splitList = new ArrayList<>();
-      for (String s : split) {
-        splitList.add(s);
-      }
-      ArrayList<String> notePoseStrings = new ArrayList<>();
-      
-      for (int i = 1; i < split.length; i++) {
-        notePoseStrings.add(splitList.get(i));
-      }
-
-      String[] notePoseStringsArray = new String[notePoseStrings.size()];
-      for (int i = 0; i < notePoseStrings.size(); i++) {
-        notePoseStringsArray[i] = notePoseStrings.get(i);
-      }
-
-      if (commandString.equals("")) {
-        autonomousRoutine = robotContainer.fullAuto("center");
-      } else {
-        autonomousRoutine = robotContainer.fullAuto(splitList.get(0), notePoseStringsArray);
-      }
-
-    }
+    autonomousRoutine = robotContainer.getAutonomousCommand();
 
     if (autonomousRoutine != null) {
+      // for the end of the auto routine
+      var stopAllCmd = new InstantCommand(() -> {
+        RobotContainer.swerveDrive.stop();
+        RobotContainer.shooter.stopIndexer();
+        RobotContainer.shooter.stopShooting();
+        RobotContainer.intake.stop();
+      }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake);
+
+      
+      // get the auto routine as a proxy command so we are free to compose a sequential command group 
+      // using it, run the auto routine then stop all motors
+      new ProxyCommand(() ->autonomousRoutine).andThen(stopAllCmd);
+
       autonomousRoutine.schedule();
     }
   }

@@ -9,10 +9,11 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class DriveSwerveWithXbox extends Command {
-  private boolean fieldRelative = false;
+  private final boolean fieldRelative;
 
   public DriveSwerveWithXbox(boolean fod) {
     this.addRequirements(RobotContainer.swerveDrive);
@@ -27,9 +28,6 @@ public class DriveSwerveWithXbox extends Command {
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-
-    // fieldRelative = RobotContainer.driverController.getHID().getRightTriggerAxis() > 0.5;
-
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     var xSpeed = 0.0;
@@ -57,7 +55,7 @@ public class DriveSwerveWithXbox extends Command {
           * SwerveDrive.kMaxAngularSpeedRadiansPerSecond;
     }
 
-    var sign = fieldRelative ? 1 : -1;
+    var sign = fieldRelative || RobotContainer.arm.isAtState(ArmState.kAmp) ? 1 : -1;
     RobotContainer.swerveDrive.drive(-xSpeed*sign, -ySpeed*sign, rot, fieldRelative);
   }
 
