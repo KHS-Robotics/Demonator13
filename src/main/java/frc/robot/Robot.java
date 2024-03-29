@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
+import frc.robot.subsystems.drive.SwerveDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods
@@ -93,6 +96,8 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
+    SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
+    SwerveDrive.kMaxSpeedMetersPerSecond = 4.6;
     // RobotContainer.shooter.setSetpoint(RobotContainer.shooter.getPosition());
   }
 
@@ -102,7 +107,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    autonomousRoutine = robotContainer.getAutonomousCommand();
+    autonomousRoutine = new ProxyCommand(() -> robotContainer.getAutonomousCommand()).andThen(new InstantCommand(() -> {
+      RobotContainer.swerveDrive.stop();
+      RobotContainer.shooter.stopIndexer();
+      RobotContainer.shooter.stopShooting();
+      RobotContainer.intake.stop();
+    }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake));
 
     // if autonomousRoutine is custom use RobotContainer.fullAuto(start, note...)
     // somehow get and parse a string from glass for start and note...

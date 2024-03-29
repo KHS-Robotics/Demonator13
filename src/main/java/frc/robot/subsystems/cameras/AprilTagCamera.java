@@ -75,7 +75,7 @@ public class AprilTagCamera extends SubsystemBase {
       if (!getLatestResult().hasTargets()) {
         return VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
       }
-      var estStdDevs = VecBuilder.fill(0.2, 0.2, 0.8);
+      var estStdDevs = VecBuilder.fill(0.5, 0.5, 0.8);
       var targets = getLatestResult().getTargets();
       int numTags = 0;
       double avgDist = 0;
@@ -90,11 +90,11 @@ public class AprilTagCamera extends SubsystemBase {
         return estStdDevs;
       avgDist /= numTags;
       // Decrease std devs if multiple targets are visible
-      if (numTags > 1)
+      if (numTags > 1 && avgDist < 3.5)
         estStdDevs = VecBuilder.fill(0.2, 0.2, 0.2);
       ;
       // Increase std devs based on (average) distance
-      if (numTags == 1 && avgDist > 4)
+      if (numTags == 1 && avgDist > 3.5)
         estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
       else
         estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));

@@ -457,7 +457,7 @@ public class RobotContainer {
   private Command initSequence() {
     return new ParallelDeadlineGroup(new SetIntakeState(IntakeState.kDown),
         new SetArmState(ArmState.kDeployDemonHorns).alongWith(
-            new RampShooter(() -> 15)).alongWith(straightenSwervesCommand()));
+            new RampShooter(() -> 15)));//.alongWith(straightenSwervesCommand()));
   }
 
   private Command shootSubwooferSequence() {

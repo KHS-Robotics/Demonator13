@@ -70,9 +70,13 @@ public class Shooter extends SubsystemBase {
     shooterTable.put(2.47, 0.714);
     shooterTable.put(2.67, 0.713);
     shooterTable.put(2.87, 0.7076);
+    shooterTable.put(2.97, 0.706);
     shooterTable.put(3.07, 0.7058);
+    shooterTable.put(3.17, 0.7045);
     shooterTable.put(3.27, 0.70325);
+    shooterTable.put(3.37, 0.702);
     shooterTable.put(3.47, 0.7);
+    shooterTable.put(3.57, 0.698);
     
   }
 

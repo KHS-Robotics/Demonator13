@@ -2,44 +2,19 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.07,
-      "y": 4.45
+      "x": 1.42,
+      "y": 5.527514849608872
     },
-    "rotation": -62.4778672611439
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "DeployIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "LiftArmToDeployDemonHorns"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SwerveStraighten"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "RampShooterForManualShot"
-                }
-              }
-            ]
+            "name": "InitSequence"
           }
         },
         {
@@ -53,9 +28,9 @@
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 0.5
+                  "name": "RampShooterForManualShot"
                 }
               },
               {
@@ -74,7 +49,39 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "center get center"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "NoteVisible"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -84,7 +91,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "source get podium"
+                        "pathName": "return center get center"
                       }
                     },
                     {
@@ -99,39 +106,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "HasNote"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "parallel",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "SetShootFromSubwoofer"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "return source get podium"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
+                  "name": "SetShootFromSubwoofer"
                 }
               },
               {
@@ -139,14 +114,14 @@
                 "data": {
                   "name": "Feed"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetArmAndShooterForIntake"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Source side shoot 1"
           }
         }
       ]

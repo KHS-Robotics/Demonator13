@@ -1,20 +1,15 @@
 package frc.robot.commands.drive;
-/*----------------------------------------------------------------------------*/
 
-/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.drive.SwerveDrive;
 
-public class DriveSwerveWithXbox extends Command {
-  private boolean fieldRelative = false;
+public class HoldAngleWhileDriving extends Command {
+    private boolean fieldRelative = false;
+    private Rotation2d angleSetpoint;
 
-  public DriveSwerveWithXbox(boolean fod) {
+  public HoldAngleWhileDriving(boolean fod) {
     this.addRequirements(RobotContainer.swerveDrive);
     this.fieldRelative = fod;
   }
@@ -22,13 +17,14 @@ public class DriveSwerveWithXbox extends Command {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
+    angleSetpoint = RobotContainer.swerveDrive.getPose().getRotation();
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-
-    // fieldRelative = RobotContainer.driverController.getHID().getRightTriggerAxis() > 0.5;
+    
+    fieldRelative = RobotContainer.driverController.getHID().getRightTriggerAxis() > 0.5;
 
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
@@ -58,7 +54,7 @@ public class DriveSwerveWithXbox extends Command {
     }
 
     var sign = fieldRelative ? 1 : -1;
-    RobotContainer.swerveDrive.drive(-xSpeed*sign, -ySpeed*sign, rot, fieldRelative);
+    RobotContainer.swerveDrive.holdAngleWhileDriving(-xSpeed*sign, -ySpeed*sign, angleSetpoint, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()
