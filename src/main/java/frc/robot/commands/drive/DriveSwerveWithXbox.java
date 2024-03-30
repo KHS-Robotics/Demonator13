@@ -55,7 +55,7 @@ public class DriveSwerveWithXbox extends Command {
           * SwerveDrive.kMaxAngularSpeedRadiansPerSecond;
     }
 
-    var sign = fieldRelative || RobotContainer.arm.isAtState(ArmState.kAmp) ? 1 : -1;
+    var sign = fieldRelative || RobotContainer.arm.rotationSetpoint == ArmState.kAmp.rotations ? 1 : -1;
     RobotContainer.swerveDrive.drive(-xSpeed*sign, -ySpeed*sign, rot, fieldRelative);
   }
 
