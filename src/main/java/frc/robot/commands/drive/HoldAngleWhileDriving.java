@@ -40,7 +40,7 @@ public class HoldAngleWhileDriving extends Command {
     }
 
     var fieldRelative = RobotContainer.driverController.getHID().getRightTriggerAxis() > 0.5;
-    var sign = fieldRelative || RobotContainer.arm.isAtState(ArmState.kAmp) ? 1 : -1;
+    var sign = fieldRelative || RobotContainer.arm.rotationSetpoint == ArmState.kAmp.rotations ? 1 : -1;
     RobotContainer.swerveDrive.holdAngleWhileDriving(-xSpeed*sign, -ySpeed*sign, angleSetpoint, fieldRelative);
   }
 

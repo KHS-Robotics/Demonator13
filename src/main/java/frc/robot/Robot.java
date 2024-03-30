@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     DriverStation.silenceJoystickConnectionWarning(true);
-    
+
     // for debugging
     CommandScheduler.getInstance().onCommandInitialize((command) -> {
       var cmdName = command.getName();
@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
   public void disabledPeriodic() {
     RobotContainer.intake.setSetpoint(RobotContainer.intake.getPosition());
     RobotContainer.arm.setSetpoint(RobotContainer.arm.getPosition());
-    
+
     SwerveDrive.kMaxAngularSpeedRadiansPerSecond = 3 * Math.PI;
     SwerveDrive.kMaxSpeedMetersPerSecond = 4.6;
   }
@@ -98,9 +98,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    autonomousRoutine = robotContainer.getAutonomousCommand();
+    var selectedAutoRoutine = robotContainer.getAutonomousCommand();
 
-    if (autonomousRoutine != null) {
+    if (selectedAutoRoutine != null) {
       // for the end of the auto routine
       var stopAllCmd = new InstantCommand(() -> {
         RobotContainer.swerveDrive.stop();
@@ -109,11 +109,9 @@ public class Robot extends TimedRobot {
         RobotContainer.intake.stop();
       }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake);
 
-      
-      // get the auto routine as a proxy command so we are free to compose a sequential command group 
-      // using it, run the auto routine then stop all motors
-      new ProxyCommand(() ->autonomousRoutine).andThen(stopAllCmd);
-
+      // get the auto routine as a proxy command so we are free to compose a
+      // sequential command group using it, run the auto routine then stop all motors
+      autonomousRoutine = new ProxyCommand(() -> selectedAutoRoutine).andThen(stopAllCmd);
       autonomousRoutine.schedule();
     }
   }
