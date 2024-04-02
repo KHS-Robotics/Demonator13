@@ -66,8 +66,24 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoChooser;
 
+  /**
+   * Gets the selected autonomous routine from SmartDashboard.
+   * 
+   * @return the selected autonomous routine from the dropdown in SmartDashboard
+   */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    // get as a proxy command so we are free to compose a SequentialCommand group
+    // from it while avoiding a runtime exception
+    return new ProxyCommand(() -> {
+      var selected = autoChooser.getSelected();
+      return selected != null ? selected
+          : new InstantCommand(() -> DriverStation.reportWarning("Null autonomous was selected.", false));
+    }).andThen(new InstantCommand(() -> {
+      RobotContainer.swerveDrive.stop();
+      RobotContainer.shooter.stopIndexer();
+      RobotContainer.shooter.stopShooting();
+      RobotContainer.intake.stop();
+    }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake));
   }
 
   private AutoBuilder autoBuilder;

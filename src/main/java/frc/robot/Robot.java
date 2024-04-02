@@ -9,8 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 /**
@@ -51,6 +49,9 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = RobotContainer.getInstance();
+
+    // instantiate the autonomous routine
+    autonomousRoutine = robotContainer.getAutonomousCommand();
   }
 
   /**
@@ -98,20 +99,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    var selectedAutoRoutine = robotContainer.getAutonomousCommand();
-
-    if (selectedAutoRoutine != null) {
-      // for the end of the auto routine
-      var stopAllCmd = new InstantCommand(() -> {
-        RobotContainer.swerveDrive.stop();
-        RobotContainer.shooter.stopIndexer();
-        RobotContainer.shooter.stopShooting();
-        RobotContainer.intake.stop();
-      }, RobotContainer.swerveDrive, RobotContainer.shooter, RobotContainer.intake);
-
-      // get the auto routine as a proxy command so we are free to compose a
-      // sequential command group using it, run the auto routine then stop all motors
-      autonomousRoutine = new ProxyCommand(() -> selectedAutoRoutine).andThen(stopAllCmd);
+    if (autonomousRoutine != null) {
       autonomousRoutine.schedule();
     }
   }
