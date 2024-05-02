@@ -1,9 +1,10 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class HoldAngleWhileDriving extends Command {
@@ -40,8 +41,8 @@ public class HoldAngleWhileDriving extends Command {
     }
 
     var fieldRelative = RobotContainer.driverController.getHID().getRightTriggerAxis() > 0.5;
-    var sign = fieldRelative || RobotContainer.arm.rotationSetpoint == ArmState.kAmp.rotations ? 1 : -1;
-    RobotContainer.swerveDrive.holdAngleWhileDriving(-xSpeed*sign, -ySpeed*sign, angleSetpoint, fieldRelative);
+    var sign = fieldRelative && !DriverStation.getAlliance().isEmpty() && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1;
+    RobotContainer.swerveDrive.holdAngleWhileDriving(sign*xSpeed, sign*ySpeed, angleSetpoint, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()

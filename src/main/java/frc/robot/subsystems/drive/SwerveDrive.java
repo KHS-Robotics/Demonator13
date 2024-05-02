@@ -341,7 +341,7 @@ public class SwerveDrive extends SubsystemBase {
 
     // vision
     if (RobotState.isTeleop() || RobotState.isDisabled()) {
-      updateOdometryUsingFrontCamera();
+      // updateOdometryUsingFrontCamera();
       updateOdometryUsingRearCamera();
     }
   }

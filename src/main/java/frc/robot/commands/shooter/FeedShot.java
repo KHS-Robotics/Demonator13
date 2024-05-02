@@ -12,20 +12,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveDrive;
 
-public class ShootSpeaker extends Command {
+public class FeedShot extends Command {
   SwerveDrive swerveDrive;
   Shooter shooter;
   Alliance color;
   boolean hasAlliance, hasNoteInitially;
   double targetX, targetY, targetZ;
-  final double v0 = 20;
+  final double v0 = 17;
   boolean goodTrajectory = true;
   public Timer timer;
   Rotation2d angleSetpoint;
 
-  public ShootSpeaker() {
+  public FeedShot() {
     this.addRequirements(RobotContainer.swerveDrive, RobotContainer.arm, RobotContainer.shooter);
     swerveDrive = RobotContainer.swerveDrive;
     shooter = RobotContainer.shooter;
@@ -49,13 +50,11 @@ public class ShootSpeaker extends Command {
 
     color = alliance.get();
     if (color == Alliance.Blue) {
-      targetX = 0.108472;
-      targetY = 5.543668;
-      targetZ = 2.05;
+      targetX = 1.905217;
+      targetY = 6.1;
     } else {
-      targetX = 16.452646;
-      targetY = 5.516698;
-      targetZ = 2.05;
+      targetX = 14.642417;
+      targetY = 6.1;
     }
     shooter.setVelocity(17);
 
@@ -68,8 +67,8 @@ public class ShootSpeaker extends Command {
     Translation2d vec = new Translation2d(targetX, targetY).minus(robotPose.getTranslation());
     // SmartDashboard.putNumber("targetx", targetX);
     // SmartDashboard.putNumber("targety", targetY);
-    double armAngle = Shooter.shooterTable.get(vec.getNorm());
-    RobotContainer.arm.setSetpoint(armAngle);
+    // double armAngle = Shooter.shooterTable.get(vec.getNorm());
+    RobotContainer.arm.setSetpoint(ArmState.kFeedFromCenter.rotations);
     SmartDashboard.putNumber("distance", vec.getNorm());
 
     angleSetpoint = Rotation2d.fromRadians(Math.atan2(vec.getY(), vec.getX())).plus(Rotation2d.fromDegrees(180));

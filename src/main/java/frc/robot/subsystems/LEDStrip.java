@@ -215,22 +215,28 @@ public class LEDStrip {
   // if there is a note flash on and off really fast, if there's not a note run
   // disabled pattern
   public void runIntake() {
-    ticksPerSecond = 50;
-    if (RobotContainer.shooter.hasNote() || RobotContainer.intake.hasNoteInside()) {
-      if (counter % 3 == 0) {
+    try {
+      ticksPerSecond = 50;
+      if (!RobotContainer.shooter.hasNote() && RobotContainer.intake.hasNoteInside()) {
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
-          setRGB(i, 255, 50, 0);
+          setRGB(i, 255, 30, 0);
+        }
+      } else if (RobotContainer.shooter.hasNote()) {
+        for (int i = 0; i < Constants.LED_LENGTH; i++) {
+          setRGB(i, 255, 255, 0);
+        }
+      } else if (RobotContainer.intakeCamera.getNearestNote().isPresent()) {
+        for (int i = 0; i < Constants.LED_LENGTH; i++) {
+          setRGB(i, 0, 100, 0);
         }
       } else {
+        // runSquareWave(new Color(255, 50, 0), -0.6f, 10f);
         for (int i = 0; i < Constants.LED_LENGTH; i++) {
-          setRGB(i, 255, 50, 0);
+          setRGB(i, 0, 0, 0);
         }
       }
-    } else {
-      // runSquareWave(new Color(255, 50, 0), -0.6f, 10f);
-      for (int i = 0; i < Constants.LED_LENGTH; i++) {
-        setRGB(i, 0, 0, 0);
-      }
+    } catch (Exception exception) {
+      exception.printStackTrace();
     }
   }
 
@@ -330,20 +336,22 @@ public class LEDStrip {
 
   private void updateState() {
     var isDisabled = RobotState.isDisabled();
-    // var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint == 15 || RobotContainer.shooter.veloctiySetpoint == 20;
-    // var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() - ArmState.kAmp.rotations) < 0.02;
+    // var isScoringSpeaker = RobotContainer.shooter.veloctiySetpoint == 15 ||
+    // RobotContainer.shooter.veloctiySetpoint == 20;
+    // var isScoringAmp = Math.abs(RobotContainer.arm.getPosition() -
+    // ArmState.kAmp.rotations) < 0.02;
     // var hasIntakeDeployed = RobotContainer.intake.isIntakeDown();
 
     // if (isScoringSpeaker)
-    //   state = LEDState.kShoot;
+    // state = LEDState.kShoot;
     // else if (isScoringAmp)
-    //   state = LEDState.kAmp;
+    // state = LEDState.kAmp;
     // else if (hasIntakeDeployed)
-    //   state = LEDState.kIntake;
+    // state = LEDState.kIntake;
     // else if (isDisabled)
-    //   state = LEDState.kDisabled;
-    // else 
-    //   state = LEDState.kStowed;
+    // state = LEDState.kDisabled;
+    // else
+    // state = LEDState.kStowed;
     if (isDisabled) {
       state = LEDState.kDisabled;
     } else {

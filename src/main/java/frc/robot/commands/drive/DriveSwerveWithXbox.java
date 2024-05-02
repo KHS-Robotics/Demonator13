@@ -1,6 +1,9 @@
 package frc.robot.commands.drive;
 /*----------------------------------------------------------------------------*/
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 /* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
@@ -9,7 +12,6 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.drive.SwerveDrive;
 
 public class DriveSwerveWithXbox extends Command {
@@ -55,8 +57,8 @@ public class DriveSwerveWithXbox extends Command {
           * SwerveDrive.kMaxAngularSpeedRadiansPerSecond;
     }
 
-    var sign = fieldRelative || RobotContainer.arm.rotationSetpoint == ArmState.kAmp.rotations ? 1 : -1;
-    RobotContainer.swerveDrive.drive(-xSpeed*sign, -ySpeed*sign, rot, fieldRelative);
+    var sign = fieldRelative && !DriverStation.getAlliance().isEmpty() && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1;
+    RobotContainer.swerveDrive.drive(sign*xSpeed, sign*ySpeed, rot, fieldRelative);
   }
 
   // Make this return true when this Command no longer needs to run execute()

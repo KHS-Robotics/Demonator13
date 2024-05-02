@@ -38,6 +38,8 @@ import frc.robot.commands.drive.AutoIntake;
 import frc.robot.commands.drive.AutoPickupNote;
 import frc.robot.commands.drive.DriveSwerveWithXbox;
 import frc.robot.commands.intake.SetIntakeState;
+import frc.robot.commands.shooter.CenterFeedShot;
+import frc.robot.commands.shooter.FeedShot;
 import frc.robot.commands.shooter.NoteVisible;
 import frc.robot.commands.shooter.RampShooter;
 import frc.robot.commands.shooter.ShootSpeaker;
@@ -207,6 +209,12 @@ public class RobotContainer {
     shootSpeaker.onFalse(new InstantCommand(() -> {
       // shooter.setVelocity(15);
     }));
+    
+    var feedShot = new Trigger(() -> driverController.getHID().getBButton() && shooter.hasNote());
+    feedShot.whileTrue(new FeedShot());
+
+    var centerFeedShot = new Trigger(() -> driverController.getHID().getYButton() && shooter.hasNote());
+    centerFeedShot.whileTrue(new CenterFeedShot());
   }
 
   /** Binds commands to the operator stick. */
@@ -366,26 +374,15 @@ public class RobotContainer {
     NamedCommands.registerCommand("LiftArmToDeployDemonHorns", new SetArmState(ArmState.kDeployDemonHorns));
     NamedCommands.registerCommand("SetArmAndShooterForIntake", intakeSetpointAndRun());
     NamedCommands.registerCommand("SetShootFromSubwoofer", new SetArmState(ArmState.kShootFromSubwooferAuto));
-    NamedCommands.registerCommand("SetArmForScore", new SetArmState(ArmState.kShoot).andThen(new WaitCommand(0.2)));
 
     // Intake + Indexing
     NamedCommands.registerCommand("AutoIntake", new AutoIntake());
     NamedCommands.registerCommand("AutoPickupNote", new AutoPickupNote());
     NamedCommands.registerCommand("NoteVisible", new NoteVisible());
     NamedCommands.registerCommand("HasNote", new WaitForNote().withTimeout(3));
-    NamedCommands.registerCommand("RetractIntake", new SetIntakeState(IntakeState.kUp));
     NamedCommands.registerCommand("DeployIntake", new SetIntakeState(IntakeState.kDown));
-    NamedCommands.registerCommand("StartIntake", new InstantCommand(() -> {
-      intake.intake();
-      shooter.index();
-    }, intake, shooter));
-    NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> {
-      intake.stop();
-      shooter.stopIndexer();
-    }, intake, shooter));
 
     // Shooting
-    NamedCommands.registerCommand("ShootSpeaker", new ShootSpeaker());
     NamedCommands.registerCommand("RampShooterForManualShot", new RampShooter(() -> 15));
     NamedCommands.registerCommand("Feed", feedCommand());
     NamedCommands.registerCommand("StopShooter", new InstantCommand(() -> shooter.stopShooting(), shooter));

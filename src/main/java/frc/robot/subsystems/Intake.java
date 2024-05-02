@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
     intakeMotor.setSmartCurrentLimit(20);
 
     pivotEncoder = pivotMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-    pivotEncoder.setZeroOffset(0.36);
+    pivotEncoder.setZeroOffset(0.43);
 
     pivotPositionController = new PIDController(kP, kI, kD);
     pivotPositionController.setTolerance(1);
@@ -116,9 +116,8 @@ public class Intake extends SubsystemBase {
   }
 
   public enum IntakeState {
-    kUp(0.43),
-    kMid(0.15),
-    kDown(0.01);
+    kUp(0.7),
+    kDown(0.25);
 
     public final double rotations;
 
